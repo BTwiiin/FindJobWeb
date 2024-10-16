@@ -18,10 +18,9 @@ public class JobPostController : Controller
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<JobPostDto>>> GetJobPosts()
+    public async Task<ActionResult<List<JobPostDto>>> GetJobPosts(string? date)
     {
-        var jobPosts = await _jobPostRepository.GetAllAsync();
-        return _mapper.Map<List<JobPostDto>>(jobPosts);
+        return await _jobPostRepository.GetAllAsync(date);
     }
 
     [HttpGet("{id}")]
