@@ -8,6 +8,7 @@ namespace SearchService.RequestHelpers
         public MappingProfiles()
         {
             CreateMap<Contracts.JobPostCreated, JobPost>();
+            CreateMap<Contracts.JobPostUpdated, JobPost>();
         }
     }
 }

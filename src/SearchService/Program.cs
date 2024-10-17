@@ -20,7 +20,13 @@ builder.Services.AddMassTransit(x =>
     x.SetEndpointNameFormatter(new KebabCaseEndpointNameFormatter("search-service", false));
 
     x.UsingRabbitMq((context, cfg) =>
-    {
+    {   
+        cfg.ReceiveEndpoint("job-post-created", e =>
+        {
+            e.UseMessageRetry(r => r.Interval(5, 5));
+            e.ConfigureConsumer<JobPostCreatedConsumer>(context);
+        });
+
         cfg.ConfigureEndpoints(context);
     });
 });

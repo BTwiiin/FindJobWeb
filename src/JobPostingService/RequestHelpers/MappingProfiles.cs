@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Contracts;
 
 namespace JobPostingService.RequestHelpers
 {
@@ -6,7 +7,8 @@ namespace JobPostingService.RequestHelpers
     {
         public MappingProfiles()
         {
-            CreateMap<Entities.JobPost, DTOs.JobPostDto>();
+            CreateMap<Entities.JobPost, DTOs.JobPostDto>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id)); ;
             CreateMap<DTOs.JobPostDto, Entities.JobPost>()
                 .ForMember(
                     dest => dest.Status,
@@ -18,6 +20,8 @@ namespace JobPostingService.RequestHelpers
                 );
             CreateMap<DTOs.CreateJobPostDto, Entities.JobPost>();
             CreateMap<DTOs.UpdateJobPostDto, Entities.JobPost>();
+            CreateMap<DTOs.JobPostDto, JobPostCreated>();
+            CreateMap<Entities.JobPost, JobPostUpdated>();
         }
     }
 }

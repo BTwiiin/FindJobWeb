@@ -1,7 +1,10 @@
 ﻿using AutoMapper;
+using Contracts;
 using JobPostingService.DTOs;
 using JobPostingService.Entities;
 using JobPostingService.Repository;
+using MassTransit;
+using MassTransit.Testing;
 using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
@@ -10,11 +13,13 @@ public class JobPostController : Controller
 {
     private readonly IJobPostRepository _jobPostRepository;
     private readonly IMapper _mapper;
+    private readonly IPublishEndpoint _publishEndpoint;
 
-    public JobPostController(IJobPostRepository jobPostRepository, IMapper mapper)
+    public JobPostController(IJobPostRepository jobPostRepository, IMapper mapper, IPublishEndpoint publishEndpoint)
     {
         _jobPostRepository = jobPostRepository;
         _mapper = mapper;
+        _publishEndpoint = publishEndpoint;
     }
 
     [HttpGet]
@@ -39,13 +44,18 @@ public class JobPostController : Controller
         jobPost.Employer = "Employer"; // TODO: Add current user as Employer
 
         await _jobPostRepository.AddAsync(jobPost);
+
+        var newJobPost = _mapper.Map<JobPostDto>(jobPost);
+
+        await _publishEndpoint.Publish(_mapper.Map<JobPostCreated>(newJobPost));
+
         var result = await _jobPostRepository.SaveChangesAsync();
 
         if (!result) return BadRequest("Could not save changes to the db");
 
         return CreatedAtAction(nameof(GetJobPostById),
             new { jobPost.Id },
-            _mapper.Map<JobPostDto>(jobPost));
+            newJobPost);
     }
 
     [HttpPut("{id}")]
@@ -71,6 +81,8 @@ public class JobPostController : Controller
             }
         }
 
+        await _publishEndpoint.Publish(_mapper.Map<JobPostUpdated>(jobPost));
+
         var result = await _jobPostRepository.SaveChangesAsync();
         if (result) return Ok();
         return BadRequest("Could not update data");
@@ -83,6 +95,9 @@ public class JobPostController : Controller
         if (jobPost == null) return NotFound();
 
         await _jobPostRepository.DeleteAsync(jobPost);
+
+        await _publishEndpoint.Publish<JobPostDeleted>(new { Id = jobPost.Id.ToString() });
+
         var result = await _jobPostRepository.SaveChangesAsync();
 
         if (result) return Ok();
