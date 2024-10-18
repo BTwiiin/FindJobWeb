@@ -5,6 +5,7 @@ using JobPostingService.Entities;
 using JobPostingService.Repository;
 using MassTransit;
 using MassTransit.Testing;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
@@ -37,11 +38,13 @@ public class JobPostController : Controller
         return _mapper.Map<JobPostDto>(jobPost);
     }
 
+    [Authorize]
     [HttpPost]
     public async Task<ActionResult<JobPostDto>> CreateJobPost(CreateJobPostDto createJobPostDto)
     {
         var jobPost = _mapper.Map<JobPost>(createJobPostDto);
-        jobPost.Employer = "Employer"; // TODO: Add current user as Employer
+
+        jobPost.Employer = User.Identity.Name; // TODO: Add current user as Employer
 
         await _jobPostRepository.AddAsync(jobPost);
 
@@ -58,11 +61,14 @@ public class JobPostController : Controller
             newJobPost);
     }
 
+    [Authorize]
     [HttpPut("{id}")]
     public async Task<ActionResult> UpdateJobPost(Guid id, UpdateJobPostDto updateJobPostDto)
     {
         var jobPost = await _jobPostRepository.GetByIdAsync(id);
         if (jobPost == null) return NotFound();
+
+        if(jobPost.Employer != User.Identity.Name) return Forbid();
 
         jobPost.Title = updateJobPostDto.Title ?? jobPost.Title;
         jobPost.Description = updateJobPostDto.Description ?? jobPost.Description;
@@ -88,11 +94,14 @@ public class JobPostController : Controller
         return BadRequest("Could not update data");
     }
 
+    [Authorize]
     [HttpDelete("{id}")]
     public async Task<ActionResult> DeleteJobPost(Guid id)
     {
         var jobPost = await _jobPostRepository.GetByIdAsync(id);
         if (jobPost == null) return NotFound();
+
+        if (jobPost.Employer != User.Identity.Name) return Forbid();
 
         await _jobPostRepository.DeleteAsync(jobPost);
 
