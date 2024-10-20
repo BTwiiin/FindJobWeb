@@ -5,6 +5,6 @@
         Open,
         Cancelled,
         Assigned,
-        Completed
+        Completed,
     }
 }

@@ -1,3 +1,5 @@
+using Contracts;
+using JobPostingService.Consumers;
 using JobPostingService.Data;
 using JobPostingService.Repository;
 using MassTransit;
@@ -18,6 +20,10 @@ builder.Services.AddMassTransit(x =>
         o.UsePostgres();
         o.UseBusOutbox();
     });
+
+    x.AddConsumersFromNamespaceContaining<JobPostTimedUpConsumer>();
+
+    x.SetEndpointNameFormatter(new KebabCaseEndpointNameFormatter("jobpost", false));
 
     x.UsingRabbitMq((context, cfg) =>
     {
