@@ -17,5 +17,7 @@ namespace JobPostingService.Entities
         public DateTime Deadline { get; set; }
         public Status Status { get; set; }
         public Category Category { get; set; }
+
+        public bool HasPaymentAmount() => PaymentAmount > 0;
     }
 }

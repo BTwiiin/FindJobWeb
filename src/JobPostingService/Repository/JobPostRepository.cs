@@ -16,7 +16,7 @@ namespace JobPostingService.Repository
             _context = context;
             _mapper = mapper;
         }
-        public async Task<List<JobPostDto>> GetAllAsync(string? date)
+        public async Task<List<JobPostDto>> GetAllAsync(string date)
         {
             var query = _context.JobPosts.OrderBy(x => x.CreatedAt).AsQueryable();
 
@@ -36,9 +36,10 @@ namespace JobPostingService.Repository
         {
             await _context.JobPosts.AddAsync(jobPost);
         }
-        public async Task DeleteAsync(JobPost jobPost)
+        public Task DeleteAsync(JobPost jobPost)
         {
             _context.JobPosts.Remove(jobPost);
+            return Task.CompletedTask;
         }
         public async Task<bool> SaveChangesAsync()
         {
