@@ -6,9 +6,10 @@ namespace JobPostingService.Repository
     public interface IJobPostRepository
     {
         Task<List<JobPostDto>> GetAllAsync(string date);
-        Task<JobPost> GetByIdAsync(Guid id);
-        Task AddAsync(JobPost jobPost);
-        Task DeleteAsync(JobPost jobPost);
+        Task<JobPostDto> GetByIdAsync(Guid id);
+        Task<JobPost> GetEntityByIdAsync(Guid id);
+        void AddJobPost(JobPost jobPost);
+        void DeleteJobPost(JobPost jobPost);
         Task<bool> SaveChangesAsync();
     }
 }

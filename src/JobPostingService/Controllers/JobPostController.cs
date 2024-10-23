@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using AutoMapper;
 using Contracts;
 using JobPostingService.DTOs;
 using JobPostingService.Entities;
@@ -7,6 +8,9 @@ using MassTransit;
 using MassTransit.Testing;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+
+namespace JobPostingService.Controllers;
+
 
 [ApiController]
 [Route("api/[controller]")]
@@ -44,9 +48,9 @@ public class JobPostController : Controller
     {
         var jobPost = _mapper.Map<JobPost>(createJobPostDto);
 
-        jobPost.Employer = User.Identity.Name; // TODO: Add current user as Employer
+        jobPost.Employer = User.Identity.Name;
 
-        await _jobPostRepository.AddAsync(jobPost);
+        _jobPostRepository.AddJobPost(jobPost);
 
         var newJobPost = _mapper.Map<JobPostDto>(jobPost);
 
@@ -65,10 +69,10 @@ public class JobPostController : Controller
     [HttpPut("{id}")]
     public async Task<ActionResult> UpdateJobPost(Guid id, UpdateJobPostDto updateJobPostDto)
     {
-        var jobPost = await _jobPostRepository.GetByIdAsync(id);
+        var jobPost = await _jobPostRepository.GetEntityByIdAsync(id);
         if (jobPost == null) return NotFound();
 
-        if(jobPost.Employer != User.Identity.Name) return Forbid();
+        if(jobPost.Employer != User.Identity?.Name) return Forbid();
 
         jobPost.Title = updateJobPostDto.Title ?? jobPost.Title;
         jobPost.Description = updateJobPostDto.Description ?? jobPost.Description;
@@ -98,12 +102,12 @@ public class JobPostController : Controller
     [HttpDelete("{id}")]
     public async Task<ActionResult> DeleteJobPost(Guid id)
     {
-        var jobPost = await _jobPostRepository.GetByIdAsync(id);
+        var jobPost = await _jobPostRepository.GetEntityByIdAsync(id);
         if (jobPost == null) return NotFound();
 
         if (jobPost.Employer != User.Identity.Name) return Forbid();
 
-        await _jobPostRepository.DeleteAsync(jobPost);
+        _jobPostRepository.DeleteJobPost(jobPost);
 
         await _publishEndpoint.Publish<JobPostDeleted>(new { Id = jobPost.Id.ToString() });
 

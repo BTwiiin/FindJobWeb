@@ -16,6 +16,7 @@ namespace JobPostingService.Repository
             _context = context;
             _mapper = mapper;
         }
+
         public async Task<List<JobPostDto>> GetAllAsync(string date)
         {
             var query = _context.JobPosts.OrderBy(x => x.CreatedAt).AsQueryable();
@@ -27,20 +28,29 @@ namespace JobPostingService.Repository
 
             return await query.ProjectTo<JobPostDto>(_mapper.ConfigurationProvider).ToListAsync();
         }
-        public async Task<JobPost> GetByIdAsync(Guid id)
+
+        public async Task<JobPostDto> GetByIdAsync(Guid id)
         {
             return await _context.JobPosts
+                .ProjectTo<JobPostDto>(_mapper.ConfigurationProvider)
                 .FirstOrDefaultAsync(x => x.Id == id);
         }
-        public async Task AddAsync(JobPost jobPost)
+
+        public async Task<JobPost> GetEntityByIdAsync(Guid id)
         {
-            await _context.JobPosts.AddAsync(jobPost);
+            return await _context.JobPosts.FirstOrDefaultAsync(x => x.Id == id);
         }
-        public Task DeleteAsync(JobPost jobPost)
+
+        public void AddJobPost(JobPost jobPost)
+        {
+            _context.JobPosts.Add(jobPost);
+        }
+
+        public void DeleteJobPost(JobPost jobPost)
         {
             _context.JobPosts.Remove(jobPost);
-            return Task.CompletedTask;
         }
+
         public async Task<bool> SaveChangesAsync()
         {
             return await _context.SaveChangesAsync() > 0;
