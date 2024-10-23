@@ -4,13 +4,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace JobPostingService.Data
 {
-    public class JobPostingDbContext : DbContext 
+    public class JobPostingDbContext(DbContextOptions options) : DbContext (options)
     {
-        public JobPostingDbContext(DbContextOptions<JobPostingDbContext> options) : base(options)
-        {
-        }
 
-        public DbSet<JobPost> JobPosts { get; set; }
+        public DbSet<JobPost> JobPosts { get; set; }    
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
