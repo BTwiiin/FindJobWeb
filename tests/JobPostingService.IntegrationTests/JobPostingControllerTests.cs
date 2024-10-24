@@ -7,7 +7,8 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace JobPostingService.IntegrationTests;
 
-public class JobPostingControllerTests : IClassFixture<CustomWebAppFactory>, IAsyncLifetime
+[Collection("SharedFixture")]
+public class JobPostingControllerTests : IAsyncLifetime
 {
     private readonly CustomWebAppFactory _factory;
     private readonly HttpClient _httpClient;
