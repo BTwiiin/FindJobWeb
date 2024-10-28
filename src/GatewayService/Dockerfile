@@ -4,12 +4,15 @@ EXPOSE 80
 
 # Copy all .csproj files and restore as distinct layers. Use of the same COPY command for every
 # dockerfile in the project to take advantage of docker caching
+
 COPY FindJob.sln FindJob.sln
 COPY src/JobPostingService/JobPostingService.csproj src/JobPostingService/JobPostingService.csproj
 COPY src/SearchService/SearchService.csproj src/SearchService/SearchService.csproj
 COPY src/GatewayService/GatewayService.csproj src/GatewayService/GatewayService.csproj
 COPY src/Contracts/Contracts.csproj src/Contracts/Contracts.csproj
 COPY src/IdentityService/IdentityService.csproj src/IdentityService/IdentityService.csproj
+COPY tests/JobPostingService.UnitTests/JobPostingService.UnitTests.csproj tests/JobPostingService.UnitTests/JobPostingService.UnitTests.csproj
+COPY tests/JobPostingService.IntegrationTests/JobPostingService.IntegrationTests.csproj tests/JobPostingService.IntegrationTests/JobPostingService.IntegrationTests.csproj
 
 # Restore package dependencies
 RUN dotnet restore FindJob.sln
