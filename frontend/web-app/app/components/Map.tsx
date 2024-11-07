@@ -1,10 +1,5 @@
-/* 
-Since the map was loaded on client side, 
-we need to make this component client rendered as well else error occurs
-*/
 'use client'
 
-//Map component Component from library
 import { GoogleMap } from "@react-google-maps/api";
 
 //Map's styling

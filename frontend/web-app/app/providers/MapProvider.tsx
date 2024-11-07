@@ -1,7 +1,5 @@
-//Since the map will be laoded and displayed on client side
 'use client';
 
-// Import necessary modules and functions from external libraries and our own project
 import { Libraries, useJsApiLoader } from '@react-google-maps/api';
 import { ReactNode } from 'react';
 
@@ -11,7 +9,6 @@ const libraries = ['places', 'drawing', 'geometry'];
 // Define a function component called MapProvider that takes a children prop
 export function MapProvider({ children }: { children: ReactNode }) {
 
-  // Load the Google Maps JavaScript API asynchronously
   const { isLoaded: scriptLoaded, loadError } = useJsApiLoader({
     // Only variables prefixed with NEXT_PUBLIC_ are exposed to the client side
     // Who could possible know???

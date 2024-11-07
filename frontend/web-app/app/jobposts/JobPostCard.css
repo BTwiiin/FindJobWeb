@@ -1,0 +1,58 @@
+.job-card {
+    display: flex;
+    justify-content: space-between;
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    margin: 3px;
+    padding: 16px;
+    height: 10%;
+    width: 100%; /* Adjust width as needed */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .job-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+  
+  .company-logo {
+    width: 50px;
+    height: 50px;
+    border-radius: 4px;
+    margin-right: 12px;
+    margin-top: 10px;
+  }
+  
+  .job-info h2 {
+    font-size: 1.1rem;
+    font-weight: bold;
+    margin: 0;
+  }
+  
+  .payment {
+    color: #27ae60;
+    font-weight: bold;
+    font-size: 1rem;
+    margin-top: auto;
+  }
+  
+  .job-details {
+    margin-top: 1%;
+    margin-inline: 1%;
+    align-content: start;
+  }
+  
+  .deadline,
+  .job-category {
+    font-size: 0.9rem;
+    color: #666;
+    margin: 4px 0;
+  }
+  
+  .deadline span,
+  .job-category span {
+    color: #333;
+    font-weight: 500;
+}
