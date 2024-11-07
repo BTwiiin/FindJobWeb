@@ -1,5 +1,6 @@
 import React from 'react'
 import {FaHammer} from 'react-icons/fa'
+import Search from './Search'
 
 export default function Navbar() {
   return (
@@ -13,7 +14,7 @@ export default function Navbar() {
         </div>
       </div>
       
-      <div>Search</div>
+      <Search />
       <div>Login</div>
     </header>
   )
