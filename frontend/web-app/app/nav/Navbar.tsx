@@ -10,6 +10,7 @@ export default function Navbar() {
       <Logo />
       
       <Search />
+
       <div>Login</div>
     </header>
   )

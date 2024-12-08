@@ -17,7 +17,7 @@ namespace SearchService.Services
         public async Task<List<JobPost>> GetJobPostsForSearchDb()
         {
             var lastUpdated = await DB.Find<JobPost, string>()
-                .Sort(x => x.Descending(x => x.UpdatedAt))
+                .Sort(x => x.Descending(x => x.PaymentAmount))
                 .Project(x => x.UpdatedAt.ToString())
                 .ExecuteFirstAsync();
             return await _httpClient.GetFromJsonAsync<List<JobPost>>(

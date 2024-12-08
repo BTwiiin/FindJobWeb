@@ -2,6 +2,7 @@ import { create } from 'zustand'
 
 type State = {
     searchTerm: string
+    pageSize: number
     searchValue: string
     orderBy: string
     filterBy: string
@@ -15,9 +16,10 @@ type Actions = {
 
 const initialState: State = {
     searchTerm: '',
+    pageSize: 100,
     searchValue: '',
-    orderBy: 'make',   // Default order by 'make'
-    filterBy: 'live',  // Default filter (can be adjusted based on your needs)
+    orderBy: 'new',   
+    filterBy: '', 
 }
 
 export const useParamsStore = create<State & Actions>()((set) => ({

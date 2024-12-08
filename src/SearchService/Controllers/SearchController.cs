@@ -49,12 +49,14 @@ namespace SearchService.Controllers
             {
                 "new" => query.Sort(x => x.Descending(a => a.CreatedAt)),
                 "paymentAmount" => query.Sort(x => x.Ascending(a => a.PaymentAmount)),
-                _ => query.Sort(x => x.Descending(a => a.CreatedAt))
+                _ => query.Sort(x => x.Descending(a => a.PaymentAmount))
             };
 
             // Set Pagination
             query.PageNumber(searchParams.PageNumber);
             query.PageSize(searchParams.PageSize);
+
+            Console.WriteLine($"OrderBy: {searchParams.OrderBy}");
 
             // Execute the query
             var result = await query.ExecuteAsync();

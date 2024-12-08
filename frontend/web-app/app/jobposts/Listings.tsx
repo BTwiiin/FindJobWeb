@@ -14,6 +14,7 @@ export default function Listings() {
   const [data, setData] = useState<PagedResult<JobPost>>();  // Set state to store fetched data
   const params = useParamsStore(useShallow(state => ({
       searchTerm: state.searchTerm,
+      pageSize: state.pageSize,
       searchValue: state.searchValue,
       orderBy: state.orderBy,
       filterBy: state.filterBy
@@ -25,6 +26,7 @@ export default function Listings() {
     url: '',
     query: {
         searchTerm: params.searchTerm,
+        pageSize: params.pageSize,
         searchValue: params.searchValue,
         orderBy: params.orderBy,
         filterBy: params.filterBy
@@ -41,9 +43,9 @@ export default function Listings() {
   if (data.results.length === 0) return <h3>No results found</h3>;
 
     return (
-    <div>
+      <div className="flex flex-wrap">
       {data && data.results.map((jobpost) => (
-        <JovPostCard jobPost={jobpost} key={jobpost.id}/>
+        <JovPostCard jobPost={jobpost} key={jobpost.id} />
       ))}
     </div>
   )

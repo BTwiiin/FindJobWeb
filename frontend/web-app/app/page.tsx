@@ -2,12 +2,18 @@ import Listings from './jobposts/Listings';
 import { MapComponent } from './components/Map';
 import { MapProvider } from './providers/MapProvider';
 import './globals.css';
+import Filters from './jobposts/Filters';
 
 export default async function Home() {
   return (
-    <div className="flex flex-row gap-4 h-screen">
-      <div className="flex-1 overflow-y-scroll h-full hide-scrollbar">
-        <h3 className="text-3xl font-semibold">Job Listings</h3>
+    <div className="flex flex-row gap-2 h-screen -mt-6">
+      <div className="flex-1 overflow-x-auto h-full hide-scrollbar">
+        <div className="flex">
+          <div className="flex-1 text-3xl">
+            Job Listings
+          </div>
+          <Filters />
+        </div>
           <Listings />
       </div>
       <div className="flex-1">
