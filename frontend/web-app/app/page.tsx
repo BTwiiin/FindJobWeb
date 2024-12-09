@@ -9,7 +9,7 @@ export default async function Home() {
     <div className="flex flex-row gap-2 h-screen -mt-6">
       <div className="flex-1 overflow-x-auto h-full hide-scrollbar">
         <div className="flex">
-          <div className="flex-1 text-3xl">
+          <div className="flex-1 text-3xl font-semibold text-gray-800">
             Job Listings
           </div>
           <Filters />

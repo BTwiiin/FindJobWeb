@@ -14,7 +14,22 @@ namespace SearchService.Controllers
         {
             var query = DB.PagedSearch<JobPost, JobPost>();
 
-            query.Sort(x => x.Descending(a => a.CreatedAt));
+            // var categoryMappings = new Dictionary<string, string>
+            // {
+            //     { "it", "IT" },
+            //     { "manuallabor", "ManualLabor" },
+            //     { "eventplanning", "EventPlanning" },
+            //     { "marketing", "Marketing" },
+            //     { "tutoring", "Tutoring" },
+            //     { "entertainment", "Entertainment" },
+            //     { "other", "Other" }
+            // };
+
+            // if (!string.IsNullOrEmpty(searchParams.FilterBy) && categoryMappings.ContainsKey(searchParams.FilterBy.ToLower()))
+            // {
+            //     var category = categoryMappings[searchParams.FilterBy.ToLower()];
+            //     query = query.Match(x => x.Category == category);
+            // }
 
             if (!string.IsNullOrEmpty(searchParams.FilterBy))
             {
@@ -48,15 +63,14 @@ namespace SearchService.Controllers
             query = searchParams.OrderBy switch
             {
                 "new" => query.Sort(x => x.Descending(a => a.CreatedAt)),
-                "paymentAmount" => query.Sort(x => x.Ascending(a => a.PaymentAmount)),
-                _ => query.Sort(x => x.Descending(a => a.PaymentAmount))
+                "paymentAmount" => query.Sort(x => x.Descending(a => a.PaymentAmount)),
+                _ => query.Sort(x => x.Descending(a => a.CreatedAt))
             };
 
             // Set Pagination
             query.PageNumber(searchParams.PageNumber);
             query.PageSize(searchParams.PageSize);
 
-            Console.WriteLine($"OrderBy: {searchParams.OrderBy}");
 
             // Execute the query
             var result = await query.ExecuteAsync();

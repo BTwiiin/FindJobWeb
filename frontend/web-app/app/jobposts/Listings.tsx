@@ -7,6 +7,7 @@ import { getData } from '@/app/actions/jobPostActions';
 import { useParamsStore } from '@/app/hooks/useParamsStore';
 import { useShallow } from 'zustand/shallow';
 import { PagedResult, JobPost } from '@/types';
+import EmptyFilter from '../components/EmptyFilter';
 
 
 
@@ -40,7 +41,7 @@ export default function Listings() {
   }, [url]);
 
   if (!data) return <h3>Loading...</h3>;
-  if (data.results.length === 0) return <h3>No results found</h3>;
+  if (data.results.length === 0) return <EmptyFilter />;
 
     return (
       <div className="flex flex-wrap">

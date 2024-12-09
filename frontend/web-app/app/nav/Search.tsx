@@ -41,11 +41,11 @@ export default function Search() {
                 <button>
                     <FaSearch size={34}
                         onClick={search} 
-                        className='bg-gray-700 text-white rounded-full p-2 cursor-pointer mx-2' 
+                        className='bg-gray-500 text-white rounded-full p-2 cursor-pointer mx-2' 
                     />
                 </button>
             </div>
-            <button className='bg-gray-700 text-white py-2 px-4 rounded-full ml-4' onClick={openModal}>
+            <button className='bg-gray-500 text-white py-2 px-4 rounded-full ml-4' onClick={openModal}>
                 Filters  &#709; 
             </button>
             <Modal/>
