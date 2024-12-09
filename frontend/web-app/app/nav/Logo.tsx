@@ -1,18 +1,24 @@
 'use client'
 
-import React from 'react'
-import { FaHammer } from 'react-icons/fa'
-import { useParamsStore } from '../hooks/useParamsStore';
+import { usePathname, useRouter } from 'next/navigation';
+import { useParamsStore } from '@/app/hooks/useParamsStore';
+import { FaHammer } from 'react-icons/fa';
 
-export default function Logo() {
-    const reset = useParamsStore(state => state.reset);
+export default function MyComponent() {
+  const reset = useParamsStore(state => state.reset);
+  const router = useRouter();
+  const pathname = usePathname();
 
-    return (
-        <div onClick={reset} className='cursor-pointer flex items-center gap-2 text-3xl font-semibold'>
-            <FaHammer size={34}/>
-            <div>
-                FindJob
-            </div>
-        </div>
-    )
+  const handleClick = () => {
+    if (pathname !== '/') router.push('/');  
+    reset(); 
+  };
+
+  return (
+    <div onClick={handleClick} className='cursor-pointer flex items-center gap-2 text-3xl font-semibold'>
+      <FaHammer size={34} />
+      <div>FindJob</div>
+    </div>
+  );
 }
+

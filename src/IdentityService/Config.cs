@@ -41,7 +41,8 @@ public static class Config
                 RedirectUris = {"http://localhost:3000/api/auth/callback/id-server"},
                 AllowOfflineAccess = true,
                 AllowedScopes = { "openid", "profile", "jobApp" },
-                AccessTokenLifetime = 3600*24*30 // Only for development purposes
+                AccessTokenLifetime = 3600*24*30, // Only for development purposes
+                AlwaysIncludeUserClaimsInIdToken = true,
             }
         };
 }
