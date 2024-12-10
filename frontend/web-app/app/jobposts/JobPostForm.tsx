@@ -1,12 +1,23 @@
 'use client'
 
-import { Button, TextInput } from 'flowbite-react'
+import { Button, Label, TextInput } from 'flowbite-react'
 import React, { useEffect } from 'react'
-import { Field, FieldValues, set, useForm } from 'react-hook-form'
+import { Controller, Field, FieldValues, set, useForm } from 'react-hook-form'
 import Input from '../components/Input'
 import DateInput from '../components/DateInput'
+import { createJobPost } from '../actions/jobPostActions'
+import { useRouter } from 'next/navigation'
+import Select from 'react-select'
+
+const options = [
+    { value: 'it', label: 'IT' },
+    { value: 'marketing', label: 'Marketing' },
+    { value: 'manuallabor', label: 'Manual Labor' },
+    { value: 'other', label: 'Other' }
+]
 
 export default function JobPostForm() {
+    const router = useRouter()
     const {control, handleSubmit, setFocus, 
         formState: {isSubmitting, isValid, isDirty, errors}} = useForm({
             mode: 'onTouched'
@@ -16,7 +27,19 @@ export default function JobPostForm() {
         setFocus('title')
     }, [setFocus])
     
-    function onSubmit(data: FieldValues) {
+    async function onSubmit(data: FieldValues) {
+        try{
+            const res = await createJobPost(data)
+            if (res.error) {
+                throw new Error(res.error)
+            }
+            router.push(`/jobposts/details/${res.id}`)
+        }
+        catch(error) {
+            console.log(error)
+        }
+    }
+    async function onSubmit_(data: FieldValues) {
         console.log(data)
     }
 
@@ -33,6 +56,32 @@ export default function JobPostForm() {
                 <DateInput label='Deadline' name='deadline' control={control}
                     dateFormat='dd MMMM YYYY h:mm a' showTimeSelect 
                     rules={{required: 'Deadline date is required'}}/>
+            </div>
+
+            {/* Select category dropdown */}
+            <div className="mb-4">
+                <Controller
+                    control={control}
+                    name="category"
+                    rules={{ required: 'Category is required' }}
+                    render={({ field: {onChange, value, name, ref }}) => (
+                        <Select
+                            ref={ref}
+                            classNamePrefix="addl-class"
+                            options={options}
+                            value={options.find(c => c.value === value)}
+                            onChange={(val) => {
+                                // Handle null value
+                                if (val) {
+                                  onChange(val.value);
+                                } else {
+                                  onChange(null); // Handle case where selection is cleared
+                                }
+                              }}
+                              placeholder="Select a category"
+                        />
+                    )}
+                />
             </div>
 
             <div className="flex justify-between gap-4">
