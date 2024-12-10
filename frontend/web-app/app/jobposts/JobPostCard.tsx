@@ -1,6 +1,7 @@
 import React from 'react';
 import './JobPostCard.css';
 import { JobPost } from '@/types';
+import Link from 'next/link';
 
 type Props = {
   jobPost: JobPost;
@@ -8,7 +9,7 @@ type Props = {
 
 export default function JobPostCard({ jobPost }: Props) {
   return (
-    <div className="job-card">
+    <Link href={`/jobposts/details/${jobPost.id}`} className="job-card">
       <div className="job-header">
         <img src="favicon.ico" alt={`${jobPost.title} Logo`} className="company-logo" />
       </div>
@@ -24,7 +25,7 @@ export default function JobPostCard({ jobPost }: Props) {
           Category: <span>{jobPost.category}</span>
         </div>
       </div>
-    </div>
+    </Link>
   );
 }
 

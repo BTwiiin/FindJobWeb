@@ -11,3 +11,16 @@
     -ms-overflow-style: none;  /* IE and Edge */
     scrollbar-width: none;     /* Firefox */
 }
+
+.react-datepicker-wrapper {
+    display: block;
+    width: 100%;
+}
+
+.react-datepicker__input-container {
+    width: 100%; /* Full width */
+  height: 48px; /* Set the height */
+  padding: 16px; /* Increase padding */
+  border: 2px solid lightgray; /* Blue border */
+  border-radius: 0.375rem; /* Rounded corners */
+}

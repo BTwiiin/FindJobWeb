@@ -18,20 +18,15 @@ export default function Listings() {
       pageSize: state.pageSize,
       searchValue: state.searchValue,
       orderBy: state.orderBy,
-      filterBy: state.filterBy
+      filterBy: state.filterBy,
+      employer: state.employer
   })));
 
   const setParams = useParamsStore(state => state.setParams);
 
   const url = qs.stringifyUrl({
     url: '',
-    query: {
-        searchTerm: params.searchTerm,
-        pageSize: params.pageSize,
-        searchValue: params.searchValue,
-        orderBy: params.orderBy,
-        filterBy: params.filterBy
-    }
+    query: params
   });
 
   useEffect(() => {

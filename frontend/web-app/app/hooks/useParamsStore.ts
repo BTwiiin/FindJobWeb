@@ -6,6 +6,7 @@ type State = {
     searchValue: string
     orderBy: string
     filterBy: string
+    employer?: string 
 }
 
 type Actions = {
@@ -19,7 +20,8 @@ const initialState: State = {
     pageSize: 100,
     searchValue: '',
     orderBy: 'new',   
-    filterBy: '', 
+    filterBy: '',
+    employer: undefined 
 }
 
 export const useParamsStore = create<State & Actions>()((set) => ({
