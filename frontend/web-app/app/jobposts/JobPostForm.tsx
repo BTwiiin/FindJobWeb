@@ -8,6 +8,7 @@ import DateInput from '../components/DateInput'
 import { createJobPost } from '../actions/jobPostActions'
 import { useRouter } from 'next/navigation'
 import Select from 'react-select'
+import toast from 'react-hot-toast'
 
 const options = [
     { value: 'it', label: 'IT' },
@@ -30,13 +31,15 @@ export default function JobPostForm() {
     async function onSubmit(data: FieldValues) {
         try{
             const res = await createJobPost(data)
+            console.log(res)
+            console.log(res.error)
             if (res.error) {
-                throw new Error(res.error)
+                throw res.error;
             }
             router.push(`/jobposts/details/${res.id}`)
         }
-        catch(error) {
-            console.log(error)
+        catch(error: any) {
+            toast.error(error.status + ' ' + error.message)
         }
     }
     async function onSubmit_(data: FieldValues) {

@@ -1,6 +1,6 @@
 'use client'
 
-import { GoogleMap } from "@react-google-maps/api";
+import { GoogleMap, useJsApiLoader } from "@react-google-maps/api";
 
 //Map's styling
 export const defaultMapContainerStyle = {
@@ -14,7 +14,6 @@ const defaultMapCenter = {
     lng: 19.1451
 }
 
-
 const defaultMapZoom = 6.3;
 
 //Map options
@@ -25,6 +24,7 @@ const defaultMapOptions = {
 };
 
 const MapComponent = () => {
+    
     return (
         <div className="w-full">
             <GoogleMap

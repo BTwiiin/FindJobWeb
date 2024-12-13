@@ -35,7 +35,6 @@
     color: #27ae60;
     font-weight: bold;
     font-size: 1rem;
-    margin-top: auto;
   }
   
   .job-details {
@@ -44,7 +43,7 @@
     align-content: start;
   }
   
-  .deadline,
+
   .job-category {
     font-size: 0.9rem;
     color: #666;

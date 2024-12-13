@@ -3,7 +3,6 @@
 import { fetchWrapper } from '@/lib/fetchWrapper';
 import { JobPost, PagedResult } from '@/types';
 import { Field, FieldValue, FieldValues } from 'react-hook-form';
-import { data } from 'react-router-dom';
 
 export async function getData(query: string): Promise<PagedResult<JobPost>> {
     console.log(query);
@@ -20,4 +19,13 @@ export async function updateJobTest() {
 
 export async function createJobPost(data: FieldValues) {
     return await fetchWrapper.post(`jobpost`, data);
+}
+
+export async function getJobPostById(id: string): Promise<JobPost> {
+    return await fetchWrapper.get(`jobpost/${id}`);
+}
+
+export async function getSimilarJobPosts(category: string): Promise<JobPost[]> {
+    const response = await fetchWrapper.get(`search?filterBy=${category}&pageSize=4`);
+    return response && response.results ? response.results : [];
 }

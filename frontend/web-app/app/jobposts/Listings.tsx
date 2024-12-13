@@ -8,6 +8,8 @@ import { useParamsStore } from '@/app/hooks/useParamsStore';
 import { useShallow } from 'zustand/shallow';
 import { PagedResult, JobPost } from '@/types';
 import EmptyFilter from '../components/EmptyFilter';
+import Loading from './loading';
+
 
 
 
@@ -35,7 +37,12 @@ export default function Listings() {
       })
   }, [url]);
 
-  if (!data) return <h3>Loading...</h3>;
+  if (!data) {
+    return (
+      <Loading />
+    );
+  }
+
   if (data.results.length === 0) return <EmptyFilter />;
 
     return (
