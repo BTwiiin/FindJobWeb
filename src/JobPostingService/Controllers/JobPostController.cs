@@ -81,7 +81,7 @@ public class JobPostController : Controller
 
         if (updateJobPostDto.Category != null)
         {
-            if (Enum.TryParse(updateJobPostDto.Category, out Category category))
+            if (Enum.TryParse(updateJobPostDto.Category, ignoreCase:true, out Category category))
             {
                 jobPost.Category = category;
             }

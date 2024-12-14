@@ -2,6 +2,7 @@
 
 import { fetchWrapper } from '@/lib/fetchWrapper';
 import { JobPost, PagedResult } from '@/types';
+import { revalidatePath } from 'next/cache';
 import { Field, FieldValue, FieldValues } from 'react-hook-form';
 
 export async function getData(query: string): Promise<PagedResult<JobPost>> {
@@ -28,4 +29,14 @@ export async function getJobPostById(id: string): Promise<JobPost> {
 export async function getSimilarJobPosts(category: string): Promise<JobPost[]> {
     const response = await fetchWrapper.get(`search?filterBy=${category}&pageSize=4`);
     return response && response.results ? response.results : [];
+}
+
+export async function updateJobPost(data: FieldValues, id: string) {
+    const res = await fetchWrapper.put(`jobpost/${id}`, data);
+    revalidatePath(`/jobposts/${id}`);
+    return res;
+}
+
+export async function deleteJobPost(id: string) {
+    return await fetchWrapper.del(`jobpost/${id}`);
 }

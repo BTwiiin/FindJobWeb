@@ -2,7 +2,7 @@ import Listings from './jobposts/Listings';
 import { MapComponent } from './components/Map';
 import { MapProvider } from './providers/MapProvider';
 import './globals.css';
-import Filters from './jobposts/Filters';
+import OrderBy from './jobposts/OrderBy';
 
 export default async function Home() {
   return (
@@ -13,7 +13,7 @@ export default async function Home() {
         <div className="flex-1 text-3xl font-semibold text-gray-800">
           Job Listings
         </div>
-        <Filters />
+        <OrderBy />
       </div>
     </div>
     <div className="mt-6"> {/* Margin to provide space for sticky content */}

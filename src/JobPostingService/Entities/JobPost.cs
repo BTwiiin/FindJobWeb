@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
-using System.Data.Common;
+using Microsoft.EntityFrameworkCore;
 
 namespace JobPostingService.Entities
 {
@@ -20,4 +20,5 @@ namespace JobPostingService.Entities
 
         public bool HasPaymentAmount() => PaymentAmount > 0;
     }
+
 }

@@ -2,15 +2,17 @@
 
 import { useParamsStore } from '@/app/hooks/useParamsStore' 
 import useModalStore from '@/app/hooks/useModalStore' 
-import React from 'react'
+import React, { useState } from 'react'
 import { FaSearch } from 'react-icons/fa'
-import Modal from '@/app/components/FiltersModal';
+import TemplateModal from '../components/TemplateModal'
+import Filters from '../jobposts/Filters'
+import { Button } from 'flowbite-react'
 
 export default function Search() {
     const setParams = useParamsStore(state => state.setParams);
     const setSearchValue = useParamsStore(state => state.setSearchValue);
     const searchValue = useParamsStore(state => state.searchValue);
-    const openModal = useModalStore((state) => state.openModal);
+    const [showModal, setShowModal] = useState(false);
 
     function onChange(event: any) {
         setSearchValue(event.target.value); 
@@ -38,17 +40,24 @@ export default function Search() {
                         text-gray-600
                     '
                 />
-                <button>
+                <Button>
                     <FaSearch size={34}
                         onClick={search} 
                         className='bg-gray-500 text-white rounded-full p-2 cursor-pointer mx-2' 
                     />
-                </button>
+                </Button>
             </div>
-            <button className='bg-gray-500 text-white py-2 px-4 rounded-full ml-4' onClick={openModal}>
+            <Button className='bg-gray-500 text-white py-2 px-4 rounded-full ml-4' onClick={() => setShowModal(true)}>
                 Filters  &#709; 
-            </button>
-            <Modal/>
+            </Button>
+            { showModal && 
+            (
+                <TemplateModal show={showModal}
+                            onClose={() => setShowModal(false)}
+                            title="Filters">
+                    <Filters />
+                </TemplateModal> 
+            )}
         </div>
     )
 }

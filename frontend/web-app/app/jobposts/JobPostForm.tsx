@@ -5,10 +5,15 @@ import React, { useEffect } from 'react'
 import { Controller, Field, FieldValues, set, useForm } from 'react-hook-form'
 import Input from '../components/Input'
 import DateInput from '../components/DateInput'
-import { createJobPost } from '../actions/jobPostActions'
-import { useRouter } from 'next/navigation'
+import { createJobPost, updateJobPost } from '../actions/jobPostActions'
+import { usePathname, useRouter } from 'next/navigation'
 import Select from 'react-select'
 import toast from 'react-hot-toast'
+import { JobPost } from '@/types'
+
+type Props = {
+    jobPost?: JobPost
+}
 
 const options = [
     { value: 'it', label: 'IT' },
@@ -17,33 +22,49 @@ const options = [
     { value: 'other', label: 'Other' }
 ]
 
-export default function JobPostForm() {
+export default function JobPostForm({jobPost}: Props) {
     const router = useRouter()
-    const {control, handleSubmit, setFocus, 
+    const pathname = usePathname()
+    const {control, handleSubmit, setFocus, reset,
         formState: {isSubmitting, isValid, isDirty, errors}} = useForm({
             mode: 'onTouched'
         });
 
     useEffect(() => {
-        setFocus('title')
-    }, [setFocus])
+        if (jobPost) {
+            const { title, description, paymentAmount, deadline, category } = jobPost;
+            reset({
+            title,
+            description,
+            paymentAmount,
+            deadline: deadline ? new Date(deadline) : null,
+            category: options.find(option => option.value === category)?.value || '',
+            });
+            setFocus('title');
+        }
+        }, [jobPost, reset, setFocus]);
     
     async function onSubmit(data: FieldValues) {
         try{
-            const res = await createJobPost(data)
-            console.log(res)
-            console.log(res.error)
+            let id = '';
+            let res;
+            if (pathname === '/jobposts/create') {
+                res = await createJobPost(data);
+                id = res.id;
+            } else {
+                if (jobPost) {
+                    res = await updateJobPost(data, jobPost.id);
+                    id = jobPost.id;
+                }
+            }
             if (res.error) {
                 throw res.error;
             }
-            router.push(`/jobposts/details/${res.id}`)
+            router.push(`/jobposts/details/${id}`)
         }
         catch(error: any) {
             toast.error(error.status + ' ' + error.message)
         }
-    }
-    async function onSubmit_(data: FieldValues) {
-        console.log(data)
     }
 
     return (
@@ -62,38 +83,34 @@ export default function JobPostForm() {
             </div>
 
             {/* Select category dropdown */}
-            <div className="mb-4">
-                <Controller
-                    control={control}
-                    name="category"
-                    rules={{ required: 'Category is required' }}
-                    render={({ field: {onChange, value, name, ref }}) => (
-                        <Select
-                            ref={ref}
-                            classNamePrefix="addl-class"
-                            options={options}
-                            value={options.find(c => c.value === value)}
-                            onChange={(val) => {
-                                // Handle null value
-                                if (val) {
-                                  onChange(val.value);
-                                } else {
-                                  onChange(null); // Handle case where selection is cleared
-                                }
-                              }}
-                              placeholder="Select a category"
-                        />
-                    )}
-                />
-            </div>
+            {pathname === '/jobposts/create' && (
+            <>
+                <div className="mb-4">
+                    <Controller
+                        control={control}
+                        name="category"
+                        rules={{ required: 'Category is required' }}
+                        render={({ field: {onChange, value, ref }}) => (
+                            <Select
+                                ref={ref}
+                                classNamePrefix="addl-class"
+                                options={options}
+                                value={options.find(option => option.value === value) || null} // Ensure value is an object
+                                onChange={val => onChange(val?.value || null)} // Pass only the value to t
+                                placeholder="Select a category"
+                            />
+                        )}
+                    />
+                </div>
+            </>)}
 
             <div className="flex justify-between gap-4">
-                <Button outline color='gray'>Cancel</Button>
+                <Button outline color='gray' onClick={() => router.back()}>Cancel</Button>
                 <Button 
                     isProcessing={isSubmitting}
                     disabled={!isValid} 
                     type='submit'
-                    outline color='success'>Create</Button>
+                    outline color='success'>Submit</Button>
             </div>
         </form>
   )

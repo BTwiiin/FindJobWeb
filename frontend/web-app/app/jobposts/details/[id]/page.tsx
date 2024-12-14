@@ -5,6 +5,9 @@ import SimilarJobCard from '../../SimilarJobCard';
 import { getCurrentUser } from '@/app/actions/authActions';
 import EditButton from './EditButton';
 import { Button } from 'flowbite-react';
+import DeleteButton from './DeleteButton';
+import ApplyForm from '../../ApplyForm';
+import EmptyFilter from '@/app/components/EmptyFilter';
 
 type Params = {
   params: Promise<{
@@ -91,19 +94,31 @@ export default async function Details(props: Params) {
       </div>
 
       {/* Actions */}
-      <div className="mt-8 flex space-x-4">
-        {/* This could be a link or a Button to apply */}
-        <Button className="px-6 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-all">
-          Apply Now
-        </Button>
+      <div className="mt-8 flex space-x-4 pb-3">
         {/* Another action, e.g. Save or Share */}
-        <Button className="px-6 py-2 bg-gray-100 text-gray-800 rounded-md hover:bg-gray-200 transition-all">
+        <Button className="px-6 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-200 transition-all">
           Save for Later
         </Button>
         {/* Edit Button */}
         {user?.username === data.employer && (
+          <>
           <EditButton id={data.id} />
+          <DeleteButton id={data.id} />
+          </>
         )}
+      </div>
+
+      {/*Apply Section*/}
+      <div>
+        <h2 className="text-xl font-semibold mb-2">Apply for this job!</h2>
+        {user !== null && user.username !== data.employer && (
+          <ApplyForm />
+        )}
+        {user === null && (
+          <EmptyFilter title='You need to be logged in order to submit application' 
+                      subtitle='Click below to login'
+                      showLogin />
+          )}
       </div>
 
       {/* Similar Jobs Section */}

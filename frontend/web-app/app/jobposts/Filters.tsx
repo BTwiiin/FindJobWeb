@@ -1,46 +1,71 @@
-'use client'
-
-import { useParamsStore } from '@/app/hooks/useParamsStore';
+import { useEffect, useState } from 'react';
+import useModalStore from '@/app/hooks/useModalStore';
+import { useParamsStore } from '../hooks/useParamsStore';
+import { IoIosCloseCircle, IoIosCloseCircleOutline } from "react-icons/io";
 import { Button } from 'flowbite-react';
-import React from 'react';
-import { AiOutlineClockCircle,} from 'react-icons/ai';
-import { TbPigMoney } from "react-icons/tb";
 
-const orderButtons = [ 
-    {
-        label: 'Payment Amount',
-        icon: TbPigMoney,
-        value: 'paymentAmount'
-    },
-    {
-        label: 'Recently Posted',
-        icon: AiOutlineClockCircle,
-        value: 'new'
-    }
-]
+const filterButtons = [
+  {
+    label: 'IT',
+    value: 'it',
+  },
+  {
+    label: 'Marketing',
+    value: 'marketing',
+  },
+  {
+    label: 'Manual Labor',
+    value: 'manuallabor',
+  },
+  {
+    label: 'Event Planning',
+    value: 'eventplanning',
+  },
+  {
+    label: 'Tutoring',
+    value: 'tutoring',
+  },
+  {
+    label: 'Entertainment',
+    value: 'entertainment',
+  },
+  {
+    label: 'Other',
+    value: 'other',
+  }
+];
 
-export default function Filters() {
+const Modal = () => {
     const setParams = useParamsStore((state) => state.setParams);
-    const orderBy = useParamsStore((state) => state.orderBy);
-
+    const filterBy = useParamsStore((state) => state.filterBy);
+    const reset = useParamsStore(state => state.reset);
+  
     return (
-        <div className='flex justify-between items-center mb-4'>
-            <Button.Group className='flex space-x-2'>
-                {orderButtons.map(({label, icon: Icon, value}) => (
-                    <Button
-                        key={value}
-                        onClick={() => setParams({orderBy: value})}
-                        className={`group relative flex items-stretch justify-center p-0.5 text-center font-medium transition-[color,background-color,
-                            border-color,text-decoration-color,fill,stroke] focus:z-10 focus:outline-none border border-gray-300 
-                            bg-white text-gray-900 focus:ring-0 enabled:hover:bg-gray-200 dark:border-gray-600 dark:bg-gray-600 
-                            dark:text-white dark:enabled:hover:border-gray-700 dark:enabled:hover:bg-gray-700 rounded-full
-                            ${orderBy === value ? 'bg-gray-500 text-white border-gray-500' : 'bg-white text-gray-900 border-gray-300'}`}
-                    >
-                        <Icon className='mr-1 h-5' />
-                        {label}
-                    </Button>
-                ))}
-            </Button.Group>
+        <div>
+          <div className="flex flex-col ">
+            Categories
+            {filterButtons.map(({ label, value }) => (
+              <label key={value} className="flex items-center w-full py-3 ms-2 text-sm font-medium text-gray-900 dark:text-gray-300 space-x-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={filterBy === value}
+                  onChange={() => setParams({ filterBy: value })}
+                  className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
+                />
+                <span className={`text-gray-700 ${filterBy === value ? 'font-semibold' : ''}`}>{label}</span>
+              </label>
+            ))}
+          </div>
+          <footer className='sticky flex justify-center'>
+            <Button
+              className="bg-gray-500 text-white py-2 px-4 rounded mt-4"
+              onClick={reset}
+            >
+              Reset filters
+            </Button>
+          </footer>
         </div>
-    )
-}
+    );
+  };
+  
+  export default Modal;
