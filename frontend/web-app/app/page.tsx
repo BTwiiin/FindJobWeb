@@ -23,9 +23,7 @@ export default async function Home() {
       <div className="flex-1">
         <h3 className="text-3xl font-semibold pb-3">Map</h3>
           <div className="sticky-container">
-            <MapProvider>
-              <MapComponent />
-            </MapProvider>
+            <MapComponent />
           </div>
       </div>
     </div>

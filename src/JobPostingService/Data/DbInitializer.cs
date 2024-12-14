@@ -37,7 +37,15 @@ namespace JobPostingService.Data
                     UpdatedAt = DateTime.UtcNow,
                     Deadline = DateTime.UtcNow.AddDays(7),
                     Status = Status.Open,
-                    Category = Category.IT
+                    Category = Category.IT,
+                    Location = new Location
+                    {
+                        City = "Warsaw",
+                        District = "Mokotów",
+                        Street = "Puławska 145",
+                        Latitude = 52.193,
+                        Longitude = 21.035
+                    }
                 },
                 new JobPost
                 {
@@ -51,7 +59,15 @@ namespace JobPostingService.Data
                     UpdatedAt = DateTime.UtcNow,
                     Deadline = DateTime.UtcNow.AddDays(3),
                     Status = Status.Open,
-                    Category = Category.ManualLabor
+                    Category = Category.ManualLabor,
+                    Location = new Location
+                    {
+                        City = "Warsaw",
+                        District = "Śródmieście",
+                        Street = "Marszałkowska 55",
+                        Latitude = 52.229,
+                        Longitude = 21.011
+                    }
                 },
                 new JobPost
                 {
@@ -65,7 +81,15 @@ namespace JobPostingService.Data
                     UpdatedAt = DateTime.UtcNow,
                     Deadline = DateTime.UtcNow.AddDays(5),
                     Status = Status.Open,
-                    Category = Category.EventPlanning
+                    Category = Category.EventPlanning,
+                    Location = new Location
+                    {
+                        City = "Warsaw",
+                        District = "Praga-Południe",
+                        Street = "Grochowska 45",
+                        Latitude = 52.243,
+                        Longitude = 21.078
+                    }
                 },
                 new JobPost
                 {
@@ -79,7 +103,15 @@ namespace JobPostingService.Data
                     UpdatedAt = DateTime.UtcNow,
                     Deadline = DateTime.UtcNow.AddDays(10),
                     Status = Status.Open,
-                    Category = Category.Marketing
+                    Category = Category.Marketing,
+                    Location = new Location
+                    {
+                        City = "Warsaw",
+                        District = "Wola",
+                        Street = "Żelazna 50",
+                        Latitude = 52.238,
+                        Longitude = 20.991
+                    }
                 },
                 new JobPost
                 {
@@ -93,8 +125,18 @@ namespace JobPostingService.Data
                     UpdatedAt = DateTime.UtcNow,
                     Deadline = DateTime.UtcNow.AddDays(14),
                     Status = Status.Open,
-                    Category = Category.Tutoring
+                    Category = Category.Tutoring,
+                    Location = new Location
+                    {
+                        City = "Warsaw",
+                        District = "Żoliborz",
+                        Street = "Słowackiego 10",
+                        Latitude = 52.271,
+                        Longitude = 20.982
+                    }
                 },
+
+
             };
 
             context.AddRange(jobposts);
