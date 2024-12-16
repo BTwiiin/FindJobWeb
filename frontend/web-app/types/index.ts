@@ -4,6 +4,15 @@ export type PagedResult<T> = {
     totalCount: number
 }
 
+export type Location = {
+    country: string;
+    city?: string;
+    district?: string;
+    street?: string;
+    latitude?: number;
+    longitude?: number;
+  };
+
 export type JobPost = {
     title: string
     description: string
@@ -15,5 +24,6 @@ export type JobPost = {
     deadline: string
     status: string
     category: string
+    location: Location
     id: string
 }

@@ -1,7 +1,7 @@
 'use client'
 
 import { Button, Label, TextInput } from 'flowbite-react'
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Controller, Field, FieldValues, set, useForm } from 'react-hook-form'
 import Input from '../components/Input'
 import DateInput from '../components/DateInput'
@@ -10,10 +10,20 @@ import { usePathname, useRouter } from 'next/navigation'
 import Select from 'react-select'
 import toast from 'react-hot-toast'
 import { JobPost } from '@/types'
+import LocationInput from '../components/LocationInput'
+import { useLocationStore } from '../hooks/useLocationStore'
 
 type Props = {
     jobPost?: JobPost
 }
+
+type Location = {
+    latitude: number;
+    longitude: number;
+    city: string;
+    country: string;
+    street: string;
+  };
 
 const options = [
     { value: 'it', label: 'IT' },
@@ -30,6 +40,8 @@ export default function JobPostForm({jobPost}: Props) {
             mode: 'onTouched'
         });
 
+    const { selectedLocation } = useLocationStore();
+
     useEffect(() => {
         if (jobPost) {
             const { title, description, paymentAmount, deadline, category } = jobPost;
@@ -43,29 +55,31 @@ export default function JobPostForm({jobPost}: Props) {
             setFocus('title');
         }
         }, [jobPost, reset, setFocus]);
-    
-    async function onSubmit(data: FieldValues) {
-        try{
-            let id = '';
-            let res;
-            if (pathname === '/jobposts/create') {
-                res = await createJobPost(data);
-                id = res.id;
-            } else {
-                if (jobPost) {
-                    res = await updateJobPost(data, jobPost.id);
-                    id = jobPost.id;
-                }
-            }
-            if (res.error) {
+
+        const onSubmit = async (data: any) => {
+            const payload = {
+              ...data,
+              location: selectedLocation // Use the selectedLocation from the store directly
+            };
+        
+            try {
+              let res;
+              if (pathname === '/jobposts/create') {
+                res = await createJobPost(payload);
+              } else {
+                // Assuming 'id' is passed or included in data for editing
+                res = await updateJobPost(payload, data.id);
+              }
+        
+              if (res.error) {
                 throw res.error;
+              }
+        
+              router.push(`/jobposts/details/${res.id}`);
+            } catch (error: any) {
+              console.error(error);
             }
-            router.push(`/jobposts/details/${id}`)
         }
-        catch(error: any) {
-            toast.error(error.status + ' ' + error.message)
-        }
-    }
 
     return (
         <form className="flex flex-col mt-3"onSubmit={handleSubmit(onSubmit)}>
@@ -103,6 +117,10 @@ export default function JobPostForm({jobPost}: Props) {
                     />
                 </div>
             </>)}
+
+            {/* Location Input */}
+            <LocationInput />
+
 
             <div className="flex justify-between gap-4">
                 <Button outline color='gray' onClick={() => router.back()}>Cancel</Button>

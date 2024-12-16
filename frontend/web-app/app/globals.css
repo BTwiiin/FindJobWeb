@@ -1,6 +1,12 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+@import 'leaflet/dist/leaflet.css';
+
+.map-box{
+    position: relative;
+    z-index: 0;
+}
 
 /* Target Webkit browsers (Chrome, Safari, Edge) */
 .hide-scrollbar::-webkit-scrollbar {

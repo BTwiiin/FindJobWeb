@@ -1,7 +1,7 @@
 import { getJobPostById, getSimilarJobPosts } from '@/app/actions/jobPostActions';
 import Heading from '@/app/components/Heading';
 import React from 'react';
-import SimilarJobCard from '../../SimilarJobCard';
+import SimilarJobCard from '../../cards/SimilarJobCard';
 import { getCurrentUser } from '@/app/actions/authActions';
 import EditButton from './EditButton';
 import { Button } from 'flowbite-react';
@@ -83,12 +83,12 @@ export default async function Details(props: Params) {
           <h3 className="font-semibold text-gray-600">Status</h3>
           <p
             className={
-              data.status.toLowerCase() === 'open'
+              data.status === 'Open'
                 ? 'text-green-600 font-medium'
                 : 'text-gray-500 font-medium'
             }
           >
-            {data.status}
+            {data?.status || 'Unknown'}
           </p>
         </div>
       </div>

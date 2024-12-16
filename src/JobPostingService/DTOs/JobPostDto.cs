@@ -15,5 +15,6 @@ namespace JobPostingService.DTOs
         public DateTime Deadline { get; set; }
         public string Status { get; set; }
         public string Category { get; set; }
+        public LocationDto Location { get; set; }
     }
 }

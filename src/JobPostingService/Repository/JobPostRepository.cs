@@ -19,7 +19,10 @@ namespace JobPostingService.Repository
 
         public async Task<List<JobPostDto>> GetAllAsync(string date)
         {
-            var query = _context.JobPosts.OrderBy(x => x.CreatedAt).AsQueryable();
+            var query = _context.JobPosts
+                .Include(x => x.Location)
+                .OrderBy(x => x.CreatedAt)
+                .AsQueryable();
 
             if (!string.IsNullOrEmpty(date))
             {
@@ -32,13 +35,16 @@ namespace JobPostingService.Repository
         public async Task<JobPostDto> GetByIdAsync(Guid id)
         {
             return await _context.JobPosts
+                .Include(x => x.Location)
                 .ProjectTo<JobPostDto>(_mapper.ConfigurationProvider)
                 .FirstOrDefaultAsync(x => x.Id == id);
         }
 
         public async Task<JobPost> GetEntityByIdAsync(Guid id)
         {
-            return await _context.JobPosts.FirstOrDefaultAsync(x => x.Id == id);
+            return await _context.JobPosts
+                .Include(x => x.Location)
+                .FirstOrDefaultAsync(x => x.Id == id);
         }
 
         public void AddJobPost(JobPost jobPost)

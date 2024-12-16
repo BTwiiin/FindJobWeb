@@ -65,6 +65,7 @@ public class JobPostController : Controller
             newJobPost);
     }
 
+
     [Authorize]
     [HttpPut("{id}")]
     public async Task<ActionResult> UpdateJobPost(Guid id, UpdateJobPostDto updateJobPostDto)
@@ -72,7 +73,7 @@ public class JobPostController : Controller
         var jobPost = await _jobPostRepository.GetEntityByIdAsync(id);
         if (jobPost == null) return NotFound();
 
-        if(jobPost.Employer != User.Identity?.Name) return Forbid();
+        if (jobPost.Employer != User.Identity?.Name) return Forbid();
 
         jobPost.Title = updateJobPostDto.Title ?? jobPost.Title;
         jobPost.Description = updateJobPostDto.Description ?? jobPost.Description;
@@ -81,7 +82,7 @@ public class JobPostController : Controller
 
         if (updateJobPostDto.Category != null)
         {
-            if (Enum.TryParse(updateJobPostDto.Category, ignoreCase:true, out Category category))
+            if (Enum.TryParse(updateJobPostDto.Category, ignoreCase: true, out Category category))
             {
                 jobPost.Category = category;
             }
@@ -91,12 +92,26 @@ public class JobPostController : Controller
             }
         }
 
+        if (updateJobPostDto.Location != null)
+        {
+            jobPost.Location.City = updateJobPostDto.Location.City ?? jobPost.Location.City;
+            jobPost.Location.District = updateJobPostDto.Location.District ?? jobPost.Location.District;
+            jobPost.Location.Street = updateJobPostDto.Location.Street ?? jobPost.Location.Street;
+            jobPost.Location.Latitude = updateJobPostDto.Location.Latitude != default
+                ? updateJobPostDto.Location.Latitude
+                : jobPost.Location.Latitude;
+            jobPost.Location.Longitude = updateJobPostDto.Location.Longitude != default
+                ? updateJobPostDto.Location.Longitude
+                : jobPost.Location.Longitude;
+        }
+
         await _publishEndpoint.Publish(_mapper.Map<JobPostUpdated>(jobPost));
 
         var result = await _jobPostRepository.SaveChangesAsync();
         if (result) return Ok();
         return BadRequest("Could not update data");
     }
+
 
     [Authorize]
     [HttpDelete("{id}")]

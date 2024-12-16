@@ -1,14 +1,14 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
-import JovPostCard from './JobPostCard'
+import JovPostCard from './cards/JobPostCard'
 import qs from 'query-string';
 import { getData } from '@/app/actions/jobPostActions';
 import { useParamsStore } from '@/app/hooks/useParamsStore';
 import { useShallow } from 'zustand/shallow';
 import { PagedResult, JobPost } from '@/types';
 import EmptyFilter from '../components/EmptyFilter';
-import Loading from './loading';
+import Loading from './Loading';
 
 
 

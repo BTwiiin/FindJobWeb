@@ -14,5 +14,16 @@ namespace SearchService.Models
         public DateTime Deadline { get; set; }
         public string Status { get; set; }
         public string Category { get; set; }
+        public Location Location { get; set; }
+    }
+    
+    public class Location
+    {
+        public string Country { get; set; }
+        public string City { get; set; }
+        public string District { get; set; }
+        public string Street { get; set; }
+        public double Latitude { get; set; }
+        public double Longitude { get; set; }
     }
 }

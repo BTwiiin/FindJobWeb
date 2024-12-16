@@ -8,5 +8,6 @@
         public int PaymentAmount { get; set; }
         public DateTime Deadline { get; set; }
         public string Category { get; set; }
+        public LocationDto Location { get; set; }
     }
 }

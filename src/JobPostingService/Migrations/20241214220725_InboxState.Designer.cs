@@ -9,11 +9,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace JobPostingService.Data.Migrations
+namespace JobPostingService.Migrations
 {
     [DbContext(typeof(JobPostingDbContext))]
-    [Migration("20241017122111_Outbox")]
-    partial class Outbox
+    [Migration("20241214220725_InboxState")]
+    partial class InboxState
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -232,6 +232,42 @@ namespace JobPostingService.Data.Migrations
                     b.HasIndex("Created");
 
                     b.ToTable("OutboxState");
+                });
+
+            modelBuilder.Entity("JobPostingService.Entities.JobPost", b =>
+                {
+                    b.OwnsOne("JobPostingService.Entities.Location", "Location", b1 =>
+                        {
+                            b1.Property<Guid>("JobPostId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("City")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Country")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("District")
+                                .HasColumnType("text");
+
+                            b1.Property<double>("Latitude")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("Longitude")
+                                .HasColumnType("double precision");
+
+                            b1.Property<string>("Street")
+                                .HasColumnType("text");
+
+                            b1.HasKey("JobPostId");
+
+                            b1.ToTable("JobPosts");
+
+                            b1.WithOwner()
+                                .HasForeignKey("JobPostId");
+                        });
+
+                    b.Navigation("Location");
                 });
 
             modelBuilder.Entity("MassTransit.EntityFrameworkCoreIntegration.OutboxMessage", b =>
