@@ -56,30 +56,35 @@ export default function JobPostForm({jobPost}: Props) {
         }
         }, [jobPost, reset, setFocus]);
 
-        const onSubmit = async (data: any) => {
+        async function onSubmit(data: FieldValues) {
             const payload = {
               ...data,
-              location: selectedLocation // Use the selectedLocation from the store directly
+              location: selectedLocation
             };
-        
+          
             try {
+              let id = '';
               let res;
               if (pathname === '/jobposts/create') {
                 res = await createJobPost(payload);
+                id = res.id;
               } else {
-                // Assuming 'id' is passed or included in data for editing
-                res = await updateJobPost(payload, data.id);
+                if (jobPost) {
+                  console.log(`Payload ===> ${payload}`);
+                  res = await updateJobPost(payload, jobPost.id);
+                  id = jobPost.id;
+                }
               }
-        
+          
               if (res.error) {
                 throw res.error;
               }
-        
-              router.push(`/jobposts/details/${res.id}`);
+          
+              router.push(`/jobposts/details/${id}`);
             } catch (error: any) {
-              console.error(error);
+              toast.error(error.status + ' ' + error.message);
             }
-        }
+          }
 
     return (
         <form className="flex flex-col mt-3"onSubmit={handleSubmit(onSubmit)}>
@@ -97,26 +102,24 @@ export default function JobPostForm({jobPost}: Props) {
             </div>
 
             {/* Select category dropdown */}
-            {pathname === '/jobposts/create' && (
-            <>
-                <div className="mb-4">
-                    <Controller
-                        control={control}
-                        name="category"
-                        rules={{ required: 'Category is required' }}
-                        render={({ field: {onChange, value, ref }}) => (
-                            <Select
-                                ref={ref}
-                                classNamePrefix="addl-class"
-                                options={options}
-                                value={options.find(option => option.value === value) || null} // Ensure value is an object
-                                onChange={val => onChange(val?.value || null)} // Pass only the value to t
-                                placeholder="Select a category"
-                            />
-                        )}
-                    />
-                </div>
-            </>)}
+            <div className="mb-4">
+                <Controller
+                    control={control}
+                    name="category"
+                    rules={{ required: 'Category is required' }}
+                    render={({ field: {onChange, value, ref }}) => (
+                        <Select
+                            ref={ref}
+                            classNamePrefix="addl-class"
+                            options={options}
+                            value={options.find(option => option.value === value) || null} // Ensure value is an object
+                            onChange={val => onChange(val?.value || null)} // Pass only the value to t
+                            placeholder="Select a category"
+                        />
+                    )}
+                />
+            </div>
+            
 
             {/* Location Input */}
             <LocationInput />

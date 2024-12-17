@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
 using Contracts;
+using JobPostingService.DTOs;
+using JobPostingService.Entities;
 
 namespace JobPostingService.RequestHelpers
 {
@@ -7,24 +9,28 @@ namespace JobPostingService.RequestHelpers
     {
         public MappingProfile()
         {
-            CreateMap<DTOs.JobPostDto, Entities.JobPost>()
-                .ForMember(dest => dest.Status, opt => opt.MapFrom<StatusResolver>()) // Use the StatusResolver
-                .ForMember(dest => dest.Category, opt => opt.MapFrom<CategoryResolver>()); // Use the CategoryResolver
+            // Mapping: DTO -> Entity
+            CreateMap<JobPostDto, JobPost>()
+                .ForMember(dest => dest.Status, opt => opt.MapFrom<StatusResolver>()) // Custom Status resolver
+                .ForMember(dest => dest.Category, opt => opt.MapFrom<CategoryResolver>()); // Custom Category resolver
 
-            // Other mappings
-            CreateMap<Entities.JobPost, DTOs.JobPostDto>()
+            CreateMap<CreateJobPostDto, JobPost>();
+
+            CreateMap<UpdateJobPostDto, JobPost>();
+
+            // Mapping: Entity -> DTO
+            CreateMap<JobPost, JobPostDto>()
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()))
                 .ForMember(dest => dest.Category, opt => opt.MapFrom(src => src.Category.ToString()));
 
-            CreateMap<DTOs.CreateJobPostDto, Entities.JobPost>();
-            CreateMap<DTOs.UpdateJobPostDto, Entities.JobPost>()
+            // Event Mappings
+            CreateMap<JobPost, JobPostUpdated>()
+                .ForMember(dest => dest.Location, opt => opt.MapFrom(src => src.Location)); // Explicit Location mapping
+
+            CreateMap<JobPost, JobPostCreated>()
                 .ForMember(dest => dest.Location, opt => opt.MapFrom(src => src.Location));
 
-            CreateMap<Entities.Location, LocationDto>().ReverseMap();
-            CreateMap<Entities.JobPost, JobPostUpdated>();
-            CreateMap<Entities.JobPost, JobPostCreated>();
-
-            CreateMap<DTOs.JobPostDto, Contracts.JobPostCreated>()
+            CreateMap<JobPostDto, JobPostCreated>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Title))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
@@ -35,27 +41,27 @@ namespace JobPostingService.RequestHelpers
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
                 .ForMember(dest => dest.Location, opt => opt.MapFrom(src => src.Location));
 
-            CreateMap<LocationDto, Contracts.LocationDto>().ReverseMap();
-            
+            // Location Mappings
+            CreateMap<Entities.Location, Contracts.LocationDto>().ReverseMap();
+            CreateMap<DTOs.LocationDto, Entities.Location>().ReverseMap();
+            CreateMap<DTOs.LocationDto, Contracts.LocationDto>().ReverseMap();
         }
     }
 
-
-    public class StatusResolver : IValueResolver<DTOs.JobPostDto, Entities.JobPost, Entities.Status>
+    // Custom resolvers for Status and Category
+    public class StatusResolver : IValueResolver<JobPostDto, JobPost, Status>
     {
-        public Entities.Status Resolve(DTOs.JobPostDto source, Entities.JobPost destination, Entities.Status destMember, ResolutionContext context)
+        public Status Resolve(JobPostDto source, JobPost destination, Status destMember, ResolutionContext context)
         {
-            return Enum.TryParse<Entities.Status>(source.Status, true, out var status) ? status : Entities.Status.Open;
+            return Enum.TryParse<Status>(source.Status, true, out var status) ? status : Status.Open;
         }
     }
 
-    public class CategoryResolver : IValueResolver<DTOs.JobPostDto, Entities.JobPost, Entities.Category>
+    public class CategoryResolver : IValueResolver<JobPostDto, JobPost, Category>
     {
-        public Entities.Category Resolve(DTOs.JobPostDto source, Entities.JobPost destination, Entities.Category destMember, ResolutionContext context)
+        public Category Resolve(JobPostDto source, JobPost destination, Category destMember, ResolutionContext context)
         {
-            return Enum.TryParse<Entities.Category>(source.Category, true, out var category) ? category : Entities.Category.Other;
+            return Enum.TryParse<Category>(source.Category, true, out var category) ? category : Category.Other;
         }
     }
-
-
 }

@@ -29,7 +29,8 @@ namespace SearchService.Consumers
                          x.Description,
                          x.PaymentAmount,
                          x.Deadline,
-                         x.Category
+                         x.Category,
+                         x.Location
                      }, item)
                      .ExecuteAsync();
 

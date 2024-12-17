@@ -47,10 +47,21 @@ export default function JobPostCard({ jobPost }: Props) {
         <p className={` mb-1 m-0 p-0  ${deadlineColorClass}`}>
           Apply by: <span>{deadline.toLocaleString()}</span>
         </p>
-        <p className="flex items-center mb-1 m-0 p-0">
+        <div className="flex items-center mb-1 m-0 p-0">
           <CiLocationOn className="mr-2 text-lg" />
-          {jobPost.location.district}, {jobPost.location.city}, {jobPost.location.country}
-        </p>
+          {/* Null-safe rendering for location properties */}
+          {location ? (
+            <p className="text-sm text-gray-600">
+              Location:
+              {jobPost.location.city ? ` ${jobPost.location.city},` : ' N/A'}
+              {jobPost.location.district ? ` ${jobPost.location.district},` : ''}
+              {jobPost.location.street ? ` ${jobPost.location.street}` : ' N/A'}
+            </p>
+          ) : (
+            <p className="text-sm text-gray-500">Location: Not provided</p>
+          )}
+
+        </div>
       </div>
 
        {/* Job Details */}

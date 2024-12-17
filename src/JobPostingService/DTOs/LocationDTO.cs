@@ -1,3 +1,4 @@
+namespace JobPostingService.DTOs;
 public class LocationDto
 {
     public string Country { get; set; } = "Poland";

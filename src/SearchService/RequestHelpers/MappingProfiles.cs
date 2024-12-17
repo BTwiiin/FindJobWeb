@@ -9,6 +9,7 @@ namespace SearchService.RequestHelpers
         {
             CreateMap<Contracts.JobPostCreated, JobPost>();
             CreateMap<Contracts.JobPostUpdated, JobPost>();
+            CreateMap<Contracts.LocationDto, Location>();
         }
     }
 }
