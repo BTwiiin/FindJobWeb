@@ -90,14 +90,21 @@ Services communicate through an **event-driven model** using RabbitMQ. This deco
    ```bash
    docker-compose up
    ```
-4. **Access the Application**
+4. **Install required packages and run client side**
+   ```bash
+   npm install
+   ```
+   ```bash
+   npm run dev
+   ```
+5. **Access the Application**
    - Frontend: `http://localhost:3000` (or specified port)
    - Gateway: `http://localhost:6000` (or specified port)
 
 ## Future Enhancements
-- Complete implementation of the notification and bidding services.
+- Complete implementation of the notifications.
 - Add support for multilingual interfaces.
-- Optimize database queries for faster search results.
+- Change Search Service to Elasticsearch
 
 ## Screenshots
 
