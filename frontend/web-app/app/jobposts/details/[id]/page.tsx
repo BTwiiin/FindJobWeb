@@ -8,6 +8,8 @@ import { Button } from 'flowbite-react';
 import DeleteButton from './DeleteButton';
 import ApplyForm from '../../ApplyForm';
 import EmptyFilter from '@/app/components/EmptyFilter';
+import MapComponent from './MapComponent';
+
 
 type Params = {
   params: Promise<{
@@ -19,8 +21,6 @@ export default async function Details(props: Params) {
   const params = await props.params;
   const data = await getJobPostById(params.id);
   const user = await getCurrentUser();
-
-  // TODO: Exclude the current job post from the similar jobs
 
   const similarJobs = await getSimilarJobPosts(data.category);
   for (const job of similarJobs) {
@@ -90,6 +90,13 @@ export default async function Details(props: Params) {
           >
             {data?.status || 'Unknown'}
           </p>
+        </div>
+        {/* Small Map Section */}
+        <div className="map-box col-span-2 md:col-span-1">
+          <h3 className="font-semibold text-gray-600">Location</h3>
+          <MapComponent latitude={data.location.latitude as number}
+                        longitude={data.location.longitude as number}            
+          />
         </div>
       </div>
 

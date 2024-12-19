@@ -9,6 +9,9 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
+    "@mui/material": "^6.2.1",
     "@react-google-maps/api": "^2.20.3",
     "flowbite-react": "^0.10.2",
     "leaflet": "^1.9.4",
@@ -35,7 +38,7 @@
     "@types/lodash.debounce": "^4.0.9",
     "@types/node": "^20",
     "@types/qs": "^6.9.17",
-    "@types/react": "^18",
+    "@types/react": "^18.3.17",
     "@types/react-dom": "^18",
     "eslint": "^8",
     "eslint-config-next": "15.0.1",

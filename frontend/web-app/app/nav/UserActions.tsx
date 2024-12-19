@@ -28,26 +28,26 @@ export default function UserActions({user}: Props) {
 
     return (
         <Dropdown inline label={`Welcome ${user.name}`}>
-            <Dropdown.Item icon={HiUser}>
-                <Link href="/">
-                    Profile
-                </Link>
+            <Dropdown.Item icon={HiUser} className='hover:scale-105'>
+            <Link href="/">
+                Profile
+            </Link>
             </Dropdown.Item>
-            <Dropdown.Item icon={IoCreateOutline}>
-                <Link href="/jobposts/create">
-                    Create
-                </Link>
+            <Dropdown.Item icon={IoCreateOutline} className='hover:scale-105'>
+            <Link href="/jobposts/create">
+                Create
+            </Link>
             </Dropdown.Item>
-            <Dropdown.Item icon={BsFilePostFill} onClick={setEmployer}>
-                    My Posts
+            <Dropdown.Item icon={BsFilePostFill} onClick={setEmployer} className='hover:scale-105'>
+                My Posts
             </Dropdown.Item>
-            <Dropdown.Item icon={HiCog}>
-                <Link href="/session">
-                    Session
-                </Link>
+            <Dropdown.Item icon={HiCog} className='hover:scale-105'>
+            <Link href="/session">
+                Session
+            </Link>
             </Dropdown.Item>
             <DropdownDivider />
-            <DropdownItem icon={AiOutlineLogout} onClick={() => signOut({callbackUrl: '/'})}>
+            <DropdownItem icon={AiOutlineLogout} onClick={() => signOut({callbackUrl: '/'})} className='hover:scale-105'>
                 Sign Out
             </DropdownItem>
         </Dropdown>

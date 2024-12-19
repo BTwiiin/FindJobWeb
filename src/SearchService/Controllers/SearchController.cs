@@ -14,23 +14,7 @@ namespace SearchService.Controllers
         {
             var query = DB.PagedSearch<JobPost, JobPost>();
 
-            // var categoryMappings = new Dictionary<string, string>
-            // {
-            //     { "it", "IT" },
-            //     { "manuallabor", "ManualLabor" },
-            //     { "eventplanning", "EventPlanning" },
-            //     { "marketing", "Marketing" },
-            //     { "tutoring", "Tutoring" },
-            //     { "entertainment", "Entertainment" },
-            //     { "other", "Other" }
-            // };
-
-            // if (!string.IsNullOrEmpty(searchParams.FilterBy) && categoryMappings.ContainsKey(searchParams.FilterBy.ToLower()))
-            // {
-            //     var category = categoryMappings[searchParams.FilterBy.ToLower()];
-            //     query = query.Match(x => x.Category == category);
-            // }
-
+            // Filter by category
             if (!string.IsNullOrEmpty(searchParams.FilterBy))
             {
                 query = searchParams.FilterBy.ToLower() switch
@@ -46,20 +30,29 @@ namespace SearchService.Controllers
                 };
             }
 
+            // Full-text search by search term
             if (!string.IsNullOrEmpty(searchParams.SearchTerm))
             {
                 if (searchParams.SearchTerm.Length <= 2)
                 {
-                    // Match exact Category if the search term is 2 characters or less (e.g., "IT")
                     query.Match(x => x.Category.ToLower() == searchParams.SearchTerm.ToLower());
                 }
                 else
                 {
-                    // Full-text search when search term is longer
                     query.Match(Search.Full, searchParams.SearchTerm).SortByTextScore();
                 }
             }
 
+            // Filter by salary range
+            if (searchParams.MinSalary.HasValue || searchParams.MaxSalary.HasValue)
+            {
+                query = query.Match(x =>
+                    (!searchParams.MinSalary.HasValue || x.PaymentAmount >= searchParams.MinSalary.Value) &&
+                    (!searchParams.MaxSalary.HasValue || x.PaymentAmount <= searchParams.MaxSalary.Value)
+                );
+            }
+
+            // Sort by order
             query = searchParams.OrderBy switch
             {
                 "new" => query.Sort(x => x.Descending(a => a.CreatedAt)),
@@ -70,7 +63,6 @@ namespace SearchService.Controllers
             // Set Pagination
             query.PageNumber(searchParams.PageNumber);
             query.PageSize(searchParams.PageSize);
-
 
             // Execute the query
             var result = await query.ExecuteAsync();

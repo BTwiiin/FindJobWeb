@@ -1,6 +1,7 @@
 import { JobPost } from '@/types';
 import React from 'react'
 import Link from 'next/link';
+import { useJobHoverStore } from '@/app/hooks/useJobHoverStore';
 
 type Props = {
   jobPost: JobPost;

@@ -21,7 +21,9 @@ export default function Listings() {
       searchValue: state.searchValue,
       orderBy: state.orderBy,
       filterBy: state.filterBy,
-      employer: state.employer
+      employer: state.employer,
+      minSalary: state.minSalary,
+      maxSalary: state.maxSalary
   })));
 
   const setParams = useParamsStore(state => state.setParams);

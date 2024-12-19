@@ -13,7 +13,7 @@ import MapJobPostCard from '@/app/jobposts/cards/MapJobPostCard';
 import { useJobHoverStore } from '@/app/hooks/useJobHoverStore';
 import MarkerClusterGroup from 'react-leaflet-cluster';
 
-// Map styling
+
 export const defaultMapContainerStyle = {
   width: '100%',
   height: '80vh',
@@ -34,6 +34,7 @@ const hoverIcon = new L.Icon({
   popupAnchor: [0, -48],
 });
 
+
 const defaultMapCenter: [number, number] = [51.9194, 19.1451]; // Ensure center is a tuple
 const defaultMapZoom = 6.3;
 
@@ -49,19 +50,20 @@ const MapComponent = () => {
         employer: state.employer
     })));
   
-    const setParams = useParamsStore(state => state.setParams);
-  
-    const url = qs.stringifyUrl({
-      url: '',
-      query: params
-    });
-  
-    useEffect(() => {
-        getData(url).then(data => {
-            setData(data);
-        })
-    }, [url]);
+  const setParams = useParamsStore(state => state.setParams);
 
+  const url = qs.stringifyUrl({
+    url: '',
+    query: params
+  });
+
+  useEffect(() => {
+    
+    getData(url).then(data => {
+        setData(data);
+    })
+  }, [url]);
+  
 
   return (
     <div style={{ zIndex: 10 }} className="w-full">

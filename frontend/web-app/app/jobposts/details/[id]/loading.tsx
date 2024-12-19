@@ -53,6 +53,12 @@ export default function Loading() {
         <div className="h-10 bg-gray-200 rounded w-32"></div>
       </div>
 
+      {/* Map Placeholder */}
+      <div className="mt-8 w-[40%]">
+        <h3 className="text-gray-500 text-sm mb-2">Location Map</h3>
+        <div className="h-64 bg-gray-200 rounded-lg shadow-md"></div>
+      </div>
+
       {/* Similar Jobs Section */}
       <div className="mt-12">
         <div className="h-6 bg-gray-200 rounded w-1/3 mb-4"></div>

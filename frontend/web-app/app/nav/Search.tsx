@@ -1,7 +1,6 @@
 'use client'
 
 import { useParamsStore } from '@/app/hooks/useParamsStore' 
-import useModalStore from '@/app/hooks/useModalStore' 
 import React, { useState } from 'react'
 import { FaSearch } from 'react-icons/fa'
 import TemplateModal from '../components/TemplateModal'
