@@ -14,9 +14,10 @@ import { useJobHoverStore } from '@/app/hooks/useJobHoverStore';
 import MarkerClusterGroup from 'react-leaflet-cluster';
 
 
+
 export const defaultMapContainerStyle = {
   width: '100%',
-  height: '80vh',
+  height: '87vh',
   borderRadius: '15px 0px 0px 15px',
 };
 
@@ -41,28 +42,27 @@ const defaultMapZoom = 6.3;
 const MapComponent = () => {
   const hoveredJobPostId = useJobHoverStore((state) => state.hoveredJobPostId);
   const [data, setData] = useState<PagedResult<JobPost>>();  // Set state to store fetched data
-    const params = useParamsStore(useShallow(state => ({
-        searchTerm: state.searchTerm,
-        pageSize: state.pageSize,
-        searchValue: state.searchValue,
-        orderBy: state.orderBy,
-        filterBy: state.filterBy,
-        employer: state.employer
-    })));
   
-  const setParams = useParamsStore(state => state.setParams);
+  const params = useParamsStore(useShallow(state => ({
+      searchTerm: state.searchTerm,
+      pageSize: state.pageSize,
+      searchValue: state.searchValue,
+      orderBy: state.orderBy,
+      filterBy: state.filterBy,
+      employer: state.employer
+  })));
 
   const url = qs.stringifyUrl({
     url: '',
     query: params
   });
+  
 
   useEffect(() => {
-    
-    getData(url).then(data => {
-        setData(data);
-    })
-  }, [url]);
+        getData(url).then(data => {
+            setData(data);
+        })
+    }, [url]);
   
 
   return (
@@ -76,7 +76,7 @@ const MapComponent = () => {
         <TileLayer
             url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
             {...{
-                attribution: '&copy; OpenStreetMap contributors', // Attribution spread correctly
+                attribution: '&copy; OpenStreetMap contributors',
             }}
         />
 

@@ -30,7 +30,7 @@ export default async function Details(props: Params) {
   }
 
   return (
-    <div className="mx-auto max-w-4xl p-6 bg-white shadow-lg rounded-lg mt-0">
+    <div className="flex flex-col mx-auto max-w-5xl p-6 bg-white shadow-lg rounded-lg mt-0">
       {/* Page Heading */}
       <Heading title={data.title} subtitle={`Posted by ${data.employer}`} />
 

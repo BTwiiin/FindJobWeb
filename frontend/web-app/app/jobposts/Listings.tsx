@@ -47,11 +47,11 @@ export default function Listings() {
 
   if (data.results.length === 0) return <EmptyFilter />;
 
-    return (
-      <div className="flex flex-wrap">
-      {data && data.results.map((jobpost) => (
-        <JovPostCard jobPost={jobpost} key={jobpost.id} />
-      ))}
-    </div>
-  )
+  return (
+    <div className="flex flex-wrap">
+    {data && data.results.map((jobpost) => (
+      <JovPostCard jobPost={jobpost} key={jobpost.id} />
+    ))}
+  </div>
+)
 }

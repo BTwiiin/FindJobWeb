@@ -1,8 +1,8 @@
 'use client'
 
-import { Button, Label, TextInput } from 'flowbite-react'
-import React, { useEffect, useState } from 'react'
-import { Controller, Field, FieldValues, set, useForm } from 'react-hook-form'
+import { Button } from 'flowbite-react'
+import React, { useEffect,} from 'react'
+import { Controller, FieldValues, useForm } from 'react-hook-form'
 import Input from '../components/Input'
 import DateInput from '../components/DateInput'
 import { createJobPost, updateJobPost } from '../actions/jobPostActions'
@@ -12,19 +12,11 @@ import toast from 'react-hot-toast'
 import { JobPost } from '@/types'
 import LocationInput from '../components/LocationInput'
 import { useLocationStore } from '../hooks/useLocationStore'
+import InputArea from '../components/InputArea'
 
 type Props = {
     jobPost?: JobPost
 }
-
-type Location = {
-    latitude: number;
-    longitude: number;
-    city: string;
-    country: string;
-    street: string;
-  };
-
 const options = [
     { value: 'it', label: 'IT' },
     { value: 'marketing', label: 'Marketing' },
@@ -90,7 +82,7 @@ export default function JobPostForm({jobPost}: Props) {
         <form className="flex flex-col mt-3"onSubmit={handleSubmit(onSubmit)}>
             <Input label='Title' name='title' control={control} 
                 rules={{required: 'Title is required'}}/>
-            <Input label='Description' name='description' control={control} 
+            <InputArea label='Description' name='description' control={control} 
                 rules={{required: 'Description is required'}}/>
 
             <div className="grid grid-cols-2 gap-4">
@@ -103,26 +95,28 @@ export default function JobPostForm({jobPost}: Props) {
 
             {/* Select category dropdown */}
             <div className="mb-4">
-                <Controller
-                    control={control}
-                    name="category"
-                    rules={{ required: 'Category is required' }}
-                    render={({ field: {onChange, value, ref }}) => (
-                        <Select
-                            ref={ref}
-                            classNamePrefix="addl-class"
-                            options={options}
-                            value={options.find(option => option.value === value) || null} // Ensure value is an object
-                            onChange={val => onChange(val?.value || null)} // Pass only the value to t
-                            placeholder="Select a category"
-                        />
-                    )}
-                />
+              <Controller
+                control={control}
+                name="category"
+                rules={{ required: 'Category is required' }}
+                render={({ field: { onChange, value, ref } }) => (
+                  <Select
+                    ref={ref}
+                    classNamePrefix="custom-select" // Consistent prefix for styling
+                    options={options}
+                    value={options.find(option => option.value === value) || null}
+                    onChange={val => onChange(val?.value || null)}
+                    placeholder="Select a category"
+                  />
+                )}
+              />
             </div>
-            
 
             {/* Location Input */}
-            <LocationInput />
+            <div className="mb-4">
+              <LocationInput />
+            </div>
+
 
 
             <div className="flex justify-between gap-4">

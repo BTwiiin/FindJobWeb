@@ -22,7 +22,7 @@ export default function Search() {
     }
 
     return (
-        <div className='flex justify-between w-[50%] max-w-4xl'>
+        <div className='flex justify-between w-[50%] max-w-4xl h-16'>
             <div className='flex items-center border-2 rounded-full  py-2 shadow-sm w-full'>
                 <input 
                     onChange={onChange}
@@ -46,7 +46,7 @@ export default function Search() {
                     />
                 </Button>
             </div>
-            <Button className='bg-gray-500 text-white py-2 px-4 rounded-full ml-4' onClick={() => setShowModal(true)}>
+            <Button className='w-[10%] bg-gray-500 text-white py-2 px-4 rounded-full ml-4 hover:bg-gray-700' onClick={() => setShowModal(true)}>
                 Filters  &#709; 
             </Button>
             { showModal && 

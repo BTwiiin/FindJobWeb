@@ -1,15 +1,12 @@
 import { useController, UseControllerProps } from "react-hook-form";
 import { Label } from "flowbite-react";
-import "react-datepicker/dist/react-datepicker.css";
-import DatePicker, { DatePickerProps } from "react-datepicker";
 
 type Props = {
   label: string;
-  type?: string;
   showLabel?: boolean;
-} & UseControllerProps & DatePickerProps;
+} & UseControllerProps;
 
-export default function DateInput(props: Props) {
+export default function InputArea(props: Props) {
   const { fieldState, field } = useController({ ...props, defaultValue: "" });
 
   return (
@@ -21,15 +18,13 @@ export default function DateInput(props: Props) {
           className="absolute -top-3 left-3 bg-white px-1 text-sm text-gray-600"
         />
       )}
-      <DatePicker
-        {...props}
+      <textarea
         {...field}
-        placeholderText={props.label}
-        selected={field.value}
+        placeholder={props.label}
         className={`
           rounded-md
           w-full
-          pl-5 py-2
+          p-3
           border
           border-gray-300
           bg-white
@@ -44,8 +39,9 @@ export default function DateInput(props: Props) {
           transition
           ease-in-out
           duration-150
+          resize-y
         `}
-        wrapperClassName="w-full"
+        rows={4} // Initial height (adjustable)
       />
       {fieldState.error && (
         <div className="text-red-500 text-sm">{fieldState.error.message}</div>
