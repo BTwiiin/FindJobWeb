@@ -1,36 +1,124 @@
-﻿using MongoDB.Driver;
-using MongoDB.Entities;
+﻿using Elasticsearch.Net;
+using Nest;
 using SearchService.Models;
 using SearchService.Services;
-using System.Text.Json;
+using System.Net.Sockets;
 
 namespace SearchService.Data
 {
-    public class DbInitializer
+    public static class DbInitializer
     {
         public static async Task InitDb(WebApplication app)
         {
-            await DB.InitAsync("SearchDb", MongoClientSettings.
-                    FromConnectionString(app.Configuration.GetConnectionString("MongoDbConnection")));
-            await DB.Index<JobPost>()
-                .Key(p => p.Title, KeyType.Text)
-                .Key(p => p.Employer, KeyType.Text)
-                .Key(p => p.Status, KeyType.Text)
-                .Key(p => p.Category, KeyType.Text)
-                .CreateAsync();
-
-            var count = await DB.CountAsync<JobPost>();
+            var elasticClient = app.Services.GetRequiredService<IElasticClient>();
+            var httpClient = app.Services.GetRequiredService<JobPostingSvcHttpClient>();
             
-            using var scope = app.Services.CreateScope();
+            var indexName = "jobposts";
 
-            var httpClient = scope.ServiceProvider.GetRequiredService<JobPostingSvcHttpClient>();
+            // Retry logic to wait for Elasticsearch to be ready
+            const int maxRetries = 10;
+            const int delayInSeconds = 5;
+            var retries = 0;
 
-            var items = await httpClient.GetJobPostsForSearchDb();
+            while (retries < maxRetries)
+            {
+                try
+                {
+                    var pingResponse = await elasticClient.PingAsync();
+                    if (pingResponse.IsValid)
+                    {
+                        Console.WriteLine("Elasticsearch is ready.");
+                        break;
+                    }
+                }
+                catch (ElasticsearchClientException ex) when (ex.InnerException is SocketException)
+                {
+                    retries++;
+                    Console.WriteLine($"Elasticsearch is not ready. Retrying in {delayInSeconds} seconds... ({retries}/{maxRetries})");
+                    await Task.Delay(TimeSpan.FromSeconds(delayInSeconds));
+                }
+            }
 
-            Console.WriteLine($"Retrieved {items.Count} items from JobPostingService");
+            if (retries == maxRetries)
+            {
+                throw new Exception("Failed to connect to Elasticsearch after multiple retries.");
+            }
 
-            if (items.Count > 0) await DB.SaveAsync(items);
+            // Check if the index already exists
+            var indexExistsResponse = await elasticClient.Indices.ExistsAsync(indexName);
+            if (indexExistsResponse.Exists)
+            {
+                Console.WriteLine($"Index {indexName} already exists.");
+            }
+            else
+            {
+                // Create the index
+                var createIndexResponse = await elasticClient.Indices.CreateAsync(indexName, c => c
+                    .Map<JobPost>(m => m
+                        .Properties(p => p
+                            .Keyword(k => k.Name(n => n.Id))
+                            .Text(t => t.Name(n => n.Title).Analyzer("standard"))
+                            .Text(t => t.Name(n => n.Description).Analyzer("standard"))
+                            .Keyword(k => k.Name(n => n.Employer))
+                            .Date(d => d.Name(n => n.CreatedAt))
+                            .Date(d => d.Name(n => n.UpdatedAt))
+                            .Number(n => n.Name(n => n.PaymentAmount).Type(NumberType.Integer))
+                            .Date(d => d.Name(n => n.Deadline))
+                            .Keyword(k => k.Name(n => n.Status))
+                            .Keyword(k => k.Name(n => n.Category))
+                            .Object<Location>(o => o
+                                .Name(n => n.Location)
+                                .Properties(lp => lp
+                                    .Keyword(k => k.Name(n => n.Country))
+                                    .Keyword(k => k.Name(n => n.City))
+                                    .Keyword(k => k.Name(n => n.District))
+                                    .Keyword(k => k.Name(n => n.Street))
+                                    .Number(n => n.Name(n => n.Latitude).Type(NumberType.Double))
+                                    .Number(n => n.Name(n => n.Longitude).Type(NumberType.Double))
+                                )
+                            )
+                        )
+                    )
+                );
+                if (!createIndexResponse.IsValid)
+                {
+                    Console.WriteLine($"Failed to create index: {createIndexResponse.DebugInformation}");
+                    throw new Exception($"Failed to create index: {createIndexResponse.ServerError?.Error?.Reason}");
+                }
 
+                Console.WriteLine($"Index {indexName} created successfully.");
+            }
+
+
+
+            var jobPosts = await httpClient.GetJobPostsForSearchDb();
+
+            if (jobPosts != null && jobPosts.Any())
+            {
+                var bulkResponse = await elasticClient.BulkAsync(b => b
+                    .Index("jobposts")
+                    .IndexMany(jobPosts, (d, jobPost) => d.Id(jobPost.Id))
+                );
+
+                if (bulkResponse.Errors)
+                {
+                    // Some items actually failed; log them:
+                    foreach (var itemWithError in bulkResponse.ItemsWithErrors)
+                    {
+                        Console.WriteLine($"Failed to index document {itemWithError.Id}: {itemWithError.Error.Reason}");
+                    }
+                    throw new Exception("Some bulk items failed.");
+                }
+                else
+                {
+                    // No errors at the item level
+                    Console.WriteLine($"Indexed {bulkResponse.Items.Count} documents successfully.");
+                }
+            }
+            else
+            {
+                Console.WriteLine("No job posts available to populate the index.");
+            }
         }
     }
 }

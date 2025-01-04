@@ -4,6 +4,7 @@ using MassTransit;
 using SearchService.Data;
 using SearchService.Services;
 using SearchService.Consumers;
+using Nest;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +13,20 @@ builder.Services.AddControllers();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 builder.Services.AddHttpClient<JobPostingSvcHttpClient>().AddPolicyHandler(GetPolicy());
+
+builder.Services.AddSingleton<IElasticClient>(provider =>
+{
+    var config = builder.Configuration;
+    var url = config.GetConnectionString("ElasticsearchURL");
+
+    var settings = new ConnectionSettings(new Uri(url))
+        .DisableDirectStreaming() // <-- so you can see the exact JSON
+        .PrettyJson()
+        .DefaultIndex("jobposts");
+
+    return new ElasticClient(settings);
+});
+
 
 builder.Services.AddMassTransit(x =>
 {
@@ -31,6 +46,8 @@ builder.Services.AddMassTransit(x =>
         {
             e.UseMessageRetry(r => r.Interval(5, 5));
             e.ConfigureConsumer<JobPostCreatedConsumer>(context);
+            e.ConfigureConsumer<JobPostUpdatedConsumer>(context);
+            e.ConfigureConsumer<JobPostDeletedConsumer>(context);
         });
 
         cfg.ConfigureEndpoints(context);

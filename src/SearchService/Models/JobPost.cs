@@ -1,9 +1,8 @@
-﻿using MongoDB.Entities;
-
-namespace SearchService.Models
+﻿namespace SearchService.Models
 {
-    public class JobPost : Entity
+    public class JobPost
     {
+        public string Id { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }
         public string Employer { get; set; }
@@ -16,7 +15,7 @@ namespace SearchService.Models
         public string Category { get; set; }
         public Location Location { get; set; }
     }
-    
+
     public class Location
     {
         public string Country { get; set; }
@@ -26,4 +25,5 @@ namespace SearchService.Models
         public double Latitude { get; set; }
         public double Longitude { get; set; }
     }
+
 }

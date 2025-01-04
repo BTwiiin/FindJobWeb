@@ -37,6 +37,28 @@ services:
     depends_on:
       - postgres
       - rabbitmq
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.10.0
+    environment:
+      - discovery.type=single-node
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - xpack.security.enabled=false 
+      - xpack.security.http.ssl.enabled=false
+      - bootstrap.memory_lock=true
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.9.0
+    ports:
+      - 5601:5601
+    depends_on:
+      - elasticsearch
   search-svc:
     image: btwin/search-svc:latest
     build: 
@@ -48,11 +70,13 @@ services:
       - RabbitMq__Host=rabbitmq
       - ConnectionStrings__MongoDbConnection=mongodb://root:mongopw@mongo
       - JobPostingServiceUrl=http://jobpost-svc
+      - Elasticsearch__Url=http://elasticsearch:9200
     ports:
       - 7002:80
     depends_on:
       - mongo
       - rabbitmq
+      - elasticsearch
   identity-svc:
     image: btwin/identity-svc:latest
     build: 
@@ -79,3 +103,4 @@ services:
 volumes:  
     pgdata: 
     mongodata:
+    esdata:

@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using MongoDB.Entities;
+using Nest;
 using SearchService.Models;
 using SearchService.RequestHelpers;
 
@@ -9,71 +9,120 @@ namespace SearchService.Controllers
     [Route("api/[controller]")]
     public class SearchController : ControllerBase
     {
-        [HttpGet]
-        public async Task<ActionResult<List<JobPost>>> SearchJobPosts([FromQuery] SearchParameters searchParams)
-        {
-            var query = DB.PagedSearch<JobPost, JobPost>();
+        private readonly IElasticClient _elasticClient;
 
-            // Filter by category
-            if (!string.IsNullOrEmpty(searchParams.FilterBy))
+        public SearchController(IElasticClient elasticClient)
+        {
+            _elasticClient = elasticClient;
+        }
+
+        [HttpGet]
+        public async Task<ActionResult> SearchJobPosts([FromQuery] SearchParameters searchParams)
+        {
+            // Build the search request
+            var searchRequest = new SearchRequest<JobPost>("jobposts")
             {
-                query = searchParams.FilterBy.ToLower() switch
+                From = (searchParams.PageNumber - 1) * searchParams.PageSize,
+                Size = searchParams.PageSize,
+                Sort = GetSortCriteria(searchParams.OrderBy),
+                Query = GetSearchQuery(searchParams)
+            };
+
+            // Execute the search
+            var response = await _elasticClient.SearchAsync<JobPost>(searchRequest);
+
+            // Check for errors
+            if (!response.IsValid)
+            {
+                return BadRequest(new { error = response.ServerError?.Error?.Reason });
+            }
+
+            // Return paginated data
+            return Ok(new
+            {
+                Results = response.Documents,
+                PageCount = (int)Math.Ceiling((double)response.Total / searchParams.PageSize),
+                TotalCount = response.Total
+            });
+        }
+
+        /// <summary>
+        /// Builds a compound query that does:
+        /// 1) MultiMatch (title, description, category, and location fields) if SearchTerm is provided
+        /// 2) Filters by category if FilterBy is provided
+        /// 3) Numeric range filter (paymentAmount) if MinSalary/MaxSalary is provided
+        /// </summary>
+        private static QueryContainer GetSearchQuery(SearchParameters searchParams)
+        {
+            var query = new QueryContainer();
+
+            // Multi-field full-text search (title, description, category, location.*) 
+            if (!string.IsNullOrEmpty(searchParams.SearchTerm))
+            {
+                var multiMatch = new MultiMatchQuery
                 {
-                    "it" => query.Match(x => x.Category == "IT"),
-                    "manuallabor" => query.Match(x => x.Category == "ManualLabor"),
-                    "eventplanning" => query.Match(x => x.Category == "EventPlanning"),
-                    "marketing" => query.Match(x => x.Category == "Marketing"),
-                    "tutoring" => query.Match(x => x.Category == "Tutoring"),
-                    "entertainment" => query.Match(x => x.Category == "Entertainment"),
-                    "other" => query.Match(x => x.Category == "Other"),
-                    _ => query
+                    Fields = new[]
+                    {
+                        "title^3",
+                        "description", 
+                        "category",
+                        "location.country",
+                        "location.city",
+                        "location.district",
+                        "location.street"
+                    },
+                    Query = searchParams.SearchTerm,
+                    Fuzziness = Fuzziness.Auto,
+                    Operator = Operator.Or
                 };
             }
 
-            // Full-text search by search term
-            if (!string.IsNullOrEmpty(searchParams.SearchTerm))
+
+            // Exact category filter (if you want to filter by the category field as a keyword)
+            if (!string.IsNullOrEmpty(searchParams.FilterBy))
             {
-                if (searchParams.SearchTerm.Length <= 2)
+                query &= new TermQuery
                 {
-                    query.Match(x => x.Category.ToLower() == searchParams.SearchTerm.ToLower());
-                }
-                else
-                {
-                    query.Match(Search.Full, searchParams.SearchTerm).SortByTextScore();
-                }
+                    Field = "category.keyword",
+                    Value = searchParams.FilterBy
+                };
             }
 
-            // Filter by salary range
+            // Salary range filter
             if (searchParams.MinSalary.HasValue || searchParams.MaxSalary.HasValue)
             {
-                query = query.Match(x =>
-                    (!searchParams.MinSalary.HasValue || x.PaymentAmount >= searchParams.MinSalary.Value) &&
-                    (!searchParams.MaxSalary.HasValue || x.PaymentAmount <= searchParams.MaxSalary.Value)
-                );
+                query &= new NumericRangeQuery
+                {
+                    Field = "paymentAmount",
+                    GreaterThanOrEqualTo = searchParams.MinSalary,
+                    LessThanOrEqualTo = searchParams.MaxSalary
+                };
             }
 
-            // Sort by order
-            query = searchParams.OrderBy switch
+            return query;
+        }
+
+        /// <summary>
+        /// Supports sorting by "new" (createdAt desc) or "paymentAmount" (desc).
+        /// By default, sorts by createdAt desc.
+        /// </summary>
+        private static IList<ISort> GetSortCriteria(string orderBy)
+        {
+            return orderBy switch
             {
-                "new" => query.Sort(x => x.Descending(a => a.CreatedAt)),
-                "paymentAmount" => query.Sort(x => x.Descending(a => a.PaymentAmount)),
-                _ => query.Sort(x => x.Descending(a => a.CreatedAt))
+                "new" => new List<ISort>
+                {
+                    new FieldSort { Field = "createdAt", Order = SortOrder.Descending }
+                },
+                "paymentAmount" => new List<ISort>
+                {
+                    new FieldSort { Field = "paymentAmount", Order = SortOrder.Descending }
+                },
+                _ => new List<ISort>
+                {
+                    new FieldSort { Field = "createdAt", Order = SortOrder.Descending }
+                }
             };
-
-            // Set Pagination
-            query.PageNumber(searchParams.PageNumber);
-            query.PageSize(searchParams.PageSize);
-
-            // Execute the query
-            var result = await query.ExecuteAsync();
-
-            // Return results
-            return Ok(new
-            {
-                result.Results,
-                result.PageCount,
-                result.TotalCount
-            });
         }
     }
 }

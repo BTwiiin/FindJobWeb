@@ -1,17 +1,19 @@
 ﻿using AutoMapper;
 using Contracts;
 using MassTransit;
-using MongoDB.Entities;
+using Nest;
 using SearchService.Models;
 
 namespace SearchService.Consumers
 {
     public class JobPostUpdatedConsumer : IConsumer<JobPostUpdated>
     {
+        private readonly IElasticClient _elasticClient;
         private readonly IMapper _mapper;
 
-        public JobPostUpdatedConsumer(IMapper mapper)
+        public JobPostUpdatedConsumer(IElasticClient elasticClient, IMapper mapper)
         {
+            _elasticClient = elasticClient;
             _mapper = mapper;
         }
 
@@ -19,23 +21,25 @@ namespace SearchService.Consumers
         {
             Console.WriteLine($"--> Received JobPostUpdated event: {context.Message.Id}");
 
-            var item = _mapper.Map<JobPost>(context.Message);
+            // Map the incoming message to the JobPost model
+            var updatedJobPost = _mapper.Map<JobPost>(context.Message);
 
-            var result =  await DB.Update<JobPost>()
-                     .Match(a => a.ID == context.Message.Id)
-                     .ModifyOnly(x => new
-                     {
-                         x.Title,
-                         x.Description,
-                         x.PaymentAmount,
-                         x.Deadline,
-                         x.Category,
-                         x.Location
-                     }, item)
-                     .ExecuteAsync();
+            // Update the document in Elasticsearch
+            var response = await _elasticClient.UpdateAsync<JobPost>(
+                context.Message.Id,
+                u => u
+                    .Index("jobposts")
+                    .Doc(updatedJobPost)
+                    .DocAsUpsert(true) // Creates the document if it does not exist
+            );
 
-            if (!result.IsAcknowledged)
-                throw new MessageException(typeof(JobPostUpdated), "Problem updating mongoDb");
+            if (!response.IsValid)
+            {
+                Console.WriteLine($"Failed to update job post: {response.DebugInformation}");
+                throw new Exception($"Failed to update job post: {response.ServerError?.Error?.Reason}");
+            }
+
+            Console.WriteLine($"Job post with ID {context.Message.Id} updated successfully in Elasticsearch.");
         }
     }
 }

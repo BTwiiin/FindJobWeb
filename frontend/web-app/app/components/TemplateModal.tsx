@@ -50,7 +50,7 @@ export default function TemplateModal({ show, onClose, title, children }: ModalP
             </Button>
           </div>
           {/* Content */}
-          <div className="p-4 overflow-y-auto flex-grow">
+          <div className="p-4 overflow-y-auto flex-grow hide-scrollbar">
             {children}
           </div>
         </div>
