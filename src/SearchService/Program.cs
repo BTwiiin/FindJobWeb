@@ -20,9 +20,12 @@ builder.Services.AddSingleton<IElasticClient>(provider =>
     var url = config.GetConnectionString("ElasticsearchURL");
 
     var settings = new ConnectionSettings(new Uri(url))
-        .DisableDirectStreaming() // <-- so you can see the exact JSON
+        .DisableDirectStreaming()
         .PrettyJson()
         .DefaultIndex("jobposts");
+
+    Console.WriteLine($"Elasticsearch URL: {url}");
+    
 
     return new ElasticClient(settings);
 });

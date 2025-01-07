@@ -22,19 +22,17 @@ namespace SearchService.Data
 
             while (retries < maxRetries)
             {
-                try
+                var pingResponse = await elasticClient.PingAsync();
+
+                if (pingResponse.IsValid)
                 {
-                    var pingResponse = await elasticClient.PingAsync();
-                    if (pingResponse.IsValid)
-                    {
-                        Console.WriteLine("Elasticsearch is ready.");
-                        break;
-                    }
+                    Console.WriteLine("Elasticsearch is ready.");
+                    break;
                 }
-                catch (ElasticsearchClientException ex) when (ex.InnerException is SocketException)
+                else
                 {
                     retries++;
-                    Console.WriteLine($"Elasticsearch is not ready. Retrying in {delayInSeconds} seconds... ({retries}/{maxRetries})");
+                    Console.WriteLine($"Elasticsearch ping was invalid (status: {pingResponse.ApiCall.HttpStatusCode}). Retrying in {delayInSeconds} seconds... ({retries}/{maxRetries})");
                     await Task.Delay(TimeSpan.FromSeconds(delayInSeconds));
                 }
             }
@@ -43,6 +41,7 @@ namespace SearchService.Data
             {
                 throw new Exception("Failed to connect to Elasticsearch after multiple retries.");
             }
+
 
             // Check if the index already exists
             var indexExistsResponse = await elasticClient.Indices.ExistsAsync(indexName);

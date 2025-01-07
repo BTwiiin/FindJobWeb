@@ -5,31 +5,31 @@ import SalaryRangeSlider from './SalaryRangeSlider';
 const filterButtons = [
   {
     label: 'IT',
-    value: 'it',
+    value: 'IT',
   },
   {
     label: 'Marketing',
-    value: 'marketing',
+    value: 'Marketing',
   },
   {
     label: 'Manual Labor',
-    value: 'manuallabor',
+    value: 'ManualLabor',
   },
   {
     label: 'Event Planning',
-    value: 'eventplanning',
+    value: 'Eventplanning',
   },
   {
     label: 'Tutoring',
-    value: 'tutoring',
+    value: 'Tutoring',
   },
   {
     label: 'Entertainment',
-    value: 'entertainment',
+    value: 'Entertainment',
   },
   {
     label: 'Other',
-    value: 'other',
+    value: 'Other',
   }
 ];
 

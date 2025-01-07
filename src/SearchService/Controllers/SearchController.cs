@@ -75,6 +75,8 @@ namespace SearchService.Controllers
                     Fuzziness = Fuzziness.Auto,
                     Operator = Operator.Or
                 };
+
+                query &= multiMatch;
             }
 
 
@@ -83,7 +85,7 @@ namespace SearchService.Controllers
             {
                 query &= new TermQuery
                 {
-                    Field = "category.keyword",
+                    Field = "category",
                     Value = searchParams.FilterBy
                 };
             }
