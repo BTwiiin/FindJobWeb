@@ -56,7 +56,7 @@ This project is a comprehensive **job posting platform** designed to facilitate 
 
 ### Database
 - **PostgreSQL**: Main database for storing job postings and user data.
-- **MongoDB**: Used for data access, sorting, searching and so on (Planned to be replaced by Elasticsearch).
+- **Elasticsearch** is now fully integrated for search functionalities.
 
 ### Containerization
 - **Docker**: For containerizing all services and databases, ensuring consistency and ease of deployment.
@@ -70,7 +70,7 @@ The application is designed with a **microservices architecture** to achieve mod
 
 ### Services
 1. **Job Service**: Handles CRUD operations for job postings.
-2. **Search Service**: Manages indexed data and provides search functionalities.
+2. **Search Service**: Manages Elasticsearch indices and search-related functionalities.
 3. **Identity Service (In Progress)**: Manages user profiles and authentication.
 4. **Notification Service (Planned)**: Handles user notifications and updates.
 
@@ -104,7 +104,8 @@ Services communicate through an **event-driven model** using RabbitMQ. This deco
 ## Future Enhancements
 - Complete implementation of the notifications.
 - Add support for multilingual interfaces.
-- Change Search Service to Elasticsearch
+- Change Search Service to Elasticsearch (done)
+- Further optimization of Elasticsearch queries and indexing strategies.
 
 ## Screenshots
 

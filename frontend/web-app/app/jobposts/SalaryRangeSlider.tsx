@@ -20,12 +20,12 @@ const SalaryRangeSlider = () => {
         onChange={handleChange} // Update on drag
         valueLabelDisplay="auto"
         min={0}
-        max={10000}
+        max={5000}
         step={100}
         marks={[
           { value: 0, label: '$0' },
+          { value: 2500, label: '$2500' },
           { value: 5000, label: '$5000' },
-          { value: 10000, label: '$10000' },
         ]}
       />
       <div className="flex justify-between mt-2 text-sm text-gray-600">

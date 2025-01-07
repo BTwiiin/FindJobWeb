@@ -42,7 +42,7 @@ export default function JobPostCard({ jobPost }: Props) {
       onMouseLeave={() => setHoveredJobPostId(null)}
     >
       {/* Left Section: Logo and Primary Info */}
-      <div className="flex md:items-center md:w-1/4 mb-4 md:mb-0 md:mr-4">
+      <div className="flex md:items-center md:w-1/2 mb-4 md:mb-0 md:mr-4">
         <img
           src="favicon.ico"
           alt={`Company logo for ${jobPost.title}`}
