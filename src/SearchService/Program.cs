@@ -21,8 +21,13 @@ builder.Services.AddSingleton<IElasticClient>(provider =>
 
     var settings = new ConnectionSettings(new Uri(url))
         .DisableDirectStreaming()
+        .EnableHttpCompression()
         .PrettyJson()
         .DefaultIndex("jobposts");
+        
+        #if DEV
+            settings.EnableDebugMode();
+        #endif
 
     Console.WriteLine($"Elasticsearch URL: {url}");
     
