@@ -65,6 +65,7 @@ export default function JobPostForm({jobPost}: Props) {
                   console.log(`Payload ===> ${payload}`);
                   res = await updateJobPost(payload, jobPost.id);
                   id = jobPost.id;
+                  toast.success('Job post updated successfully.');
                 }
               }
           

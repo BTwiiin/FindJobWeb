@@ -1,21 +1,23 @@
 ﻿using AutoMapper;
 using Contracts;
 using MassTransit;
+using MongoDB.Driver.Core.Authentication;
 using MongoDB.Entities;
 using Nest;
 using SearchService.Models;
+using SearchService.Repository;
 
 namespace SearchService.Consumers
 {
     public class JobPostCreatedConsumer : IConsumer<JobPostCreated>
     {
         private readonly IMapper _mapper;
-        private readonly IElasticClient _elasticClient;
-        public JobPostCreatedConsumer(IMapper mapper, IElasticClient elasticClient)
+        private readonly IElasticRepository<JobPost> _elasticRepository;
+        
+        public JobPostCreatedConsumer(IMapper mapper, IElasticRepository<JobPost> elasticRepository)
         {
             _mapper = mapper;
-
-            _elasticClient = elasticClient;
+            _elasticRepository = elasticRepository ?? throw new ArgumentNullException(nameof(elasticRepository));
         }
         public async Task Consume(ConsumeContext<JobPostCreated> context)
         {
@@ -24,15 +26,7 @@ namespace SearchService.Consumers
             // Map the event to the JobPost model
             var jobPost = _mapper.Map<JobPost>(context.Message);
 
-            // Index the document in Elasticsearch
-            var response = await _elasticClient.IndexAsync(jobPost, idx => idx
-                .Index("jobposts")   // Index name
-                .Id(jobPost.Id));    // Document ID
-
-            if (!response.IsValid)
-            {
-                throw new Exception($"Failed to index document: {response.ServerError}");
-            }
+            await _elasticRepository.AddAsync(jobPost, "jobposts");
 
             Console.WriteLine($"Indexed JobPost with ID: {jobPost.Id}");
         }

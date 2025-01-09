@@ -5,6 +5,8 @@ using SearchService.Data;
 using SearchService.Services;
 using SearchService.Consumers;
 using Nest;
+using SearchService.Repository;
+using SearchService.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,6 +36,9 @@ builder.Services.AddSingleton<IElasticClient>(provider =>
 
     return new ElasticClient(settings);
 });
+
+
+builder.Services.AddScoped(typeof(IElasticRepository<>), typeof(ElasticRepository<>));
 
 
 builder.Services.AddMassTransit(x =>

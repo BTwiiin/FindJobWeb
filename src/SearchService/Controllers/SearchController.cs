@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Nest;
 using SearchService.Models;
+using SearchService.Repository;
 using SearchService.RequestHelpers;
 
 namespace SearchService.Controllers
@@ -9,17 +10,16 @@ namespace SearchService.Controllers
     [Route("api/[controller]")]
     public class SearchController : ControllerBase
     {
-        private readonly IElasticClient _elasticClient;
+        private readonly IElasticRepository<JobPost> _repository;
 
-        public SearchController(IElasticClient elasticClient)
+        public SearchController(IElasticRepository<JobPost> repository)
         {
-            _elasticClient = elasticClient;
+            _repository = repository;
         }
 
         [HttpGet]
         public async Task<ActionResult> SearchJobPosts([FromQuery] SearchParameters searchParams)
         {
-            // Build the search request
             var searchRequest = new SearchRequest<JobPost>("jobposts")
             {
                 From = (searchParams.PageNumber - 1) * searchParams.PageSize,
@@ -28,16 +28,13 @@ namespace SearchService.Controllers
                 Query = GetSearchQuery(searchParams)
             };
 
-            // Execute the search
-            var response = await _elasticClient.SearchAsync<JobPost>(searchRequest);
+            var response = await _repository.SearchAsync(searchRequest);
 
-            // Check for errors
             if (!response.IsValid)
             {
                 return BadRequest(new { error = response.ServerError?.Error?.Reason });
             }
 
-            // Return paginated data
             return Ok(new
             {
                 Results = response.Documents,
@@ -46,31 +43,15 @@ namespace SearchService.Controllers
             });
         }
 
-        /// <summary>
-        /// Builds a compound query that does:
-        /// 1) MultiMatch (title, description, category, and location fields) if SearchTerm is provided
-        /// 2) Filters by category if FilterBy is provided
-        /// 3) Numeric range filter (paymentAmount) if MinSalary/MaxSalary is provided
-        /// </summary>
         private static QueryContainer GetSearchQuery(SearchParameters searchParams)
         {
             var query = new QueryContainer();
 
-            // Multi-field full-text search (title, description, category, location.*) 
             if (!string.IsNullOrEmpty(searchParams.SearchTerm))
             {
                 var multiMatch = new MultiMatchQuery
                 {
-                    Fields = new[]
-                    {
-                        "title^3",
-                        "description", 
-                        "category",
-                        "location.country",
-                        "location.city",
-                        "location.district",
-                        "location.street"
-                    },
+                    Fields = new[] { "title^3", "description", "category", "location.country", "location.city", "location.district", "location.street" },
                     Query = searchParams.SearchTerm,
                     Fuzziness = Fuzziness.Auto,
                     Operator = Operator.Or
@@ -79,8 +60,6 @@ namespace SearchService.Controllers
                 query &= multiMatch;
             }
 
-
-            // Exact category filter (if you want to filter by the category field as a keyword)
             if (!string.IsNullOrEmpty(searchParams.FilterBy))
             {
                 query &= new TermQuery
@@ -90,7 +69,6 @@ namespace SearchService.Controllers
                 };
             }
 
-            // Salary range filter
             if (searchParams.MinSalary.HasValue || searchParams.MaxSalary.HasValue)
             {
                 query &= new NumericRangeQuery
@@ -104,26 +82,13 @@ namespace SearchService.Controllers
             return query;
         }
 
-        /// <summary>
-        /// Supports sorting by "new" (createdAt desc) or "paymentAmount" (desc).
-        /// By default, sorts by createdAt desc.
-        /// </summary>
         private static IList<ISort> GetSortCriteria(string orderBy)
         {
             return orderBy switch
             {
-                "new" => new List<ISort>
-                {
-                    new FieldSort { Field = "createdAt", Order = SortOrder.Descending }
-                },
-                "paymentAmount" => new List<ISort>
-                {
-                    new FieldSort { Field = "paymentAmount", Order = SortOrder.Descending }
-                },
-                _ => new List<ISort>
-                {
-                    new FieldSort { Field = "createdAt", Order = SortOrder.Descending }
-                }
+                "new" => new List<ISort> { new FieldSort { Field = "createdAt", Order = SortOrder.Descending } },
+                "paymentAmount" => new List<ISort> { new FieldSort { Field = "paymentAmount", Order = SortOrder.Descending } },
+                _ => new List<ISort> { new FieldSort { Field = "createdAt", Order = SortOrder.Descending } }
             };
         }
     }

@@ -38,5 +38,6 @@ export async function updateJobPost(data: FieldValues, id: string) {
 }
 
 export async function deleteJobPost(id: string) {
+    revalidatePath(`/`);
     return await fetchWrapper.del(`jobpost/${id}`);
 }

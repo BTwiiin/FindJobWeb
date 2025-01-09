@@ -26,6 +26,7 @@ function confirmDelete() {
   deleteJobPost(id)
     .then(res => {
       if (res.error) throw res.error;
+      toast.success('Job post deleted successfully.');
       router.push('/');
     })
     .catch(err => {
