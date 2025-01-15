@@ -7,6 +7,15 @@ services:
       - POSTGRES_PASSWORD=postgrespw
     volumes:
       - pgdata:/var/lib/postgresql/data
+  mongo:
+    image: mongo
+    environment: 
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=mongopw
+    ports:
+      - 27017:27017
+    volumes:
+      - mongodata:/data/db
   rabbitmq:
     image: rabbitmq:3-management-alpine
     ports:
@@ -91,4 +100,5 @@ services:
       - 6001:80
 volumes:  
     pgdata: 
+    mongodata:
     esdata:
