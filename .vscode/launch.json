@@ -17,7 +17,7 @@
             "name": "C#: <project-name> Debug",
             "type": "dotnet",
             "request": "launch",
-            "projectPath": "${workspaceFolder}/src/SearchService/SearchService.csproj"
+            "projectPath": "${workspaceFolder}/src/ApplyingService/ApplyingService.csproj"
         },
         {
             "name": ".NET Core Attach",

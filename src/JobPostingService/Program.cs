@@ -2,6 +2,7 @@ using Contracts;
 using JobPostingService.Consumers;
 using JobPostingService.Data;
 using JobPostingService.Repository;
+using JobPostingService.Services;
 using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -21,7 +22,7 @@ builder.Services.AddMassTransit(x =>
         o.UseBusOutbox();
     });
 
-    x.AddConsumersFromNamespaceContaining<JobPostTimedUpConsumer>();
+    x.AddConsumersFromNamespaceContaining<JobPostRequestPlacedConsumer>();
 
     x.SetEndpointNameFormatter(new KebabCaseEndpointNameFormatter("jobpost", false));
 
@@ -50,6 +51,8 @@ builder.Services.AddDbContext<JobPostingDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddScoped<IJobPostRepository, JobPostRepository>();
+
+builder.Services.AddHostedService<CheckJobPostFinished>();
 
 var app = builder.Build();
 

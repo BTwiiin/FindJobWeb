@@ -39,7 +39,13 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         options.TokenValidationParameters.NameClaimType = "username";
     });
 
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies()); 
+
 var app = builder.Build();
+
+app.UseAuthorization();
+
+app.MapControllers();
 
 await DB.InitAsync("ApplyDb", MongoClientSettings.FromConnectionString(builder.Configuration.GetConnectionString("ApplyDbConnection")));
 

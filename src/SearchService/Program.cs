@@ -61,6 +61,7 @@ builder.Services.AddMassTransit(x =>
             e.ConfigureConsumer<JobPostCreatedConsumer>(context);
             e.ConfigureConsumer<JobPostUpdatedConsumer>(context);
             e.ConfigureConsumer<JobPostDeletedConsumer>(context);
+            e.ConfigureConsumer<JobPostDeadlineReachedConsumer>(context);
         });
 
         cfg.ConfigureEndpoints(context);

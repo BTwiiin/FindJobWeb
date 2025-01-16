@@ -11,5 +11,6 @@ namespace JobPostingService.Repository
         void AddJobPost(JobPost jobPost);
         void DeleteJobPost(JobPost jobPost);
         Task<bool> SaveChangesAsync();
+        Task<List<JobPost>> GetFinishedJobPosts();
     }
 }

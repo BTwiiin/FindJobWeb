@@ -3,24 +3,25 @@ using Contracts;
 using MassTransit;
 using MongoDB.Entities;
 
-namespace ApplyingService.Consumers;
-
-class JobPostCreatedConsumer : IConsumer<JobPostCreated>
+namespace ApplyingService.Consumers
 {
-    public async Task Consume(ConsumeContext<JobPostCreated> context)
+    public class JobPostCreatedConsumer : IConsumer<JobPostCreated>
     {
-        Console.WriteLine($"--> Received JobPostCreated event: {context.Message.Id}");
-
-        var jobPost = new JobPost
+        public async Task Consume(ConsumeContext<JobPostCreated> context)
         {
-            Id = context.Message.Id.ToString(),
-            Deadline = context.Message.Deadline,
-            Employer = context.Message.Employer,
-            Finished = false
-        };
-        
-        await jobPost.SaveAsync();
+            Console.WriteLine($"--> Received JobPostCreated event: {context.Message.Id}");
 
-        Console.WriteLine($"Indexed JobPost with ID: {jobPost.Id}");
+            var jobPost = new JobPost
+            {
+                ID = context.Message.Id.ToString(),
+                Deadline = context.Message.Deadline,
+                Employer = context.Message.Employer,
+                Finished = false
+            };
+            
+            await jobPost.SaveAsync();
+
+            Console.WriteLine($"Indexed JobPost with ID: {jobPost.ID}");
+        }
     }
 }

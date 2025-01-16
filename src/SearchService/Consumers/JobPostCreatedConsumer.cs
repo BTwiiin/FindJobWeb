@@ -1,9 +1,6 @@
 ﻿using AutoMapper;
 using Contracts;
 using MassTransit;
-using MongoDB.Driver.Core.Authentication;
-using MongoDB.Entities;
-using Nest;
 using SearchService.Models;
 using SearchService.Repository;
 
