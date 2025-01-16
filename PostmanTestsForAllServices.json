@@ -1,0 +1,1910 @@
+{
+	"info": {
+		"_postman_id": "c2a7dde5-cfb8-4bb7-9de1-7d7e3427e60a",
+		"name": "Scratch",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "39020981"
+	},
+	"item": [
+		{
+			"name": "JobPostingService",
+			"item": [
+				{
+					"name": "GetJobPosts",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var template = `\r",
+									"<style type=\"text/css\">\r",
+									"    .tftable {font-size:14px;color:#333333;width:100%;border-width: 1px;border-color: #87ceeb;border-collapse: collapse;}\r",
+									"    .tftable th {font-size:18px;background-color:#87ceeb;border-width: 1px;padding: 8px;border-style: solid;border-color: #87ceeb;text-align:left;}\r",
+									"    .tftable tr {background-color:#ffffff;}\r",
+									"    .tftable td {font-size:14px;border-width: 1px;padding: 8px;border-style: solid;border-color: #87ceeb;}\r",
+									"    .tftable tr:hover {background-color:#e0ffff;}\r",
+									"</style>\r",
+									"\r",
+									"<table class=\"tftable\" border=\"1\">\r",
+									"    <tr>\r",
+									"        <th>ID</th>\r",
+									"        <th>Title</th>\r",
+									"        <th>Description</th>\r",
+									"        <th>Employer</th>\r",
+									"        <th>Employee</th>\r",
+									"        <th>Created At</th>\r",
+									"        <th>Updated At</th>\r",
+									"        <th>Payment Amount</th>\r",
+									"        <th>Deadline</th>\r",
+									"        <th>Status</th>\r",
+									"        <th>Category</th>\r",
+									"    </tr>\r",
+									"    \r",
+									"    {{#each response}}\r",
+									"        <tr>\r",
+									"            <td>{{id}}</td>\r",
+									"            <td>{{title}}</td>\r",
+									"            <td>{{description}}</td>\r",
+									"            <td>{{employer}}</td>\r",
+									"            <td>{{employee}}</td>\r",
+									"            <td>{{createdAt}}</td>\r",
+									"            <td>{{updatedAt}}</td>\r",
+									"            <td>{{paymentAmount}}</td>\r",
+									"            <td>{{deadline}}</td>\r",
+									"            <td>{{status}}</td>\r",
+									"            <td>{{category}}</td>\r",
+									"        </tr>\r",
+									"    {{/each}}\r",
+									"</table>\r",
+									"`;\r",
+									"\r",
+									"function constructVisualizerPayload() {\r",
+									"    return {response: pm.response.json()}\r",
+									"}\r",
+									"\r",
+									"pm.visualizer.set(template, constructVisualizerPayload());"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{jobpostApi}}/api/jobpost",
+							"host": [
+								"{{jobpostApi}}"
+							],
+							"path": [
+								"api",
+								"jobpost"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetJobPostById",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json()\r",
+									"\r",
+									"pm.test('Status code is 200', function () {\r",
+									"    pm.expect(pm.response.code).to.equal(200);\r",
+									"})\r",
+									"\r",
+									"pm.test('Category is IT', function () {\r",
+									"    var responseBody = pm.response.json();\r",
+									"    pm.expect(responseBody).to.be.an('object');\r",
+									"    pm.expect(responseBody.category).to.equal('IT');\r",
+									"});\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{jobpostApi}}/api/jobpost/1e4a4109-b2c4-459a-af4c-70f36b0cdc3a",
+							"host": [
+								"{{jobpostApi}}"
+							],
+							"path": [
+								"api",
+								"jobpost",
+								"1e4a4109-b2c4-459a-af4c-70f36b0cdc3a"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CreateJobPost",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Status code is 201\", function () {\r",
+									"     pm.expect(pm.response.code).to.equal(201);\r",
+									"})\r",
+									"\r",
+									"pm.test(\"Response ody contains expected properties\", function () {\r",
+									"    pm.expect(pm.response.json()).to.be.an('object');\r",
+									"    pm.expect(jsonData).to.haveOwnProperty('id');\r",
+									"    pm.expect(jsonData).to.haveOwnProperty('title');\r",
+									"    pm.expect(jsonData).to.haveOwnProperty('description');\r",
+									"    pm.expect(jsonData).to.haveOwnProperty('employer');\r",
+									"    pm.expect(jsonData).to.haveOwnProperty('employee');\r",
+									"    pm.expect(jsonData).to.haveOwnProperty('createdAt');\r",
+									"    pm.expect(jsonData).to.haveOwnProperty('updatedAt');\r",
+									"    pm.expect(jsonData).to.haveOwnProperty('paymentAmount');\r",
+									"    pm.expect(jsonData).to.haveOwnProperty('deadline');\r",
+									"    pm.expect(jsonData.status).to.equal('Open');\r",
+									"    pm.expect(jsonData.category).to.equal('IT');\r",
+									"});\r",
+									"\r",
+									"pm.collectionVariables.set(\"createdItemId\", jsonData.id);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{BobToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"title\": \"Mobile App Development\",\r\n  \"description\": \"Develop a mobile application for our e-commerce platform. Requires experience in Flutter or React Native.\",\r\n  \"paymentAmount\": 500,\r\n  \"deadline\": \"2024-12-20T23:59:59Z\",\r\n  \"category\": \"IT\",\r\n  \"location\": {\r\n    \"country\": \"Poland\",\r\n    \"city\": \"Warsaw\",\r\n    \"district\": \"Śródmieście\",\r\n    \"street\": \"Marszałkowska 76\",\r\n    \"latitude\": 52.229,\r\n    \"longitude\": 21.011\r\n  }\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{jobpostApi}}/api/jobpost/",
+							"host": [
+								"{{jobpostApi}}"
+							],
+							"path": [
+								"api",
+								"jobpost",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UpdateJobPost",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{BobToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"title\": \"Test___\",\r\n    \"description\": \"Test___\",\r\n    \"employer\": \"bob\",\r\n    \"employee\": null,\r\n    \"createdAt\": \"2024-12-17T15:02:17.219Z\",\r\n    \"updatedAt\": \"2024-12-17T15:02:17.219Z\",\r\n    \"paymentAmount\": 10,\r\n    \"status\": \"Open\",\r\n    \"location\": {\r\n        \"country\": \"Poland\",\r\n        \"city\": \"Warsaw\",\r\n        \"district\": \"Mokotow\",\r\n        \"street\": \"Spacerowa\",\r\n        \"latitude\": 52.21151113767439,\r\n        \"longitude\": 21.024071956113254\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{jobpostApi}}/api/jobpost/0b844b1f-3b63-42a9-bb24-4b8f9220fd1f",
+							"host": [
+								"{{jobpostApi}}"
+							],
+							"path": [
+								"api",
+								"jobpost",
+								"0b844b1f-3b63-42a9-bb24-4b8f9220fd1f"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DeleteJobPost",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{BobToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{jobpostApi}}/api/jobpost/{{createdItemId}}",
+							"host": [
+								"{{jobpostApi}}"
+							],
+							"path": [
+								"api",
+								"jobpost",
+								"{{createdItemId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "SearchService",
+			"item": [
+				{
+					"name": "SearchJobPosts",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{searchApi}}/api/search/",
+							"host": [
+								"{{searchApi}}"
+							],
+							"path": [
+								"api",
+								"search",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetItemsWithFilters",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{searchApi}}/api/search?filterBy=ManualLabor&orderBy=new&pageSize=100&searchTerm=&searchValue=",
+							"host": [
+								"{{searchApi}}"
+							],
+							"path": [
+								"api",
+								"search"
+							],
+							"query": [
+								{
+									"key": "filterBy",
+									"value": "ManualLabor"
+								},
+								{
+									"key": "orderBy",
+									"value": "new"
+								},
+								{
+									"key": "pageSize",
+									"value": "100"
+								},
+								{
+									"key": "searchTerm",
+									"value": ""
+								},
+								{
+									"key": "searchValue",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "RabbitMQ",
+			"item": [
+				{
+					"name": "CreateNewJobPost",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"title\": \"Product promotionssss\",\r\n  \"description\": \"Need a marketolog with a proven job experience\",\r\n  \"paymentAmount\": {{$randomInt}},\r\n  \"deadline\": \"{{dateString}}\",\r\n  \"category\": \"Marketing\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{jobpostApi}}/api/jobpost/",
+							"host": [
+								"{{jobpostApi}}"
+							],
+							"path": [
+								"api",
+								"jobpost",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetNewJobPost",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{searchApi}}/api/search?searchTerm=it",
+							"host": [
+								"{{searchApi}}"
+							],
+							"path": [
+								"api",
+								"search"
+							],
+							"query": [
+								{
+									"key": "searchTerm",
+									"value": "it"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "IdentityService",
+			"item": [
+				{
+					"name": "GetBobToken",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"jsonData = pm.response.json();\r",
+									"\r",
+									"pm.collectionVariables.set(\"BobToken\", jsonData.access_token);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "grant_type",
+									"value": "password",
+									"type": "text"
+								},
+								{
+									"key": "username",
+									"value": "bob",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "Pass123$",
+									"type": "text"
+								},
+								{
+									"key": "client_id",
+									"value": "postman",
+									"type": "text"
+								},
+								{
+									"key": "client_secret",
+									"value": "NotASecret",
+									"type": "text"
+								},
+								{
+									"key": "scope",
+									"value": "jobApp openid profile",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{identitySvc}}/connect/token",
+							"host": [
+								"{{identitySvc}}"
+							],
+							"path": [
+								"connect",
+								"token"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetUserInfo",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJSUzI1NiIsImtpZCI6IjIzNEE4NTJDMUJBRDI5NTgzNURERjFCRjU5QjNDNkQ2IiwidHlwIjoiYXQrand0In0.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjUwMDAiLCJuYmYiOjE3MjkyNDg1OTgsImlhdCI6MTcyOTI0ODU5OCwiZXhwIjoxNzI5MjUyMTk4LCJzY29wZSI6WyJqb2JBcHAiLCJvcGVuaWQiLCJwcm9maWxlIl0sImFtciI6WyJwd2QiXSwiY2xpZW50X2lkIjoicG9zdG1hbiIsInN1YiI6ImQ4YTZmZjQ3LTA3ODctNDhhYy1iYmY1LTM0OTFkZjMxZWIxYiIsImF1dGhfdGltZSI6MTcyOTI0ODU5OCwiaWRwIjoibG9jYWwiLCJ1c2VybmFtZSI6ImJvYiIsIm5hbWUiOiJCb2IgU21pdGgiLCJqdGkiOiI2NTE2MDg4MDY2QkUwNDJEOEU3OEEwQjQ4RTI2OTBCQyJ9.SS_-TEwyuN4-orsO622s9sg6shJQZO9Fx1-68JBuTQsfKyhQQm4mmqJS_xkBx2EfZ0woTczexIylyMleNs9ute9f672Lmazf_Zisyx7-s9evvTS52OllVByc-lb0XlylyHrh75NVmFOwcpDLVdAgUmzuqRM33N5wwq-B4-7HRof_TDTAoO2ML8Dgzv4PGBWpLMHg4-X32lBJfVgNLdpyro7JGUaQ6aHVBP3yoJuQBEtl7x9e3CrGEvkxRlja-X5szccTdRTDvUC0qspyH7w6GsVTdb9f9a_aBsnO3pYCSjNM-vEXOnJp8-VLkTD2FqUrQ8mOGMMhaAkGoYLUFG_D4A",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{identitySvc}}/connect/userinfo",
+							"host": [
+								"{{identitySvc}}"
+							],
+							"path": [
+								"connect",
+								"userinfo"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CreateNewJobNoAuth",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 401\", function (){\r",
+									"    pm.response.to.have.status(401)\r",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"title\": \"Fix website layout issue\",\r\n  \"description\": \"Need a front-end developer to resolve layout issues in our web app. Experience with CSS Grid is required.\",\r\n  \"paymentAmount\": 75,\r\n  \"deadline\": \"{{dateString}}\",\r\n  \"category\": \"Marketing\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{jobpostApi}}/api/jobpost/",
+							"host": [
+								"{{jobpostApi}}"
+							],
+							"path": [
+								"api",
+								"jobpost",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CreateNewJobAuth",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"jsonData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Status code is 201\", function (){\r",
+									"    pm.response.to.have.status(201)\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response body contains Bob as an Employer\", function () {\r",
+									"     pm.expect(jsonData).to.be.an('object');\r",
+									"     pm.expect(jsonData.employer).to.equal('bob');\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJSUzI1NiIsImtpZCI6IjIzNEE4NTJDMUJBRDI5NTgzNURERjFCRjU5QjNDNkQ2IiwidHlwIjoiYXQrand0In0.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjUwMDAiLCJuYmYiOjE3MjkyNDg1OTgsImlhdCI6MTcyOTI0ODU5OCwiZXhwIjoxNzI5MjUyMTk4LCJzY29wZSI6WyJqb2JBcHAiLCJvcGVuaWQiLCJwcm9maWxlIl0sImFtciI6WyJwd2QiXSwiY2xpZW50X2lkIjoicG9zdG1hbiIsInN1YiI6ImQ4YTZmZjQ3LTA3ODctNDhhYy1iYmY1LTM0OTFkZjMxZWIxYiIsImF1dGhfdGltZSI6MTcyOTI0ODU5OCwiaWRwIjoibG9jYWwiLCJ1c2VybmFtZSI6ImJvYiIsIm5hbWUiOiJCb2IgU21pdGgiLCJqdGkiOiI2NTE2MDg4MDY2QkUwNDJEOEU3OEEwQjQ4RTI2OTBCQyJ9.SS_-TEwyuN4-orsO622s9sg6shJQZO9Fx1-68JBuTQsfKyhQQm4mmqJS_xkBx2EfZ0woTczexIylyMleNs9ute9f672Lmazf_Zisyx7-s9evvTS52OllVByc-lb0XlylyHrh75NVmFOwcpDLVdAgUmzuqRM33N5wwq-B4-7HRof_TDTAoO2ML8Dgzv4PGBWpLMHg4-X32lBJfVgNLdpyro7JGUaQ6aHVBP3yoJuQBEtl7x9e3CrGEvkxRlja-X5szccTdRTDvUC0qspyH7w6GsVTdb9f9a_aBsnO3pYCSjNM-vEXOnJp8-VLkTD2FqUrQ8mOGMMhaAkGoYLUFG_D4A",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"title\": \"Fix website layout issue\",\r\n  \"description\": \"Need a front-end developer to resolve layout issues in our web app. Experience with CSS Grid is required.\",\r\n  \"paymentAmount\": 75,\r\n  \"deadline\": \"{{dateString}}\",\r\n  \"category\": \"Marketing\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{jobpostApi}}/api/jobpost/",
+							"host": [
+								"{{jobpostApi}}"
+							],
+							"path": [
+								"api",
+								"jobpost",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UpdateBobJobAuth",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJSUzI1NiIsImtpZCI6IjIzNEE4NTJDMUJBRDI5NTgzNURERjFCRjU5QjNDNkQ2IiwidHlwIjoiYXQrand0In0.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjUwMDAiLCJuYmYiOjE3MjkyNDg1OTgsImlhdCI6MTcyOTI0ODU5OCwiZXhwIjoxNzI5MjUyMTk4LCJzY29wZSI6WyJqb2JBcHAiLCJvcGVuaWQiLCJwcm9maWxlIl0sImFtciI6WyJwd2QiXSwiY2xpZW50X2lkIjoicG9zdG1hbiIsInN1YiI6ImQ4YTZmZjQ3LTA3ODctNDhhYy1iYmY1LTM0OTFkZjMxZWIxYiIsImF1dGhfdGltZSI6MTcyOTI0ODU5OCwiaWRwIjoibG9jYWwiLCJ1c2VybmFtZSI6ImJvYiIsIm5hbWUiOiJCb2IgU21pdGgiLCJqdGkiOiI2NTE2MDg4MDY2QkUwNDJEOEU3OEEwQjQ4RTI2OTBCQyJ9.SS_-TEwyuN4-orsO622s9sg6shJQZO9Fx1-68JBuTQsfKyhQQm4mmqJS_xkBx2EfZ0woTczexIylyMleNs9ute9f672Lmazf_Zisyx7-s9evvTS52OllVByc-lb0XlylyHrh75NVmFOwcpDLVdAgUmzuqRM33N5wwq-B4-7HRof_TDTAoO2ML8Dgzv4PGBWpLMHg4-X32lBJfVgNLdpyro7JGUaQ6aHVBP3yoJuQBEtl7x9e3CrGEvkxRlja-X5szccTdRTDvUC0qspyH7w6GsVTdb9f9a_aBsnO3pYCSjNM-vEXOnJp8-VLkTD2FqUrQ8mOGMMhaAkGoYLUFG_D4A",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"category\": \"IT\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{jobpostApi}}/api/jobpost/519c7426-0345-460c-bac5-0f769c6f3ebd",
+							"host": [
+								"{{jobpostApi}}"
+							],
+							"path": [
+								"api",
+								"jobpost",
+								"519c7426-0345-460c-bac5-0f769c6f3ebd"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UpdateBobJobNoAuth",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"category\": \"IT\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{jobpostApi}}/api/jobpost/519c7426-0345-460c-bac5-0f769c6f3ebd",
+							"host": [
+								"{{jobpostApi}}"
+							],
+							"path": [
+								"api",
+								"jobpost",
+								"519c7426-0345-460c-bac5-0f769c6f3ebd"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DeleteAuth",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJSUzI1NiIsImtpZCI6IjIzNEE4NTJDMUJBRDI5NTgzNURERjFCRjU5QjNDNkQ2IiwidHlwIjoiYXQrand0In0.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjUwMDAiLCJuYmYiOjE3MjkyNDg1OTgsImlhdCI6MTcyOTI0ODU5OCwiZXhwIjoxNzI5MjUyMTk4LCJzY29wZSI6WyJqb2JBcHAiLCJvcGVuaWQiLCJwcm9maWxlIl0sImFtciI6WyJwd2QiXSwiY2xpZW50X2lkIjoicG9zdG1hbiIsInN1YiI6ImQ4YTZmZjQ3LTA3ODctNDhhYy1iYmY1LTM0OTFkZjMxZWIxYiIsImF1dGhfdGltZSI6MTcyOTI0ODU5OCwiaWRwIjoibG9jYWwiLCJ1c2VybmFtZSI6ImJvYiIsIm5hbWUiOiJCb2IgU21pdGgiLCJqdGkiOiI2NTE2MDg4MDY2QkUwNDJEOEU3OEEwQjQ4RTI2OTBCQyJ9.SS_-TEwyuN4-orsO622s9sg6shJQZO9Fx1-68JBuTQsfKyhQQm4mmqJS_xkBx2EfZ0woTczexIylyMleNs9ute9f672Lmazf_Zisyx7-s9evvTS52OllVByc-lb0XlylyHrh75NVmFOwcpDLVdAgUmzuqRM33N5wwq-B4-7HRof_TDTAoO2ML8Dgzv4PGBWpLMHg4-X32lBJfVgNLdpyro7JGUaQ6aHVBP3yoJuQBEtl7x9e3CrGEvkxRlja-X5szccTdRTDvUC0qspyH7w6GsVTdb9f9a_aBsnO3pYCSjNM-vEXOnJp8-VLkTD2FqUrQ8mOGMMhaAkGoYLUFG_D4A",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{jobpostApi}}/api/jobpost/519c7426-0345-460c-bac5-0f769c6f3ebd",
+							"host": [
+								"{{jobpostApi}}"
+							],
+							"path": [
+								"api",
+								"jobpost",
+								"519c7426-0345-460c-bac5-0f769c6f3ebd"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetAliceToken",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"jsonData = pm.response.json();\r",
+									"\r",
+									"pm.collectionVariables.set(\"AliceToken\", jsonData.access_token);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "grant_type",
+									"value": "password",
+									"type": "text"
+								},
+								{
+									"key": "username",
+									"value": "alice",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "Pass123$",
+									"type": "text"
+								},
+								{
+									"key": "client_id",
+									"value": "postman",
+									"type": "text"
+								},
+								{
+									"key": "client_secret",
+									"value": "NotASecret",
+									"type": "text"
+								},
+								{
+									"key": "scope",
+									"value": "jobApp openid profile",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{identitySvc}}/connect/token",
+							"host": [
+								"{{identitySvc}}"
+							],
+							"path": [
+								"connect",
+								"token"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "New Request",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "Pass123$",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "bob",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "grant_type",
+								"value": "password",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:5000/connect/token",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"connect",
+								"token"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "GatewayService",
+			"item": [
+				{
+					"name": "Get All Items",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{gatewaySvc}}/search",
+							"host": [
+								"{{gatewaySvc}}"
+							],
+							"path": [
+								"search"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Jobs with Marketing category",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{gatewaySvc}}/search?filterBy=marketing",
+							"host": [
+								"{{gatewaySvc}}"
+							],
+							"path": [
+								"search"
+							],
+							"query": [
+								{
+									"key": "filterBy",
+									"value": "marketing"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create new Job as Bob",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"jsonData = pm.response.json();\r",
+									"\r",
+									"pm.collectionVariables.set(\"createdItemId\", jsonData.id);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{BobToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"title\": \"Warehouse Inventory Assistance\",\r\n  \"description\": \"Seeking help with organizing and counting inventory in our warehouse. Prior experience with inventory management is a plus.\",\r\n  \"paymentAmount\": 110,\r\n  \"deadline\": \"{{dateString}}\",\r\n  \"category\": \"ManualLabor\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{gatewaySvc}}/jobpost",
+							"host": [
+								"{{gatewaySvc}}"
+							],
+							"path": [
+								"jobpost"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Job by Id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{gatewaySvc}}/jobpost/{{createdItemId}}",
+							"host": [
+								"{{gatewaySvc}}"
+							],
+							"path": [
+								"jobpost",
+								"{{createdItemId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update created Job as Bob",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200', function () {\r",
+									"    pm.expect(pm.response.code).to.equal(200);\r",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJSUzI1NiIsImtpZCI6IjIzNEE4NTJDMUJBRDI5NTgzNURERjFCRjU5QjNDNkQ2IiwidHlwIjoiYXQrand0In0.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjUwMDAiLCJuYmYiOjE3Mjk0MjIzMTYsImlhdCI6MTcyOTQyMjMxNiwiZXhwIjoxNzI5NDI1OTE2LCJzY29wZSI6WyJqb2JBcHAiLCJvcGVuaWQiLCJwcm9maWxlIl0sImFtciI6WyJwd2QiXSwiY2xpZW50X2lkIjoicG9zdG1hbiIsInN1YiI6ImQ4YTZmZjQ3LTA3ODctNDhhYy1iYmY1LTM0OTFkZjMxZWIxYiIsImF1dGhfdGltZSI6MTcyOTQyMjMxNiwiaWRwIjoibG9jYWwiLCJ1c2VybmFtZSI6ImJvYiIsIm5hbWUiOiJCb2IgU21pdGgiLCJqdGkiOiJDMkRGNTcwMURCRkY5OTRDQkE2MTg1RUYyOEQ2RkU4MSJ9.EZ5ecAYUKcfWcwxgoL0ZejKrtfQ8bmVYmY3Ij74ImS2o6xuOEdHncBuUqRkM_rnnLn-tAtwFPhN9PPlO1DplESlN9kKLTDXfdh_ojyKxSxAzmngmJPui1Zq3jHxOFKAL6EObt6vdDLPdtWhWtIZ64jFsHRhEfdOfqfPOFghUhRpIT6GpEaRlLraEjaM739XZ3CYMQ9y9QV4X0kRx_08NZbeBKO4DyUOEfzH-di02Pjocm4dWjgtCogeOOGGtN_1Sui01JewHbCx-f1-tkUy87S5m7r-Sro_JnAKQcsY7QOrchimea9UNpRNTwv4f4ErSPcAu1KP1hWFwp-LjKjLRaQ",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"title\": \"Updated\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{gatewaySvc}}/jobpost/{{createdItemId}}",
+							"host": [
+								"{{gatewaySvc}}"
+							],
+							"path": [
+								"jobpost",
+								"{{createdItemId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update created Job as Alice",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 403', function () {\r",
+									"    pm.expect(pm.response.code).to.equal(403);\r",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{AliceToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"title\": \"Updated by ALice (not possible)\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{gatewaySvc}}/jobpost/{{createdItemId}}",
+							"host": [
+								"{{gatewaySvc}}"
+							],
+							"path": [
+								"jobpost",
+								"{{createdItemId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Updated Job by Id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{gatewaySvc}}/jobpost/{{createdItemId}}",
+							"host": [
+								"{{gatewaySvc}}"
+							],
+							"path": [
+								"jobpost",
+								"{{createdItemId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Auction as Bob",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200', function () {\r",
+									"    pm.expect(pm.response.code).to.equal(200);\r",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{BobToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{gatewaySvc}}/jobpost/{{createdItemId}}",
+							"host": [
+								"{{gatewaySvc}}"
+							],
+							"path": [
+								"jobpost",
+								"{{createdItemId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Deleted Auction",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 404', function () {\r",
+									"    pm.expect(pm.response.code).to.equal(404);\r",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{gatewaySvc}}/jobpost/{{createdItemId}}",
+							"host": [
+								"{{gatewaySvc}}"
+							],
+							"path": [
+								"jobpost",
+								"{{createdItemId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Dockerised Application Checkpoint",
+			"item": [
+				{
+					"name": "Get Bob Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"jsonData = pm.response.json();\r",
+									"\r",
+									"pm.collectionVariables.set(\"BobToken\", jsonData.access_token);\r",
+									"\r",
+									"pm.test('Status code is 200', function () {\r",
+									"    pm.expect(pm.response.code).to.equal(200);\r",
+									"})\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "grant_type",
+									"value": "password",
+									"type": "text"
+								},
+								{
+									"key": "username",
+									"value": "bob",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "Pass123$",
+									"type": "text"
+								},
+								{
+									"key": "client_id",
+									"value": "postman",
+									"type": "text"
+								},
+								{
+									"key": "client_secret",
+									"value": "NotASecret",
+									"type": "text"
+								},
+								{
+									"key": "scope",
+									"value": "jobApp openid profile",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{identitySvc}}/connect/token",
+							"host": [
+								"{{identitySvc}}"
+							],
+							"path": [
+								"connect",
+								"token"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Job Post as Bob",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"jsonData = pm.response.json();\r",
+									"\r",
+									"pm.collectionVariables.set(\"createdItemId\", jsonData.id);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{BobToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"title\":\"Graphic Design for Marketing Materials\",\r\n    \"description\":\"Design brochures, flyers, and banners for our upcoming marketing campaign. Proficiency in Adobe Photoshop and Illustrator is required.\",\r\n    \"paymentAmount\":\"300\",\r\n    \"deadline\":\"2024-12-28T09:30:00.000Z\",\r\n    \"category\":\"it\",\r\n    \"location\":\r\n    {\"latitude\":52.17815492770559,\"longitude\":20.99303358040375,\"city\":\"Варшава\",\"country\":\"Польша\",\"street\":\"Wynalazek\"}}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{gatewaySvc}}/jobpost",
+							"host": [
+								"{{gatewaySvc}}"
+							],
+							"path": [
+								"jobpost"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Created Post (No-Auth)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 401 Unauthorized', function () {\r",
+									"    pm.expect(pm.response.code).to.equal(200);\r",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"description\": \"Modified\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{gatewaySvc}}/jobpost/{{createdItemId}}",
+							"host": [
+								"{{gatewaySvc}}"
+							],
+							"path": [
+								"jobpost",
+								"{{createdItemId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Created Post (Auth)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{BobToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"title\": \"Test___\",\r\n    \"description\": \"Test___\",\r\n    \"employer\": \"bob\",\r\n    \"employee\": null,\r\n    \"createdAt\": \"2024-12-17T15:02:17.219Z\",\r\n    \"updatedAt\": \"2024-12-17T15:02:17.219Z\",\r\n    \"paymentAmount\": 10,\r\n    \"status\": \"Open\",\r\n    \"location\": {\r\n        \"country\": \"Poland\",\r\n        \"city\": \"Warsaw\",\r\n        \"district\": \"Mokotow\",\r\n        \"street\": \"Spacerowa\",\r\n        \"latitude\": 52.21151113767439,\r\n        \"longitude\": 21.024071956113254\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{gatewaySvc}}/jobpost/0b844b1f-3b63-42a9-bb24-4b8f9220fd1f",
+							"host": [
+								"{{gatewaySvc}}"
+							],
+							"path": [
+								"jobpost",
+								"0b844b1f-3b63-42a9-bb24-4b8f9220fd1f"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Item by Id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{gatewaySvc}}/jobpost/10e15d20-7b57-4f77-97f8-2f32534ba184",
+							"host": [
+								"{{gatewaySvc}}"
+							],
+							"path": [
+								"jobpost",
+								"10e15d20-7b57-4f77-97f8-2f32534ba184"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Items",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{gatewaySvc}}/search?filterBy=IT&maxSalary=5000&minSalary=0&orderBy=new&pageSize=100&searchTerm=&searchValue=",
+							"host": [
+								"{{gatewaySvc}}"
+							],
+							"path": [
+								"search"
+							],
+							"query": [
+								{
+									"key": "filterBy",
+									"value": "IT"
+								},
+								{
+									"key": "maxSalary",
+									"value": "5000"
+								},
+								{
+									"key": "minSalary",
+									"value": "0"
+								},
+								{
+									"key": "orderBy",
+									"value": "new"
+								},
+								{
+									"key": "pageSize",
+									"value": "100"
+								},
+								{
+									"key": "searchTerm",
+									"value": ""
+								},
+								{
+									"key": "searchValue",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "ApplyingService",
+			"item": [
+				{
+					"name": "GetBobToken",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"jsonData = pm.response.json();\r",
+									"\r",
+									"pm.collectionVariables.set(\"BobToken\", jsonData.access_token);\r",
+									"\r",
+									"pm.test('Status code is 200', function () {\r",
+									"    pm.expect(pm.response.code).to.equal(200);\r",
+									"})\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "grant_type",
+									"value": "password",
+									"type": "text"
+								},
+								{
+									"key": "username",
+									"value": "bob",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "Pass123$",
+									"type": "text"
+								},
+								{
+									"key": "client_id",
+									"value": "postman",
+									"type": "text"
+								},
+								{
+									"key": "client_secret",
+									"value": "NotASecret",
+									"type": "text"
+								},
+								{
+									"key": "scope",
+									"value": "jobApp openid profile",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{identitySvc}}/connect/token",
+							"host": [
+								"{{identitySvc}}"
+							],
+							"path": [
+								"connect",
+								"token"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CreateJobPost",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Status code is 201\", function () {\r",
+									"     pm.expect(pm.response.code).to.equal(201);\r",
+									"})\r",
+									"\r",
+									"pm.collectionVariables.set(\"createdItemId\", jsonData.id);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{BobToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"title\": \"Test Apply Service\",\r\n  \"description\": \"Test Apply Service\",\r\n  \"paymentAmount\": 350,\r\n  \"deadline\": \"2025-01-20T23:59:59Z\",\r\n  \"category\": \"IT\",\r\n  \"location\": {\r\n    \"country\": \"Poland\",\r\n    \"city\": \"Warsaw\",\r\n    \"district\": \"Śródmieście\",\r\n    \"street\": \"Marszałkowska 76\",\r\n    \"latitude\": 52.229,\r\n    \"longitude\": 21.011\r\n  }\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{jobpostApi}}/api/jobpost/",
+							"host": [
+								"{{jobpostApi}}"
+							],
+							"path": [
+								"api",
+								"jobpost",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetBTwinToken",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"jsonData = pm.response.json();\r",
+									"\r",
+									"pm.collectionVariables.set(\"BTwinToken\", jsonData.access_token);\r",
+									"\r",
+									"pm.test('Status code is 200', function () {\r",
+									"    pm.expect(pm.response.code).to.equal(200);\r",
+									"})\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "grant_type",
+									"value": "password",
+									"type": "text"
+								},
+								{
+									"key": "username",
+									"value": "btwin",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "Pass123$",
+									"type": "text"
+								},
+								{
+									"key": "client_id",
+									"value": "postman",
+									"type": "text"
+								},
+								{
+									"key": "client_secret",
+									"value": "NotASecret",
+									"type": "text"
+								},
+								{
+									"key": "scope",
+									"value": "jobApp openid profile",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{identitySvc}}/connect/token",
+							"host": [
+								"{{identitySvc}}"
+							],
+							"path": [
+								"connect",
+								"token"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetAliceToken",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"jsonData = pm.response.json();\r",
+									"\r",
+									"pm.collectionVariables.set(\"AliceToken\", jsonData.access_token);\r",
+									"\r",
+									"pm.test('Status code is 200', function () {\r",
+									"    pm.expect(pm.response.code).to.equal(200);\r",
+									"})\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "grant_type",
+									"value": "password",
+									"type": "text"
+								},
+								{
+									"key": "username",
+									"value": "alice",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "Pass123$",
+									"type": "text"
+								},
+								{
+									"key": "client_id",
+									"value": "postman",
+									"type": "text"
+								},
+								{
+									"key": "client_secret",
+									"value": "NotASecret",
+									"type": "text"
+								},
+								{
+									"key": "scope",
+									"value": "jobApp openid profile",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{identitySvc}}/connect/token",
+							"host": [
+								"{{identitySvc}}"
+							],
+							"path": [
+								"connect",
+								"token"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ApplyAsBTwin",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{BTwinToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"Email\": \"testemail@gmail.com\",\r\n    \"Phone\": \"48111111111\",\r\n    \"Message\": \"Test Message\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{applySvc}}/api/apply?jobPostId={{createdItemId}}",
+							"host": [
+								"{{applySvc}}"
+							],
+							"path": [
+								"api",
+								"apply"
+							],
+							"query": [
+								{
+									"key": "jobPostId",
+									"value": "{{createdItemId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetMyRequests",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{BTwinToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{applySvc}}/api/apply/my-requests",
+							"host": [
+								"{{applySvc}}"
+							],
+							"path": [
+								"api",
+								"apply",
+								"my-requests"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetJobPostRequests",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 401\", function () {\r",
+									"    pm.response.to.have.status(401);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{BTwinToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{applySvc}}/api/apply/{{createdItemId}}",
+							"host": [
+								"{{applySvc}}"
+							],
+							"path": [
+								"api",
+								"apply",
+								"{{createdItemId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "New Request",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"query\": {\r\n    \"match\": {\r\n      \"category\": \"ManualLabor\"\r\n    }\r\n  }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:9200/jobposts/_search",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9200",
+					"path": [
+						"jobposts",
+						"_search"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "jobpostApi",
+			"value": "http://localhost:7001",
+			"type": "string"
+		},
+		{
+			"key": "dateString",
+			"value": "2024-10-22T14:52:09.476787Z",
+			"type": "string"
+		},
+		{
+			"key": "createdItemId",
+			"value": ""
+		},
+		{
+			"key": "searchApi",
+			"value": "http://localhost:7002",
+			"type": "string"
+		},
+		{
+			"key": "identitySvc",
+			"value": "http://localhost:5000",
+			"type": "string"
+		},
+		{
+			"key": "gatewaySvc",
+			"value": "http://localhost:6001",
+			"type": "string"
+		},
+		{
+			"key": "AliceToken",
+			"value": ""
+		},
+		{
+			"key": "BobToken",
+			"value": ""
+		},
+		{
+			"key": "applySvc",
+			"value": "http://localhost:7003",
+			"type": "string"
+		},
+		{
+			"key": "BTwinToken",
+			"value": ""
+		}
+	]
+}
