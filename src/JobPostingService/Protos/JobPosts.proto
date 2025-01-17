@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+option csharp_namespace = "JobPostingService.Protos";
+
+service GrpcJobPost {
+    rpc GetJobPosts(GetJobPostRequest) returns (GrpcJobPostResponse);
+}
+
+message GetJobPostRequest {
+    string id = 1; 
+}
+
+message GrpcJobPostModel {
+    string id = 1;
+    string employer = 2;
+    string deadline = 3;
+}
+
+message GrpcJobPostResponse {
+    GrpcJobPostModel jobPost = 1;
+}

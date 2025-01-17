@@ -65,7 +65,7 @@ namespace JobPostingService.Repository
         public async Task<List<JobPost>> GetFinishedJobPosts()
         {
             return await _context.JobPosts.Include(x => x.Location)
-                .Where(x => x.Deadline.CompareTo(DateTime.UtcNow) < 0)
+                .Where(x => x.Deadline.CompareTo(DateTime.UtcNow) < 0 && x.Status != Status.Completed)
                 .ToListAsync();
         }
     }

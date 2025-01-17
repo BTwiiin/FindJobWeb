@@ -52,6 +52,8 @@ builder.Services.AddDbContext<JobPostingDbContext>(options =>
 
 builder.Services.AddScoped<IJobPostRepository, JobPostRepository>();
 
+builder.Services.AddGrpc();
+
 builder.Services.AddHostedService<CheckJobPostFinished>();
 
 var app = builder.Build();
@@ -60,6 +62,8 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.MapGrpcService<GrpcJobPostService>();
 
 try
 {
@@ -71,5 +75,6 @@ catch (Exception ex)
 }
 
 app.Run();
+
 
 public partial class Program {}

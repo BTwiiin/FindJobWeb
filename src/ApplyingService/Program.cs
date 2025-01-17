@@ -3,6 +3,7 @@ using MongoDB.Driver;
 using MongoDB.Entities;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using ApplyingService.Consumers;
+using ApplyingService.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -40,6 +41,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies()); 
+
+builder.Services.AddScoped<GrpcJobPostClient>();
 
 var app = builder.Build();
 

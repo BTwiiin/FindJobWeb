@@ -1,5 +1,6 @@
 using ApplyingService.DTOs;
 using ApplyingService.Models;
+using ApplyingService.Services;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -12,10 +13,12 @@ namespace ApplyingService.Controllers;
 public class ApplyController : ControllerBase
 {
     private readonly IMapper _mapper;
+    private readonly GrpcJobPostClient _grpcJobPostClient;
 
-    public ApplyController(IMapper mapper)
+    public ApplyController(IMapper mapper, GrpcJobPostClient grpcJobPostClient)
     {
         _mapper = mapper;
+        _grpcJobPostClient = grpcJobPostClient;
     }
 
     [Authorize]
@@ -26,8 +29,9 @@ public class ApplyController : ControllerBase
 
         if (jobPost == null)
         {
-            // TODO: check in JobPostingService DB
-            return NotFound();
+            jobPost = _grpcJobPostClient.GetJobPost(jobPostId);
+
+            if (jobPost == null) return BadRequest("Currently cannot accept requests for this job post.");
         }
 
         if (jobPost.Employer == User.Identity.Name)
