@@ -10,6 +10,7 @@ COPY src/SearchService/SearchService.csproj src/SearchService/SearchService.cspr
 COPY src/GatewayService/GatewayService.csproj src/GatewayService/GatewayService.csproj
 COPY src/Contracts/Contracts.csproj src/Contracts/Contracts.csproj
 COPY src/ApplyingService/ApplyingService.csproj src/ApplyingService/ApplyingService.csproj
+COPY src/NotificationService/NotificationService.csproj src/NotificationService/NotificationService.csproj
 COPY src/IdentityService/IdentityService.csproj src/IdentityService/IdentityService.csproj
 COPY tests/JobPostingService.UnitTests/JobPostingService.UnitTests.csproj tests/JobPostingService.UnitTests/JobPostingService.UnitTests.csproj
 COPY tests/JobPostingService.IntegrationTests/JobPostingService.IntegrationTests.csproj tests/JobPostingService.IntegrationTests/JobPostingService.IntegrationTests.csproj
