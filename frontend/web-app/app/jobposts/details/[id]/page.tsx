@@ -1,4 +1,4 @@
-import { getJobPostById, getSimilarJobPosts } from '@/app/actions/jobPostActions';
+import { getJobPostById, getMyRequests, getSimilarJobPosts } from '@/app/actions/jobPostActions';
 import Heading from '@/app/components/Heading';
 import React from 'react';
 import SimilarJobCard from '../../cards/SimilarJobCard';
@@ -21,6 +21,18 @@ export default async function Details(props: Params) {
   const params = await props.params;
   const data = await getJobPostById(params.id);
   const user = await getCurrentUser();
+  const requestedJobs = await getMyRequests();
+  var applied = false;
+
+  if (user !== null) {
+    const requestedJobs = await getMyRequests();
+    
+    for (const request of requestedJobs) {
+      if (request.jobPostId === data.id) {
+        var applied = true;
+      }
+    }
+  }
 
   const similarJobs = await getSimilarJobPosts(data.category);
   for (const job of similarJobs) {
@@ -115,18 +127,32 @@ export default async function Details(props: Params) {
         )}
       </div>
 
-      {/*Apply Section*/}
-      <div>
-        <h2 className="text-xl font-semibold mb-2">Apply for this job!</h2>
-        {user !== null && user.username !== data.employer && (
-          <ApplyForm />
-        )}
-        {user === null && (
-          <EmptyFilter title='You need to be logged in order to submit application' 
-                      subtitle='Click below to login'
-                      showLogin />
+      {/* Apply Section */}
+      {user !== null && user.username !== data.employer && (
+        <div>
+          <h2 className="text-xl font-semibold mb-2">
+            {applied ? 'Application Submitted' : 'Apply for this job!'}
+          </h2>
+          {applied ? (
+            <p>You have already applied for this job.</p>
+          ) : (
+            <>
+              {user !== null && (
+                <ApplyForm jobPostId={data.id} />
+              )}
+            </>
           )}
-      </div>
+        </div>
+      )}
+      {user === null && (
+              <div>
+                <EmptyFilter
+                  title="You need to be logged in in order to submit an application"
+                  subtitle="Click below to login"
+                  showLogin
+                />
+              </div>
+              )}
 
       {/* Similar Jobs Section */}
       {similarJobs && similarJobs.length > 0 && (

@@ -55,7 +55,7 @@ async function getHeaders() {
     } as any;
 
     if(session?.accessToken) {
-        headers.Authorization = 'Bearer ' + session.accessToken;
+        headers.Authorization = 'Bearer ' + session.accessToken.trim();
     }
 
     return headers;

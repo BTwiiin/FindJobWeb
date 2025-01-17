@@ -1,12 +1,20 @@
-'use client';
+"use client"
 
 import { Button } from 'flowbite-react';
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import Input from '../components/Input';
 import toast from 'react-hot-toast';
+import { applyToJobPost } from '../actions/jobPostActions';
+import InputArea from '../components/InputArea';
+import { useRouter } from 'next/navigation';
 
-export default function ApplyForm() {
+interface ApplyFormProps {
+  jobPostId: string;
+}
+
+export default function ApplyForm({ jobPostId }: ApplyFormProps) {
+  const router = useRouter();
   const {
     control,
     handleSubmit,
@@ -19,9 +27,19 @@ export default function ApplyForm() {
     try {
       // TODO: Replace with an API call to submit application data
       console.log('Application Submitted:', data);
-      toast.success('Application submitted successfully!');
+
+      var responce = await applyToJobPost(jobPostId, data);
+
+      if (responce.status === 200) {
+        toast.success('Application submitted successfully!');
+      }
+      else {
+        console.log('Application submission failed! ' + responce.message + ' ' + responce.status);
+      }
+      
+
     } catch (error: any) {
-      toast.error('Failed to submit application. Please try again.');
+      toast.error(error.status + ' ' + error.message);
     }
   }
 
@@ -29,7 +47,7 @@ export default function ApplyForm() {
     <form className="flex flex-col mt-3" onSubmit={handleSubmit(onSubmit)}>
       <Input
         label="Phone Number"
-        name="phoneNumber"
+        name="Phone"
         control={control}
         type="tel"
         rules={{
@@ -46,7 +64,7 @@ export default function ApplyForm() {
 
       <Input
         label="Email"
-        name="email"
+        name="Email"
         control={control}
         type="email"
         rules={{
@@ -56,6 +74,11 @@ export default function ApplyForm() {
             message: 'Please enter a valid email address',
           },
         }}
+      />
+      <InputArea
+        label="Message to the Employer (optional)"
+        name="Message"
+        control={control}
       />
       {/* {errors.email && (
         <p className="text-red-500 text-sm">{errors.email.message}</p>

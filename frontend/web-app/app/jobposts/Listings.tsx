@@ -5,16 +5,18 @@ import JovPostCard from './cards/JobPostCard'
 import qs from 'query-string';
 import { getData } from '@/app/actions/jobPostActions';
 import { useParamsStore } from '@/app/hooks/useParamsStore';
-import { useShallow } from 'zustand/shallow';
+import { shallow, useShallow } from 'zustand/shallow';
 import { PagedResult, JobPost } from '@/types';
 import EmptyFilter from '../components/EmptyFilter';
 import Loading from './Loading';
+import { useJobPostStore } from '../hooks/useJobPostStore';
+import OrderBy from './OrderBy';
 
 
 
 
 export default function Listings() {
-  const [data, setData] = useState<PagedResult<JobPost>>();  // Set state to store fetched data
+  const [loading, setLoading] = useState(true);
   const params = useParamsStore(useShallow(state => ({
       searchTerm: state.searchTerm,
       pageSize: state.pageSize,
@@ -26,6 +28,13 @@ export default function Listings() {
       maxSalary: state.maxSalary
   })));
 
+  const data = useJobPostStore(useShallow(state => ({
+    jobPosts: state.jobPosts,
+    totalCount: state.totalCount
+  })));
+
+  const setData = useJobPostStore(state => state.setData);
+
   const setParams = useParamsStore(state => state.setParams);
 
   const url = qs.stringifyUrl({
@@ -36,22 +45,34 @@ export default function Listings() {
   useEffect(() => {
       getData(url).then(data => {
           setData(data);
+          setLoading(false);
       })
   }, [url]);
 
-  if (!data) {
+  if (loading) {
     return (
       <Loading />
     );
   }
 
-  if (data.results.length === 0) return <EmptyFilter />;
+  if (data.jobPosts.length === 0) return <EmptyFilter />;
 
   return (
-    <div className="flex flex-wrap">
-    {data && data.results.map((jobpost) => (
-      <JovPostCard jobPost={jobpost} key={jobpost.id} />
-    ))}
-  </div>
-)
+    <div className="flex flex-col">
+      {data && (
+        <><div className="sticky top-0 z-20 bg-white shadow-md">
+            <div className="flex items-center justify-between px-4 py-2">
+              <h1 className="text-xl font-semibold text-gray-600">Job Offers: {data.totalCount}</h1>
+              <OrderBy />
+            </div>
+          </div>
+          <div className="flex flex-wrap">
+            {data.jobPosts.map((jobpost) => (
+              <JovPostCard jobPost={jobpost} key={jobpost.id} />
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  )
 }
