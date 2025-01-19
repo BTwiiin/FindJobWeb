@@ -10,11 +10,15 @@ declare module "next-auth" {
   }
 
   interface Profile {
-    username: string
+    username: string,
+    email: string,
+    name: string
   }
   
   interface User {
-    username: string
+    username: string,
+    email: string,
+    name: string
   }
 }
 

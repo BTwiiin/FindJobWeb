@@ -1,4 +1,4 @@
-import { getJobPostById, getMyRequests, getSimilarJobPosts } from '@/app/actions/jobPostActions';
+import { getApplicants, getJobPostById, getMyRequests, getSimilarJobPosts } from '@/app/actions/jobPostActions';
 import Heading from '@/app/components/Heading';
 import React from 'react';
 import SimilarJobCard from '../../cards/SimilarJobCard';
@@ -9,6 +9,8 @@ import DeleteButton from './DeleteButton';
 import ApplyForm from '../../ApplyForm';
 import EmptyFilter from '@/app/components/EmptyFilter';
 import MapComponent from './MapComponent';
+import { JobPostRequest } from '@/types';
+import ApplicantList from './ApplicantList';
 
 
 type Params = {
@@ -21,16 +23,24 @@ export default async function Details(props: Params) {
   const params = await props.params;
   const data = await getJobPostById(params.id);
   const user = await getCurrentUser();
-  const requestedJobs = await getMyRequests();
+  
   var applied = false;
 
+  let applicantList: JobPostRequest[] = [];
+
   if (user !== null) {
-    const requestedJobs = await getMyRequests();
-    
-    for (const request of requestedJobs) {
-      if (request.jobPostId === data.id) {
-        var applied = true;
+    if (user.username !== data.employer) {
+      const requestedJobs = await getMyRequests();
+      
+      for (const request of requestedJobs) {
+        if (request.jobPostId === data.id) {
+          var applied = true;
+        }
       }
+    }
+    else 
+    {
+      applicantList = await getApplicants(data.id);
     }
   }
 
@@ -115,9 +125,11 @@ export default async function Details(props: Params) {
       {/* Actions */}
       <div className="mt-8 flex space-x-4 pb-3">
         {/* Another action, e.g. Save or Share */}
-        <Button className="px-6 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-200 transition-all">
-          Save for Later
-        </Button>
+        {user?.username !== data.employer && (
+          <Button className="px-6 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-200 transition-all">
+            Save for Later
+          </Button>
+        )}
         {/* Edit Button */}
         {user?.username === data.employer && (
           <>
@@ -155,7 +167,7 @@ export default async function Details(props: Params) {
               )}
 
       {/* Similar Jobs Section */}
-      {similarJobs && similarJobs.length > 0 && (
+      {similarJobs && similarJobs.length > 0 && user?.username !== data.employer && (
         <div className="mt-12 flex flex-col">
           <h2 className="text-2xl font-semibold mb-4">Similar Jobs</h2>
           <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
@@ -165,6 +177,14 @@ export default async function Details(props: Params) {
           </div>
         </div>
       )}
+
+      {/* List of applicants*/}
+      {user?.username === data.employer && (
+        <div className="mt-12">
+          <h2 className="text-2xl font-semibold mb-4">Applicants</h2>
+          <ApplicantList applicantList={applicantList} />
+        </div>
+        )}
     </div>
   );
 }

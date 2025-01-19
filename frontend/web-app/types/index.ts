@@ -27,3 +27,14 @@ export type JobPost = {
     location: Location
     id: string
 }
+
+export type JobPostRequest = {
+    id: string
+    jobPostId: string
+    employee: string
+    applyDate: string
+    status: string
+    email: string
+    phone: string
+    message: string
+}

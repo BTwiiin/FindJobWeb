@@ -2,7 +2,7 @@
 
 import { Button } from 'flowbite-react';
 import React from 'react';
-import { useForm } from 'react-hook-form';
+import { set, useForm } from 'react-hook-form';
 import Input from '../components/Input';
 import toast from 'react-hot-toast';
 import { applyToJobPost } from '../actions/jobPostActions';
@@ -14,6 +14,7 @@ interface ApplyFormProps {
 }
 
 export default function ApplyForm({ jobPostId }: ApplyFormProps) {
+  const [loading, setLoading] = React.useState(false);
   const router = useRouter();
   const {
     control,
@@ -25,8 +26,7 @@ export default function ApplyForm({ jobPostId }: ApplyFormProps) {
 
   async function onSubmit(data: any) {
     try {
-      // TODO: Replace with an API call to submit application data
-      console.log('Application Submitted:', data);
+      setLoading(true);
 
       var responce = await applyToJobPost(jobPostId, data);
 
@@ -34,67 +34,75 @@ export default function ApplyForm({ jobPostId }: ApplyFormProps) {
         toast.success('Application submitted successfully!');
       }
       else {
-        console.log('Application submission failed! ' + responce.message + ' ' + responce.status);
+        toast.error(responce.error.message);
       }
       
+      setLoading(false);
 
     } catch (error: any) {
       toast.error(error.status + ' ' + error.message);
+      setLoading(false);
     }
   }
 
   return (
     <form className="flex flex-col mt-3" onSubmit={handleSubmit(onSubmit)}>
-      <Input
-        label="Phone Number"
-        name="Phone"
-        control={control}
-        type="tel"
-        rules={{
-          required: 'Phone number is required',
-          pattern: {
-            value: /^[0-9]{10,15}$/,
-            message: 'Please enter a valid phone number',
-          },
-        }}
-      />
-      {/* {errors.phoneNumber && (
-        <p className="text-red-500 text-sm">{errors.phoneNumber.message}</p>
-      )} */}
-
-      <Input
-        label="Email"
-        name="Email"
-        control={control}
-        type="email"
-        rules={{
-          required: 'Email is required',
-          pattern: {
-            value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-            message: 'Please enter a valid email address',
-          },
-        }}
-      />
-      <InputArea
-        label="Message to the Employer (optional)"
-        name="Message"
-        control={control}
-      />
-      {/* {errors.email && (
-        <p className="text-red-500 text-sm">{errors.email.message}</p>
-      )} */}
-
-      <div className="flex justify-between gap-4 mt-6">
-        <Button
-          isProcessing={isSubmitting}
-          disabled={!isValid}
-          type="submit"
-          color="success"
-          className='w-full bg-gray-500 hover:bg-gray-600'
-        >
-          Submit
-        </Button>
-      </div>
+      {loading ? (
+        <div className="flex justify-center items-center h-48">
+          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-gray-900"></div>
+        </div>
+      ) : (
+        <>
+          <Input
+            label="Phone Number"
+            name="Phone"
+            control={control}
+            type="tel"
+            rules={{
+              required: 'Phone number is required',
+              pattern: {
+                value: /^[0-9]{10,15}$/,
+                message: 'Please enter a valid phone number',
+              },
+            }}
+          />
+          {errors.Phone?.message && (
+            <p className="text-red-500 text-sm">{String(errors.Phone.message)}</p>
+          )}
+          <Input
+            label="Email"
+            name="Email"
+            control={control}
+            type="email"
+            rules={{
+              required: 'Email is required',
+              pattern: {
+                value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                message: 'Please enter a valid email address',
+              },
+            }}
+          />
+          {errors.Email && (
+            <p className="text-red-500 text-sm">{String(errors.Email.message)}</p>
+          )}
+          <InputArea
+            label="Message to the Employer (optional)"
+            name="Message"
+            control={control}
+          />
+          <div className="flex justify-between gap-4 mt-6">
+            <Button
+              isProcessing={isSubmitting}
+              disabled={!isValid}
+              type="submit"
+              color="success"
+              className='w-full bg-gray-500 hover:bg-gray-600'
+            >
+              Submit
+            </Button>
+          </div>
+        </>
+      )}
     </form>
   );
 }

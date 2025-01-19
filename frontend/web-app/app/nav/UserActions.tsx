@@ -29,7 +29,7 @@ export default function UserActions({user}: Props) {
     return (
         <Dropdown inline label={`Welcome ${user.name}`}>
             <Dropdown.Item icon={HiUser} className='hover:scale-105'>
-            <Link href="/">
+            <Link href="/profile">
                 Profile
             </Link>
             </Dropdown.Item>

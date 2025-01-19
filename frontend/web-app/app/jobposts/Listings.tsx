@@ -5,15 +5,11 @@ import JovPostCard from './cards/JobPostCard'
 import qs from 'query-string';
 import { getData } from '@/app/actions/jobPostActions';
 import { useParamsStore } from '@/app/hooks/useParamsStore';
-import { shallow, useShallow } from 'zustand/shallow';
-import { PagedResult, JobPost } from '@/types';
+import { useShallow } from 'zustand/shallow';
 import EmptyFilter from '../components/EmptyFilter';
 import Loading from './Loading';
 import { useJobPostStore } from '../hooks/useJobPostStore';
 import OrderBy from './OrderBy';
-
-
-
 
 export default function Listings() {
   const [loading, setLoading] = useState(true);
@@ -30,12 +26,10 @@ export default function Listings() {
 
   const data = useJobPostStore(useShallow(state => ({
     jobPosts: state.jobPosts,
-    totalCount: state.totalCount
+    totalCount: state.totalCount,
   })));
 
   const setData = useJobPostStore(state => state.setData);
-
-  const setParams = useParamsStore(state => state.setParams);
 
   const url = qs.stringifyUrl({
     url: '',
@@ -66,7 +60,7 @@ export default function Listings() {
               <OrderBy />
             </div>
           </div>
-          <div className="flex flex-wrap">
+          <div className="flex flex-wrap pb-32">
             {data.jobPosts.map((jobpost) => (
               <JovPostCard jobPost={jobpost} key={jobpost.id} />
             ))}

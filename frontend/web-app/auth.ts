@@ -27,7 +27,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             }
 
             if (profile) {
+                console.log("Received profile:", profile);
                 token.username = profile.username
+                token.email = profile.email,
+                token.name = profile.name
             }
             return token;
         },

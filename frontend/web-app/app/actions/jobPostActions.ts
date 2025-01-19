@@ -46,6 +46,10 @@ export async function getMyRequests() {
     return await fetchWrapper.get(`apply/my-requests`);
 }
 
+export async function getApplicants(jobPostId: string) {
+    return await fetchWrapper.get(`apply/${jobPostId}`);
+}
+
 export async function applyToJobPost(jobPostId: string, data: FieldValues) {
     revalidatePath(`/jobposts/details/${jobPostId}`);
     return await fetchWrapper.post(`apply?jobPostId=${jobPostId}`, data);
