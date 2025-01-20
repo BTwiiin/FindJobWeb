@@ -2,11 +2,11 @@ import React, { useState } from 'react';
 
 interface Task {
   id: string;
-  date: string; // e.g., "2023-12-25"
+  date: string;
   task: string;
 }
 
-const TaskManagementCalendar: React.FC = () => {
+const Calendar: React.FC = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
@@ -112,4 +112,4 @@ const TaskManagementCalendar: React.FC = () => {
   );
 };
 
-export default TaskManagementCalendar;
+export default Calendar;

@@ -5,7 +5,7 @@ import { getCurrentUser } from '@/app/actions/authActions';
 import { getMyRequests } from '@/app/actions/jobPostActions';
 import { useRouter } from 'next/navigation';
 import { FaUser, FaEnvelope, FaPhone, FaLocationArrow, FaBriefcase } from 'react-icons/fa';
-import WeeklyCalendar from './WeeklyCalendar'; // Import the WeeklyCalendar component
+import Calendar from './Calendar';
 import { JobPostRequest } from '@/types';
 import { useJobPostStore } from '../hooks/useJobPostStore';
 
@@ -18,7 +18,6 @@ interface User {
 const UserProfile: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
   const [jobRequests, setJobRequests] = useState<JobPostRequest[]>([]);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
@@ -38,16 +37,13 @@ const UserProfile: React.FC = () => {
       } catch (err) {
         setError('Failed to fetch user data');
       } finally {
-        setLoading(false);
+
       }
     };
 
     fetchUserData();
   }, []);
 
-  if (loading) {
-    return <div className="flex items-center justify-center min-h-screen bg-gray-100">Loading...</div>;
-  }
 
   if (error) {
     return <div className="text-red-500 text-center mt-8">{error}</div>;
@@ -106,19 +102,19 @@ const UserProfile: React.FC = () => {
                         const jobPost = jobPosts.find((post) => post.id === request.jobPostId);
 
                         return (
-                        <li key={request.id} className="bg-gray-100 p-4 rounded-lg hover:bg-gray-300 hover:cursor-pointer" onClick={() => router.push(`jobposts/details/${request.jobPostId}`)}>
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    {/* Display the job title if jobPost is found */}
-                                    <p className="text-gray-800 font-semibold">
-                                    {jobPost ? jobPost.title : 'Job Title Not Found'}
-                                    </p>
-                                    <p className="text-gray-600 text-sm">
-                                    Applied on: {new Date(request.applyDate).toLocaleDateString()}
-                                    </p>
-                                    <p className="text-gray-600 text-sm">Status: {request.status}</p>
-                                </div>
+                        <li key={request.id} className={`bg-gray-100 p-4 rounded-lg ${jobPost ? 'hover:bg-gray-300 hover:cursor-pointer' : ''}`} onClick={() => jobPost && router.push(`jobposts/details/${request.jobPostId}`)}>
+                          <div className="flex items-center justify-between">
+                            <div>
+                              {/* Display the job title if jobPost is found */}
+                              <p className="text-gray-800 font-semibold">
+                              {jobPost ? jobPost.title : 'Job Post was deleted or not found'}
+                              </p>
+                              <p className="text-gray-600 text-sm">
+                              Applied on: {new Date(request.applyDate).toLocaleDateString()}
+                              </p>
+                              <p className="text-gray-600 text-sm">Status: {request.status}</p>
                             </div>
+                          </div>
                         </li>
                         );
                     })}
@@ -129,7 +125,7 @@ const UserProfile: React.FC = () => {
 
           {/* Weekly Calendar Section */}
           <div className="flex-shrink md:w-2/3 flex flex-col overflow-hidden">
-            <WeeklyCalendar />
+            <Calendar />
           </div>
         </div>
   );
