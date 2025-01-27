@@ -28,29 +28,28 @@ export default function UserActions({user}: Props) {
 
     return (
         <Dropdown inline label={`Welcome ${user.name}`}>
-            <Dropdown.Item icon={HiUser} className='hover:scale-105'>
-            <Link href="/profile">
-                Profile
-            </Link>
+            <Dropdown.Item icon={HiUser} className='hover:scale-105 hover:bg-transparent'>
+                <Link href="/profile">
+                    Profile
+                </Link>
             </Dropdown.Item>
-            <Dropdown.Item icon={IoCreateOutline} className='hover:scale-105'>
-            <Link href="/jobposts/create">
-                Create
-            </Link>
+            <Dropdown.Item icon={IoCreateOutline} className='hover:scale-105 hover:bg-transparent'>
+                <Link href="/jobposts/create">
+                    Create
+                </Link>
             </Dropdown.Item>
-            <Dropdown.Item icon={BsFilePostFill} onClick={setEmployer} className='hover:scale-105'>
+            <Dropdown.Item icon={BsFilePostFill} onClick={setEmployer} className='hover:scale-105 hover:bg-transparent'>
                 My Posts
             </Dropdown.Item>
-            <Dropdown.Item icon={HiCog} className='hover:scale-105'>
-            <Link href="/session">
-                Session
-            </Link>
+            <Dropdown.Item icon={HiCog} className='hover:scale-105 hover:bg-transparent'>
+                <Link href="/session">
+                    Session
+                </Link>
             </Dropdown.Item>
             <DropdownDivider />
-            <DropdownItem icon={AiOutlineLogout} onClick={() => signOut({callbackUrl: '/'})} className='hover:scale-105'>
+            <DropdownItem icon={AiOutlineLogout} onClick={() => signOut({callbackUrl: '/'})} className='hover:scale-105 hover:bg-transparent'>
                 Sign Out
             </DropdownItem>
         </Dropdown>
-        
     )
 }

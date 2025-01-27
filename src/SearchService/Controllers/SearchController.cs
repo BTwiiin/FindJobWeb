@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using MongoDB.Bson.IO;
 using Nest;
 using SearchService.Models;
 using SearchService.Repository;
@@ -49,15 +50,24 @@ namespace SearchService.Controllers
 
             if (!string.IsNullOrEmpty(searchParams.SearchTerm))
             {
-                var multiMatch = new MultiMatchQuery
+                query = new TermQuery
                 {
-                    Fields = new[] { "title^3", "description", "category", "location.country", "location.city", "location.district", "location.street" },
-                    Query = searchParams.SearchTerm,
-                    Fuzziness = Fuzziness.Auto,
-                    Operator = Operator.Or
+                    Field = "employer", 
+                    Value = searchParams.SearchTerm.ToLower()  
                 };
 
-                query &= multiMatch;
+                if (query == null)
+                {
+                    var multiMatch = new MultiMatchQuery
+                    {
+                        Fields = new[] { "title^3", "description", "category", "location.country", "location.city", "location.district", "location.street" },
+                        Query = searchParams.SearchTerm,
+                        Fuzziness = Fuzziness.Auto,
+                        Operator = Operator.Or
+                    };
+
+                    query &= multiMatch; 
+                }           
             }
 
             if (!string.IsNullOrEmpty(searchParams.FilterBy))

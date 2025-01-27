@@ -121,12 +121,19 @@ export default function JobPostForm({jobPost}: Props) {
 
 
             <div className="flex justify-between gap-4">
-                <Button outline color='gray' onClick={() => router.back()}>Cancel</Button>
-                <Button 
-                    isProcessing={isSubmitting}
-                    disabled={!isValid} 
-                    type='submit'
-                    outline color='success'>Submit</Button>
+                <Button outline className="bg-gray-300 hover:bg-black" onClick={() => router.back()}>
+                  <span className="text-black">Cancel</span>
+                </Button>
+                <Button
+                  isProcessing={isSubmitting}
+                  disabled={!isValid}
+                  type="submit"
+                  outline
+                  color="success"
+                  className= {`text-black opacity-100 bg-gray-200 ${!isValid ? 'bg-gray-300 cursor-not-allowed' : 'bg-gray-300 hover:bg-black'}`}
+                >
+                  <span className="text-black">Submit</span>
+              </Button>
             </div>
         </form>
   )

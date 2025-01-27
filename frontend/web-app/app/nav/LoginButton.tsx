@@ -7,8 +7,8 @@ import React from 'react'
 
 export default function LoginButton() {
   return (
-    <Button outline onClick={() => signIn("id-server", { callbackUrl: '/'})} 
-        className="text-black outline-double ">
+    <Button onClick={() => signIn("id-server", { callbackUrl: '/'})} 
+        className="outline text-black hover:bg-gray-100"> 
         Login
     </Button>
   )

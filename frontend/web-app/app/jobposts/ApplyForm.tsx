@@ -34,7 +34,7 @@ export default function ApplyForm({ jobPostId }: ApplyFormProps) {
         toast.success('Application submitted successfully!');
       }
       else {
-        toast.error(responce.error.message);
+        toast.error(responce.error?.message || 'An error occurred');
       }
       
       setLoading(false);
@@ -96,9 +96,16 @@ export default function ApplyForm({ jobPostId }: ApplyFormProps) {
               disabled={!isValid}
               type="submit"
               color="success"
-              className='w-full bg-gray-500 hover:bg-gray-600'
+              className={`w-full ${!isValid ? 'bg-gray-300 cursor-not-allowed' : 'bg-gray-500 hover:bg-gray-600'}`}
             >
               Submit
+            </Button>
+            <Button
+              disabled={isSubmitting}
+              type='button'
+              className="w-full bg-gray-500 hover:bg-gray-600"
+              >
+                Save for Later
             </Button>
           </div>
         </>

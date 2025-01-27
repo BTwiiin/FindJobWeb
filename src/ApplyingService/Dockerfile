@@ -18,6 +18,7 @@ COPY tests/JobPostingService.IntegrationTests/JobPostingService.IntegrationTests
 # Restore package dependencies
 RUN dotnet restore FindJob.sln
 
+
 # Copy the app folders over
 COPY src/ApplyingService src/ApplyingService
 COPY src/Contracts src/Contracts

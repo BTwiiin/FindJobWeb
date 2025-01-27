@@ -19,6 +19,6 @@ public class JobPostCreatedConsumer : IConsumer<JobPostCreated>
 
         // Broadcast the message to all clients
         // Update Client Side to ask a Client to update the UI
-        return _hubContext.Clients.All.SendAsync("ReceiveMessage", context.Message);
+        return _hubContext.Clients.All.SendAsync("ReceiveJobPost", context.Message);
     }
 }

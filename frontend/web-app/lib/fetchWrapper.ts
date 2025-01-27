@@ -64,19 +64,29 @@ async function getHeaders() {
 async function handleResponse(response: Response) {
     const text = await response.text();
     console.log(text);
-    const data = text && JSON.parse(text);
 
-    if(response.ok) {
+    // Check if the response is valid JSON
+    let data;
+    try {
+        data = text && JSON.parse(text); // Try parsing JSON
+    } catch (error) {
+        // If not valid JSON, log it and return the raw text
+        console.error('Error parsing response as JSON:', error);
+        data = { message: text }; // Assign the plain text response to a message property
+    }
+
+    if (response.ok) {
         return data || response.statusText;
     } else {
         const error = {
             status: response.status,
-            message: response.statusText
-        }
+            message: data.message || response.statusText // Use message from response if available
+        };
 
-        return {error};
+        return { error };
     }
 }
+
 
 export const fetchWrapper = {
     get,

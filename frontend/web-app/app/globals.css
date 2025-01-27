@@ -29,36 +29,38 @@
 }
 
 .custom-select__control {
-    @apply px-3 py-2 rounded-lg border border-gray-300 text-sm shadow-sm;
-    font-size: 1.125rem; /* Apply font size */
-  }
+  @apply px-3 py-2 rounded-lg border border-gray-300 text-sm shadow-sm;
+  font-size: 1.125rem; /* Apply font size */
+}
+
+.custom-select__placeholder {
+  @apply text-gray-400;
+  font-size: 1.125rem; /* Apply font size */
+}
+
+.custom-select__single-value {
+  @apply text-gray-600;
+  font-size: 1.125rem; /* Apply font size */
+}
+
+.custom-select__input {
+  font-size: 1.125rem; /* Apply font size for input field */
+  @apply text-gray-600;
+}
+
+.custom-select__option {
+  @apply px-3 py-2 text-gray-600 hover:bg-gray-100 cursor-pointer;
+  font-size: 1.125rem; /* Apply font size for dropdown options */
+}
+
+.custom-select__menu {
+  @apply mt-1 border border-gray-300 shadow-md rounded-md bg-white z-10;
+}
+
+.custom-select__option--is-selected {
+  @apply bg-green-50 text-green-900 font-semibold;
+}
+
   
-  .custom-select__placeholder {
-    @apply text-gray-400;
-    font-size: 1.125rem; /* Apply font size */
-  }
-  
-  .custom-select__single-value {
-    @apply text-gray-600;
-    font-size: 1.125rem; /* Apply font size */
-  }
-  
-  .custom-select__input {
-    font-size: 1.125rem; /* Apply font size for input field */
-    @apply text-gray-600;
-  }
-  
-  .custom-select__option {
-    @apply px-3 py-2 text-gray-600 hover:bg-gray-100 cursor-pointer;
-    font-size: 1.125rem; /* Apply font size for dropdown options */
-  }
-  
-  .custom-select__menu {
-    @apply mt-1 border border-gray-300 shadow-md rounded-md bg-white z-10;
-  }
-  
-  .custom-select__option--is-selected {
-    @apply bg-green-50 text-green-900 font-semibold;
-  }
   
   

@@ -9,6 +9,7 @@ type State = {
 
 type Actions = {
     setData: (data: PagedResult<JobPost>) => void;
+    addJobPost: (jobPost: JobPost) => void;
 }
 
 const initalState: State = {
@@ -16,10 +17,15 @@ const initalState: State = {
     totalCount: 0,
 }
 
+
 export const useJobPostStore = create<State & Actions>((set) => ({
     ...initalState,
     setData: (data: PagedResult<JobPost>) => set({
         jobPosts: data.results,
         totalCount: data.totalCount,
     }),
+    addJobPost: (jobPost: JobPost) => set((state) => ({
+        jobPosts: [...state.jobPosts, jobPost],
+        totalCount: state.totalCount + 1,
+    })),
 }));

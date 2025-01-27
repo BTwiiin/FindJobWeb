@@ -32,9 +32,9 @@ export default function OrderBy() {
                         onClick={() => setParams({orderBy: value})}
                         className={`group relative flex items-stretch justify-center p-0.5 text-center font-medium transition-[color,background-color,
                             border-color,text-decoration-color,fill,stroke] focus:z-10 focus:outline-none border border-gray-300 
-                            bg-white text-gray-900 focus:ring-0  dark:border-gray-600 dark:bg-gray-600 
-                            dark:text-white dark:enabled:hover:border-gray-700  rounded-full
-                            ${orderBy === value ? 'bg-gray-500 text-white border-gray-500 hover:bg-gray-700' : 'bg-white text-gray-900 hover:bg-gray-200 border-gray-300'}`}
+                            bg-white text-gray-900 focus:ring-0 dark:border-gray-600 dark:bg-gray-600 
+                            dark:text-white dark:enabled:hover:border-gray-700 rounded-full
+                            hover:bg-gray-700`} // Same hover effect for all
                     >
                         <Icon className='mr-1 h-5' />
                         {label}

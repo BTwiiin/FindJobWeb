@@ -51,6 +51,19 @@ export async function getApplicants(jobPostId: string) {
 }
 
 export async function applyToJobPost(jobPostId: string, data: FieldValues) {
-    revalidatePath(`/jobposts/details/${jobPostId}`);
-    return await fetchWrapper.post(`apply?jobPostId=${jobPostId}`, data);
+    try {
+        const response = await fetchWrapper.post(`apply?jobPostId=${jobPostId}`, data);
+        
+        // If response is an error, ensure it has the necessary properties
+        if (response.error) {
+            return { status: response.status, error: { message: response.error.message || 'An error occurred' } };
+        }
+        revalidatePath(`/jobposts/details/${jobPostId}`);
+        // Return the response if successful
+        return { status: 200, message: 'Application submitted successfully' };
+    } catch (error) {
+        // Handle unexpected errors
+        console.error('Error applying to job post:', error);
+        return { status: 500, error: { message: 'An unexpected error occurred' } };
+    }
 }

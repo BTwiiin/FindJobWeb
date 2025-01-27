@@ -4,13 +4,13 @@ import React from 'react';
 import SimilarJobCard from '../../cards/SimilarJobCard';
 import { getCurrentUser } from '@/app/actions/authActions';
 import EditButton from './EditButton';
-import { Button } from 'flowbite-react';
 import DeleteButton from './DeleteButton';
 import ApplyForm from '../../ApplyForm';
 import EmptyFilter from '@/app/components/EmptyFilter';
 import MapComponent from './MapComponent';
 import { JobPostRequest } from '@/types';
 import ApplicantList from './ApplicantList';
+import toast from 'react-hot-toast';
 
 
 type Params = {
@@ -31,12 +31,18 @@ export default async function Details(props: Params) {
   if (user !== null) {
     if (user.username !== data.employer) {
       const requestedJobs = await getMyRequests();
-      
-      for (const request of requestedJobs) {
-        if (request.jobPostId === data.id) {
-          var applied = true;
+
+      if (requestedJobs === null || requestedJobs === undefined) {
+        toast.error('Failed to fetch your applications');
+      }
+      else {
+        for (const request of requestedJobs) {
+          if (request.jobPostId === data.id) {
+            applied = true;
+          }
         }
       }
+
     }
     else 
     {
@@ -124,13 +130,7 @@ export default async function Details(props: Params) {
 
       {/* Actions */}
       <div className="mt-8 flex space-x-4 pb-3">
-        {/* Another action, e.g. Save or Share */}
-        {user?.username !== data.employer && (
-          <Button className="px-6 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-200 transition-all">
-            Save for Later
-          </Button>
-        )}
-        {/* Edit Button */}
+        {/* Delete and Edit Buttons */}
         {user?.username === data.employer && (
           <>
           <EditButton id={data.id} />
@@ -150,7 +150,9 @@ export default async function Details(props: Params) {
           ) : (
             <>
               {user !== null && (
-                <ApplyForm jobPostId={data.id} />
+                <div className="mt-4">
+                  <ApplyForm jobPostId={data.id} />
+                </div>
               )}
             </>
           )}
