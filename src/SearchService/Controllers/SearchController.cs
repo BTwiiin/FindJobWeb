@@ -50,24 +50,23 @@ namespace SearchService.Controllers
 
             if (!string.IsNullOrEmpty(searchParams.SearchTerm))
             {
-                query = new TermQuery
+                var employeeQuery = new TermQuery
                 {
                     Field = "employer", 
                     Value = searchParams.SearchTerm.ToLower()  
                 };
 
-                if (query == null)
+                
+                var multiMatch = new MultiMatchQuery
                 {
-                    var multiMatch = new MultiMatchQuery
-                    {
-                        Fields = new[] { "title^3", "description", "category", "location.country", "location.city", "location.district", "location.street" },
-                        Query = searchParams.SearchTerm,
-                        Fuzziness = Fuzziness.Auto,
-                        Operator = Operator.Or
-                    };
+                    Fields = new[] { "title^3", "description", "category", "location.country", "location.city", "location.district", "location.street" },
+                    Query = searchParams.SearchTerm,
+                    Fuzziness = Fuzziness.Auto,
+                    Operator = Operator.Or
+                };
 
-                    query &= multiMatch; 
-                }           
+                query = employeeQuery || multiMatch;
+                         
             }
 
             if (!string.IsNullOrEmpty(searchParams.FilterBy))

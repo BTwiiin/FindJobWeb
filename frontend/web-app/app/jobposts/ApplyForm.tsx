@@ -2,12 +2,11 @@
 
 import { Button } from 'flowbite-react';
 import React from 'react';
-import { set, useForm } from 'react-hook-form';
+import { FieldValues, useForm } from 'react-hook-form';
 import Input from '../components/Input';
 import toast from 'react-hot-toast';
 import { applyToJobPost } from '../actions/jobPostActions';
 import InputArea from '../components/InputArea';
-import { useRouter } from 'next/navigation';
 
 interface ApplyFormProps {
   jobPostId: string;
@@ -15,7 +14,7 @@ interface ApplyFormProps {
 
 export default function ApplyForm({ jobPostId }: ApplyFormProps) {
   const [loading, setLoading] = React.useState(false);
-  const router = useRouter();
+
   const {
     control,
     handleSubmit,
@@ -24,11 +23,11 @@ export default function ApplyForm({ jobPostId }: ApplyFormProps) {
     mode: 'onTouched',
   });
 
-  async function onSubmit(data: any) {
+  async function onSubmit(data: FieldValues) {
     try {
       setLoading(true);
 
-      var responce = await applyToJobPost(jobPostId, data);
+      const responce = await applyToJobPost(jobPostId, data);
 
       if (responce.status === 200) {
         toast.success('Application submitted successfully!');
@@ -39,8 +38,12 @@ export default function ApplyForm({ jobPostId }: ApplyFormProps) {
       
       setLoading(false);
 
-    } catch (error: any) {
-      toast.error(error.status + ' ' + error.message);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        toast.error(error.message);
+      } else {
+        toast.error('An unknown error occurred');
+      }
       setLoading(false);
     }
   }

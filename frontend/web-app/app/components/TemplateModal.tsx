@@ -43,9 +43,9 @@ export default function TemplateModal({ show, onClose, title, children }: ModalP
               onMouseLeave={() => setIsHovered(false)}
             >
               {isHovered ? (
-                <IoIosCloseCircle size={40} className="text-gray-500" />
+                <IoIosCloseCircle size={40} className="text-gray-600" />
               ) : (
-                <IoIosCloseCircleOutline size={40} className="text-gray-500" />
+                <IoIosCloseCircleOutline size={40} className="text-gray-600" />
               )}
             </Button>
           </div>

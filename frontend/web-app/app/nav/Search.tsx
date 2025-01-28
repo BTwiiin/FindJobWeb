@@ -46,7 +46,7 @@ export default function Search() {
                     />
                 </Button>
             </div>
-            <Button className='w-[10%] bg-gray-500 text-white py-2 px-4 rounded-full ml-4 hover:bg-gray-700' onClick={() => setShowModal(true)}>
+            <Button className='w-[10%] bg-gray-600 text-white py-2 px-4 rounded-full ml-4 hover:bg-gray-700' onClick={() => setShowModal(true)}>
                 Filters  &#709; 
             </Button>
             { showModal && 

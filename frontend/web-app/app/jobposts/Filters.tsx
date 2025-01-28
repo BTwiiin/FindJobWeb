@@ -59,7 +59,7 @@ const Modal = () => {
         </div>
         <footer className='flex flex-row justify-center sticky bottom-0 bg-white p-4 border-t'>
           <Button
-            className="bg-gray-500 text-white mb-2 rounded"
+            className="bg-gray-600 text-white mb-2 rounded"
             onClick={reset}
           >
             Reset filters

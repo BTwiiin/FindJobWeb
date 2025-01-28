@@ -27,7 +27,18 @@ const SalaryRangeSlider = () => {
           { value: 2500, label: '$2500' },
           { value: 5000, label: '$5000' },
         ]}
-      />
+        sx={{
+          '& .MuiSlider-thumb': {
+            color: '#4B5563',
+          },
+          '& .MuiSlider-track': {
+            color: '#4B5563',
+          },
+          '& .MuiSlider-rail': {
+            color: '#9CA3AF',
+          },
+        }}
+            />
       <div className="flex justify-between mt-2 text-sm text-gray-600">
         <span>Min: ${minSalary}</span>
         <span>Max: ${maxSalary}</span>

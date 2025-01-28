@@ -23,15 +23,28 @@ export default function SignalRProvider({ children }: props) {
             connection.current.start()
                 .then(() => 'Connection to notifications started')
                 .catch(err => console.error('Error while starting connection: ', err));
+        }
 
-            connection.current.on("ReceiveJobPost", (jobPost: JobPost) => {
-                addJobPost(jobPost);
+        connection.current.on("ReceiveJobPost", (jobPost: JobPost) => {
+            addJobPost(jobPost);
 
-                toast.success(`New job post added: ${jobPost.title}`, {
-                    position: "top-center",
-                });
-            });
+            toast.custom((t) => (
+                <div
+                  className={`${
+                    t.visible ? "transition-all opacity-100 transform translate-y-0"
+                              : "transition-all opacity-0 transform translate-y-8"
+                  } flex items-center justify-between p-4 bg-gray-500 text-white rounded-lg shadow-lg`}
+                >
+                  <div className="flex items-center">
+                    <span className="mr-2">New job posts were added!</span>
+                    <strong>Sort by Recently Posted to view them</strong>
+                  </div>
+                </div>
+              ));
+        });
 
+        return () => {
+            connection.current?.off("ReceiveJobPost");
         }
     }, [addJobPost]);
 
