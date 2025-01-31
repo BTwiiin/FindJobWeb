@@ -28,39 +28,55 @@
     height: 100%; /* Match parent height */
 }
 
+/* Make the control match your base input classes */
 .custom-select__control {
-  @apply px-3 py-2 rounded-lg border border-gray-300 text-sm shadow-sm;
-  font-size: 1.125rem; /* Apply font size */
+  @apply 
+    rounded-md w-full /* same shape/width */
+    pl-1 py-1         /* same padding */
+    border border-gray-300
+    bg-white
+    text-lg text-gray-700 /* match text size/color */
+    shadow-sm
+    focus:border-gray-500 focus:ring focus:ring-gray-300 focus:outline-none
+    hover:border-gray-400 hover:shadow-md
+    transition ease-in-out duration-150;
 }
 
+/* When focused, match input focus behavior */
+.custom-select__control--is-focused {
+  @apply border-gray-500 ring ring-gray-300;
+}
+
+/* Placeholder text style: same font size, slightly lighter color */
 .custom-select__placeholder {
   @apply text-gray-400;
-  font-size: 1.125rem; /* Apply font size */
+  font-size: 1.125rem; /* text-lg in Tailwind is 1.125rem */
 }
 
+/* Selected value text style */
 .custom-select__single-value {
-  @apply text-gray-600;
-  font-size: 1.125rem; /* Apply font size */
+  @apply text-gray-700;
+  font-size: 1.125rem;
 }
 
+/* Input text in the select (when typing) */
 .custom-select__input {
-  font-size: 1.125rem; /* Apply font size for input field */
-  @apply text-gray-600;
+  @apply text-gray-700; 
+  font-size: 1.125rem;
 }
 
-.custom-select__option {
-  @apply px-3 py-2 text-gray-600 hover:bg-gray-100 cursor-pointer;
-  font-size: 1.125rem; /* Apply font size for dropdown options */
-}
-
+/* Dropdown menu container */
 .custom-select__menu {
   @apply mt-1 border border-gray-300 shadow-md rounded-md bg-white z-10;
 }
 
+/* Individual dropdown options */
+.custom-select__option {
+  @apply px-5 py-2 text-gray-700 cursor-pointer hover:bg-gray-100;
+  font-size: 1.125rem;
+}
+
+/* Selected option styles */
 .custom-select__option--is-selected {
   @apply bg-green-50 text-green-900 font-semibold;
 }
-
-  
-  
-  

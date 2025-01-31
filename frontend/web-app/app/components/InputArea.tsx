@@ -1,5 +1,9 @@
-import { useController, UseControllerProps } from "react-hook-form";
-import { Label } from "flowbite-react";
+'use client'
+
+import React from 'react';
+import { useController, UseControllerProps } from 'react-hook-form';
+import { Label } from 'flowbite-react';
+import { baseTextareaClasses } from '../utils/formStyles';
 
 type Props = {
   label: string;
@@ -7,7 +11,7 @@ type Props = {
 } & UseControllerProps;
 
 export default function InputArea(props: Props) {
-  const { fieldState, field } = useController({ ...props, defaultValue: "" });
+  const { fieldState, field } = useController({ ...props, defaultValue: '' });
 
   return (
     <div className="mb-4">
@@ -21,27 +25,8 @@ export default function InputArea(props: Props) {
       <textarea
         {...field}
         placeholder={props.label}
-        className={`
-          rounded-md
-          w-full
-          p-3
-          border
-          border-gray-300
-          bg-white
-          text-lg
-          text-gray-700
-          shadow-sm
-          focus:border-gray-500
-          focus:ring focus:ring-gray-300
-          focus:outline-none
-          hover:border-gray-400
-          hover:shadow-md
-          transition
-          ease-in-out
-          duration-150
-          resize-y
-        `}
-        rows={4} // Initial height (adjustable)
+        rows={4}
+        className={baseTextareaClasses}
       />
       {fieldState.error && (
         <div className="text-red-500 text-sm">{fieldState.error.message}</div>

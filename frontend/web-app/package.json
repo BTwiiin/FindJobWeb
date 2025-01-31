@@ -20,7 +20,7 @@
     "leaflet-spin": "^1.1.2",
     "leaflet.markercluster": "^1.5.3",
     "lodash.debounce": "^4.0.8",
-    "next": "15.0.1",
+    "next": "^15.0.1",
     "next-auth": "^5.0.0-beta.25",
     "qs": "^6.13.1",
     "query-string": "^9.1.1",

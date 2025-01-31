@@ -78,6 +78,11 @@ public class ApplyController : ControllerBase
             .Match(jpr => jpr.Employee == User.Identity.Name)
             .Sort(jpr => jpr.ApplyDate, Order.Descending)
             .ExecuteAsync();
+        
+        if (requests.Count == 0)
+        {
+            return Ok(new List<JobPostRequestDto>());
+        }
 
         return Ok(requests.Select(_mapper.Map<JobPostRequestDto>).ToList());
     }

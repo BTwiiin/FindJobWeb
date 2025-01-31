@@ -10,7 +10,6 @@ import EmptyFilter from '@/app/components/EmptyFilter';
 import MapComponent from './MapComponent';
 import { JobPostRequest } from '@/types';
 import ApplicantList from './ApplicantList';
-import toast from 'react-hot-toast';
 
 
 type Params = {
@@ -32,16 +31,22 @@ export default async function Details(props: Params) {
     if (user.username !== data.employer) {
       const requestedJobs = await getMyRequests();
 
-      if (requestedJobs === null || requestedJobs === undefined) {
-        toast.error('Failed to fetch your applications');
-      }
-      else {
+      if (requestedJobs.error) {
+        console.error('Error fetching requests:', requestedJobs.error);
+      } 
+      else if (Array.isArray(requestedJobs) && requestedJobs.length === 0) {
+        console.log('No requests found');
+        applied = false;
+      } 
+      else if (Array.isArray(requestedJobs)) {
         for (const request of requestedJobs) {
           if (request.jobPostId === data.id) {
             applied = true;
+            break;
           }
         }
       }
+      
 
     }
     else 
@@ -83,8 +88,15 @@ export default async function Details(props: Params) {
         </div>
       </div>
 
+      {user?.username === data.employer && (
+        <div className='flex flex-row items-center pt-4'>
+          <EditButton id={data.id} />
+          <DeleteButton id={data.id} />
+        </div>
+      )}
+
       {/* Description Section */}
-      <div className="mt-8">
+      <div className="mt-4">
         <h2 className="text-xl font-semibold mb-2">Job Description</h2>
         <p className="text-gray-700 leading-relaxed whitespace-pre-line">
           {data.description}
@@ -126,17 +138,6 @@ export default async function Details(props: Params) {
                         longitude={data.location.longitude as number}            
           />
         </div>
-      </div>
-
-      {/* Actions */}
-      <div className="mt-8 flex space-x-4 pb-3">
-        {/* Delete and Edit Buttons */}
-        {user?.username === data.employer && (
-          <>
-          <EditButton id={data.id} />
-          <DeleteButton id={data.id} />
-          </>
-        )}
       </div>
 
       {/* Apply Section */}

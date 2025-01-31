@@ -4,9 +4,11 @@ import { getCurrentUser } from '@/app/actions/authActions';
 import { getMyRequests } from '@/app/actions/jobPostActions';
 import { useRouter } from 'next/navigation';
 import { FaUser, FaEnvelope, FaPhone, FaLocationArrow, FaPen } from 'react-icons/fa';
-import Calendar from './Calendar';
+import Calendar from './components/Calendar';
 import { JobPostRequest, JobPost } from '@/types';
 import { useJobPostStore } from '../hooks/useJobPostStore';
+import EditIconButton from './components/EditIconButton';
+import DeleteIconButton from './components/DeleteIconButton';
 
 interface User {
   id: string;
@@ -198,16 +200,31 @@ const UserProfile: React.FC = () => {
                   {filteredJobPosts.map((post) => (
                     <li
                       key={post.id}
-                      className="bg-gray-100 p-4 rounded-lg hover:bg-gray-300 cursor-pointer"
-                      onClick={() => router.push(`jobposts/details/${post.id}`)}
+                      className="bg-gray-100 p-4 rounded-lg hover:bg-gray-200 transition cursor-pointer"
                     >
-                      <p className="text-gray-800 font-semibold">{post.title}</p>
-                      <p className="text-gray-600 text-sm">
-                        Status: {post.status}
-                      </p>
+                      {/* Flex container with left info, right icon buttons */}
+                      <div className="flex items-start justify-between">
+                        {/* Left side: post info */}
+                        <div onClick={() => router.push(`jobposts/details/${post.id}`)}>
+                          <p className="text-gray-800 font-semibold">{post.title}</p>
+                          <p className="text-gray-600 text-sm">Status: {post.status}</p>
+                          <p className="text-gray-600 text-sm">
+                            Posted on: {new Date(post.createdAt).toLocaleDateString()}</p>
+                          <p className="text-gray-600 text-sm">
+                            Payment: {post.paymentAmount}</p>
+                        </div>
+
+                        {/* Right side: column of icon buttons (edit/delete) */}
+                        <div className="flex flex-col items-center space-y-1 ml-3">
+                          <EditIconButton id={post.id} />
+                          <DeleteIconButton id={post.id} />
+                        </div>
+                      </div>
                     </li>
                   ))}
                 </ul>
+
+
               </div>
             </div>
           </div>
@@ -215,7 +232,7 @@ const UserProfile: React.FC = () => {
       </div>
 
       {/* Weekly Calendar Section */}
-      <div className="flex-shrink md:w-2/3 flex flex-col overflow-hidden">
+      <div className="flex-shrink md:w-2/3 flex flex-col">
         <Calendar />
       </div>
     </div>

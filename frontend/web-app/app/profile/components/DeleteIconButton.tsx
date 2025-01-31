@@ -6,7 +6,6 @@ import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { deleteJobPost } from '@/app/actions/jobPostActions';
 import TemplateModal from '@/app/components/TemplateModal';
-import { Button } from 'flowbite-react';
 
 type Props = {
   id: string;
@@ -37,42 +36,29 @@ export default function DeleteIconButton({ id }: Props) {
 
   return (
     <>
-      <Button
+      <button
         onClick={openConfirm}
-        className="
-          p-1 
-          rounded 
-          text-gray-600 
-          hover:text-gray-800 
-          hover:bg-gray-200 
-          transition 
-          transform 
-          hover:scale-105
-        "
+        className="p-2 rounded hover:bg-gray-200 text-gray-600"
         title="Delete Job Post"
       >
-        <FaTrash size={16} />
-      </Button>
+        <FaTrash size={18} />
+      </button>
 
       {showModal && (
-        <TemplateModal
-          show={showModal}
-          onClose={closeConfirm}
-          title="Confirm Deletion"
-        >
+        <TemplateModal show={showModal} onClose={closeConfirm} title="Confirm Deletion">
           <div className="flex flex-col">
             <p>Are you sure you want to delete this job post?</p>
             <div className="flex flex-row justify-between mt-4">
               <button
                 onClick={confirmDelete}
                 disabled={loading}
-                className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-400 transition-all"
+                className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-400"
               >
                 {loading ? 'Deleting...' : 'Yes, delete'}
               </button>
               <button
                 onClick={closeConfirm}
-                className="bg-gray-100 text-gray-800 px-4 py-2 rounded hover:bg-gray-200 transition-all"
+                className="bg-gray-100 text-gray-800 px-4 py-2 rounded hover:bg-gray-200"
               >
                 Cancel
               </button>

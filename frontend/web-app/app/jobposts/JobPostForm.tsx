@@ -13,6 +13,7 @@ import { JobPost } from '@/types'
 import LocationInput from '../components/LocationInput'
 import { useLocationStore } from '../hooks/useLocationStore'
 import InputArea from '../components/InputArea'
+import '../globals.css'
 
 type Props = {
     jobPost?: JobPost
@@ -86,7 +87,7 @@ export default function JobPostForm({jobPost}: Props) {
             <InputArea label='Description' name='description' control={control} 
                 rules={{required: 'Description is required'}}/>
 
-            <div className="grid grid-cols-2 gap-4">
+          <div className="flex flex-col">
                 <Input label='Payment Amount' name='paymentAmount' control={control}
                     type='number' rules={{required: 'Payment Amount is required'}}/>
                 <DateInput label='Deadline' name='deadline' control={control}
@@ -103,7 +104,7 @@ export default function JobPostForm({jobPost}: Props) {
                 render={({ field: { onChange, value, ref } }) => (
                   <Select
                     ref={ref}
-                    classNamePrefix="custom-select" // Consistent prefix for styling
+                    classNamePrefix="custom-select"
                     options={options}
                     value={options.find(option => option.value === value) || null}
                     onChange={val => onChange(val?.value || null)}

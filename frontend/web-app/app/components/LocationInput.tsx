@@ -2,8 +2,10 @@
 
 import React, { useCallback } from 'react';
 import Select from 'react-select';
-import { useLocationStore } from '../hooks/useLocationStore';
 import debounce from 'lodash.debounce';
+import { useLocationStore } from '../hooks/useLocationStore';
+import { reactSelectClassPrefix } from '../utils/formStyles';
+import '../globals.css';
 
 const LocationInput = () => {
   const { suggestions, fetchSuggestions, setSelectedLocation } = useLocationStore();
@@ -11,26 +13,20 @@ const LocationInput = () => {
   const debouncedFetch = useCallback(
     debounce((inputValue: string) => {
       fetchSuggestions(inputValue);
-    }, 400), // 400ms delay
+    }, 400),
     [fetchSuggestions]
   );
 
-  const handleInputChange = (inputValue: string) => {
-    debouncedFetch(inputValue);
-  };
-
-  const handleSelect = (selectedOption: any) => {
-    if (selectedOption) {
-      setSelectedLocation(selectedOption.value);
-    }
-  };
-
+  // ...
   return (
     <Select
-      classNamePrefix="custom-select" // Same class prefix as category dropdown
+      // This applies a prefix to all the internal elements 
+      // (control, menu, option, etc.).
+      classNamePrefix='custom-select'
+
       options={suggestions}
-      onInputChange={handleInputChange}
-      onChange={handleSelect}
+      onInputChange={debouncedFetch}
+      onChange={(option) => option && setSelectedLocation(option.value)}
       placeholder="Type a city, street, or address..."
       noOptionsMessage={() => 'No results found'}
     />

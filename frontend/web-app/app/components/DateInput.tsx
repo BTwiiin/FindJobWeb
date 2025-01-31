@@ -1,7 +1,11 @@
-import { useController, UseControllerProps } from "react-hook-form";
-import { Label } from "flowbite-react";
-import "react-datepicker/dist/react-datepicker.css";
-import DatePicker, { DatePickerProps } from "react-datepicker";
+'use client'
+
+import React from 'react';
+import { useController, UseControllerProps } from 'react-hook-form';
+import { Label } from 'flowbite-react';
+import DatePicker, { DatePickerProps } from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+import { baseInputClasses } from '../utils/formStyles';
 
 type Props = {
   label: string;
@@ -10,7 +14,7 @@ type Props = {
 } & UseControllerProps & DatePickerProps;
 
 export default function DateInput(props: Props) {
-  const { fieldState, field } = useController({ ...props, defaultValue: "" });
+  const { fieldState, field } = useController({ ...props, defaultValue: '' });
 
   return (
     <div className="mb-4">
@@ -22,29 +26,12 @@ export default function DateInput(props: Props) {
         />
       )}
       <DatePicker
-        {...props}
         {...field}
+        {...props}
         placeholderText={props.label}
         selected={field.value}
-        className={`
-          rounded-md
-          w-full
-          pl-5 py-2
-          border
-          border-gray-300
-          bg-white
-          text-lg
-          text-gray-700
-          shadow-sm
-          focus:border-gray-500
-          focus:ring focus:ring-gray-300
-          focus:outline-none
-          hover:border-gray-400
-          hover:shadow-md
-          transition
-          ease-in-out
-          duration-150
-        `}
+        // Reuse your base input styles:
+        className={baseInputClasses}
         wrapperClassName="w-full"
       />
       {fieldState.error && (

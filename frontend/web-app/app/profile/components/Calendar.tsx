@@ -53,21 +53,23 @@ const Calendar: React.FC = () => {
   };
 
   return (
-    <div className="h-screen flex flex-col bg-white overflow-hidden pb-32">
-      {/* Header Section */}
+    // Instead of "h-screen", just let the parent decide the height:
+    <div className="flex flex-col bg-white w-full">
+      {/* Header */}
       <header className="bg-white text-black p-4 flex justify-between items-center">
-        <button onClick={handlePrevMonth} className="text-black hover:text-gray-200">
+        <button onClick={handlePrevMonth} className="text-black hover:text-gray-400">
           &larr; Previous
         </button>
         <h1 className="text-lg font-bold">
           {currentDate.toLocaleString('default', { month: 'long' })} {currentDate.getFullYear()}
         </h1>
-        <button onClick={handleNextMonth} className="text-black hover:text-gray-200">
+        <button onClick={handleNextMonth} className="text-black hover:text-gray-400">
           Next &rarr;
         </button>
       </header>
-      {/* Calendar Section */}
-      <div className="flex-grow flex flex-col p-4">
+
+      {/* Main Calendar Content */}
+      <div className="p-4">
         {/* Weekday Header */}
         <div className="grid grid-cols-7 gap-2 text-center font-semibold text-gray-700 mb-2">
           {daysOfWeek.map((day) => (
@@ -76,27 +78,29 @@ const Calendar: React.FC = () => {
             </div>
           ))}
         </div>
+
         {/* Calendar Grid */}
-        <div className="grid grid-cols-7 gap-2 h-full">
+        <div className="grid grid-cols-7 gap-2">
           {calendarGrid.flat().map((day, index) => {
             const formattedDate = day
               ? `${currentDate.getFullYear()}-${(currentDate.getMonth() + 1)
                   .toString()
-                  .padStart(2, '0')}-${day.toString().padStart(2, '0')}`
+                  .padStart(2, '0')}-${String(day).padStart(2, '0')}`
               : null;
             const dayTasks = formattedDate ? getTasksForDate(formattedDate) : [];
+
             return (
               <div
                 key={index}
                 className={`p-2 border border-gray-300 rounded-lg relative ${
                   day ? 'bg-white' : 'bg-gray-100'
-                } h-full`}
-                style={{ minHeight: '100px' }} // Ensure each tile has at least this height
+                }`}
+                style={{ minHeight: '80px' }} // smaller min-height if you want less vertical space
               >
                 {/* Day Number */}
                 <div className="absolute top-1 left-1 text-xs font-bold">{day || ''}</div>
                 {/* Tasks */}
-                <div className="mt-5 flex flex-col space-y-1 overflow-y-auto">
+                <div className="mt-5 flex flex-col space-y-1">
                   {dayTasks.map((task) => (
                     <div key={task.id} className="bg-blue-100 text-blue-900 rounded p-1 text-sm">
                       {task.task}

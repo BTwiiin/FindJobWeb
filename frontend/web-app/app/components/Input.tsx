@@ -1,5 +1,9 @@
-import { useController, UseControllerProps } from "react-hook-form";
-import { Label } from "flowbite-react";
+'use client'
+
+import React from 'react';
+import { useController, UseControllerProps } from 'react-hook-form';
+import { Label } from 'flowbite-react';
+import { baseInputClasses } from '../utils/formStyles';
 
 type Props = {
   label: string;
@@ -8,7 +12,7 @@ type Props = {
 } & UseControllerProps;
 
 export default function Input(props: Props) {
-  const { fieldState, field } = useController({ ...props, defaultValue: "" });
+  const { fieldState, field } = useController({ ...props, defaultValue: '' });
 
   return (
     <div className="mb-4">
@@ -20,29 +24,11 @@ export default function Input(props: Props) {
         />
       )}
       <input
-        {...props}
         {...field}
-        type={props.type || "text"}
+        type={props.type || 'text'}
         placeholder={props.label}
-        className={`
-          rounded-md
-          w-full
-          pl-5 py-2
-          border
-          border-gray-300
-          bg-white
-          text-lg
-          text-gray-700
-          shadow-sm
-          focus:border-gray-500
-          focus:ring focus:ring-gray-300
-          focus:outline-none
-          hover:border-gray-400
-          hover:shadow-md
-          transition
-          ease-in-out
-          duration-150
-        `}
+        // <-- reuse the base classes
+        className={baseInputClasses}
       />
       {fieldState.error && (
         <div className="text-red-500 text-sm">{fieldState.error.message}</div>
