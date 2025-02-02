@@ -3,7 +3,7 @@
 import { fetchWrapper } from '@/lib/fetchWrapper';
 import { JobPost, PagedResult } from '@/types';
 import { revalidatePath } from 'next/cache';
-import { Field, FieldValue, FieldValues } from 'react-hook-form';
+import { FieldValues } from 'react-hook-form';
 
 export async function getData(query: string): Promise<PagedResult<JobPost>> {
     console.log(query);
@@ -50,19 +50,22 @@ export async function getApplicants(jobPostId: string) {
     return await fetchWrapper.get(`apply/${jobPostId}`);
 }
 
+export async function saveJobPost(jobPostId: string) {
+    revalidatePath(`/jobposts/details/${jobPostId}`);
+    return await fetchWrapper.post(`jobpost/save/${jobPostId}`, {});
+}
+
 export async function applyToJobPost(jobPostId: string, data: FieldValues) {
     try {
         const response = await fetchWrapper.post(`apply?jobPostId=${jobPostId}`, data);
         
-        // If response is an error, ensure it has the necessary properties
         if (response.error) {
             return { status: response.status, error: { message: response.error.message || 'An error occurred' } };
         }
         revalidatePath(`/jobposts/details/${jobPostId}`);
-        // Return the response if successful
+
         return { status: 200, message: 'Application submitted successfully' };
     } catch (error) {
-        // Handle unexpected errors
         console.error('Error applying to job post:', error);
         return { status: 500, error: { message: 'An unexpected error occurred' } };
     }

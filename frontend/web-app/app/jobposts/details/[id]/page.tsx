@@ -23,7 +23,7 @@ export default async function Details(props: Params) {
   const data = await getJobPostById(params.id);
   const user = await getCurrentUser();
   
-  var applied = false;
+  let applied = false;
 
   let applicantList: JobPostRequest[] = [];
 
@@ -152,7 +152,7 @@ export default async function Details(props: Params) {
             <>
               {user !== null && (
                 <div className="mt-4">
-                  <ApplyForm jobPostId={data.id} />
+                  <ApplyForm jobPostId={data.id} isSaved={data.isSaved} />
                 </div>
               )}
             </>

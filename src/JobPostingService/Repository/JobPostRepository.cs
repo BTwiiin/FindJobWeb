@@ -68,5 +68,20 @@ namespace JobPostingService.Repository
                 .Where(x => x.Deadline.CompareTo(DateTime.UtcNow) < 0 && x.Status != Status.Completed)
                 .ToListAsync();
         }
+
+        public async Task<bool> ExistsJobPost(Guid id)
+        {
+            return await _context.JobPosts.AnyAsync(x => x.Id == id);
+        }
+
+        public void SaveJobPost(SavedPost savedPost)
+        {
+            _context.SavedJobs.Add(savedPost);
+        }
+
+        public Task<bool> IsJobPostSaved(Guid jobPostId, string username)
+        {
+            return _context.SavedJobs.AnyAsync(x => x.JobPostId == jobPostId && x.Username == username);
+        }
     }
 }

@@ -5,15 +5,37 @@ import React from 'react';
 import { FieldValues, useForm } from 'react-hook-form';
 import Input from '../components/Input';
 import toast from 'react-hot-toast';
-import { applyToJobPost } from '../actions/jobPostActions';
+import { applyToJobPost, saveJobPost } from '../actions/jobPostActions';
 import InputArea from '../components/InputArea';
 
 interface ApplyFormProps {
   jobPostId: string;
+  isSaved?: boolean;
 }
 
-export default function ApplyForm({ jobPostId }: ApplyFormProps) {
+export default function ApplyForm({ jobPostId, isSaved }: ApplyFormProps) {
   const [loading, setLoading] = React.useState(false);
+
+  async function handleSaveJob() {
+    try {
+      setLoading(true);
+  
+      const response = await saveJobPost(jobPostId);
+  
+      if (response.status === 200) {
+        toast.success(isSaved ? "Job removed from saved list!" : "Job saved successfully!");
+      } else {
+        toast.error(response.error?.message || "An error occurred");
+        console.log(`Response code is ${response.status}`);
+      }
+  
+      setLoading(false);
+    } catch {
+      toast.error("An error occurred while saving the job.");
+      setLoading(false);
+    }
+  }
+  
 
   const {
     control,
@@ -104,11 +126,12 @@ export default function ApplyForm({ jobPostId }: ApplyFormProps) {
               Submit
             </Button>
             <Button
-              disabled={isSubmitting}
+              disabled={isSaved}
               type='button'
-              className="w-full bg-gray-500 hover:bg-gray-600"
-              >
-                Save for Later
+              onClick={handleSaveJob}
+              className={`w-full ${isSaved ? 'bg-gray-400' : 'bg-gray-500 hover:bg-gray-600'}`}
+            >
+              {isSaved ? 'Saved✓' : 'Save for Later'}
             </Button>
           </div>
         </>

@@ -26,6 +26,7 @@ export type JobPost = {
     category: string
     location: Location
     id: string
+    isSaved?: boolean
 }
 
 export type JobPostRequest = {

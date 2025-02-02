@@ -16,5 +16,6 @@ namespace JobPostingService.DTOs
         public string Status { get; set; }
         public string Category { get; set; }
         public LocationDto Location { get; set; }
+        public bool IsSaved { get; set; } = false;
     }
 }

@@ -39,7 +39,15 @@ public class JobPostController : Controller
         var jobPost = await _jobPostRepository.GetByIdAsync(id);
         if (jobPost == null) return NotFound();
 
-        return _mapper.Map<JobPostDto>(jobPost);
+        var jobPostDto = _mapper.Map<JobPostDto>(jobPost);
+
+        if (User.Identity?.IsAuthenticated == true)
+        {
+            var username = User.Identity.Name!;
+            jobPostDto.IsSaved = await _jobPostRepository.IsJobPostSaved(id, username);
+        }
+
+        return jobPostDto;
     }
 
     [Authorize]
@@ -130,5 +138,33 @@ public class JobPostController : Controller
 
         if (result) return Ok();
         return BadRequest("Could not delete data");
+    }
+
+    [Authorize]
+    [HttpPost("save/{id}")]
+    public async Task<ActionResult> SaveJobPost(Guid id)
+    {
+        Console.WriteLine($"Saving job post with id: {id} and type: {id.GetType()}");
+        if (!await _jobPostRepository.ExistsJobPost(id)) return BadRequest($"There is no Job post with id: {id}");
+
+        var username = User.Identity?.Name;
+        if (username == null) return Unauthorized();
+
+        var savedPost = new SavedPost
+        {
+            JobPostId = id,
+            Username = username
+        };
+
+        _jobPostRepository.SaveJobPost(savedPost);
+        
+
+        await _publishEndpoint.Publish<JobPostSaved>(savedPost);
+
+        var result = await _jobPostRepository.SaveChangesAsync();
+
+        if (!result) return BadRequest("Could not save changes to the db");
+
+        return Ok();
     }
 }

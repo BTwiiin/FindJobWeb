@@ -12,5 +12,8 @@ namespace JobPostingService.Repository
         void DeleteJobPost(JobPost jobPost);
         Task<bool> SaveChangesAsync();
         Task<List<JobPost>> GetFinishedJobPosts();
+        Task<bool> ExistsJobPost(Guid id);
+        void SaveJobPost(SavedPost savedPost);
+        Task<bool> IsJobPostSaved(Guid jobPostId, string username);
     }
 }

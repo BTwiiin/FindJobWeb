@@ -7,11 +7,15 @@ namespace JobPostingService.Data
     public class JobPostingDbContext(DbContextOptions options) : DbContext (options)
     {
 
-        public DbSet<JobPost> JobPosts { get; set; }    
+        public DbSet<JobPost> JobPosts { get; set; }
+        public DbSet<SavedPost> SavedJobs { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<SavedPost>()
+                .HasKey(sp => new { sp.Username, sp.JobPostId });
 
             modelBuilder.AddInboxStateEntity();
             modelBuilder.AddOutboxMessageEntity();
