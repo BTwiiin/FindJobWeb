@@ -55,6 +55,10 @@ export async function saveJobPost(jobPostId: string) {
     return await fetchWrapper.post(`jobpost/save/${jobPostId}`, {});
 }
 
+export async function savedPosts() {
+    return await fetchWrapper.get(`jobpost/saved`);
+}
+
 export async function applyToJobPost(jobPostId: string, data: FieldValues) {
     try {
         const response = await fetchWrapper.post(`apply?jobPostId=${jobPostId}`, data);

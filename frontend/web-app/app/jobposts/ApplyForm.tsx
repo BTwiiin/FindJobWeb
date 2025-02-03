@@ -22,17 +22,18 @@ export default function ApplyForm({ jobPostId, isSaved }: ApplyFormProps) {
   
       const response = await saveJobPost(jobPostId);
   
-      if (response.status === 200) {
+      if (response === 'OK') {
         toast.success(isSaved ? "Job removed from saved list!" : "Job saved successfully!");
       } else {
-        toast.error(response.error?.message || "An error occurred");
+        toast.error(response || "An error occured")
         console.log(`Response code is ${response.status}`);
       }
   
       setLoading(false);
-    } catch {
+    } catch (error) {
       toast.error("An error occurred while saving the job.");
       setLoading(false);
+      console.error('Error:', error);
     }
   }
   
@@ -126,12 +127,12 @@ export default function ApplyForm({ jobPostId, isSaved }: ApplyFormProps) {
               Submit
             </Button>
             <Button
-              disabled={isSaved}
+
               type='button'
               onClick={handleSaveJob}
               className={`w-full ${isSaved ? 'bg-gray-400' : 'bg-gray-500 hover:bg-gray-600'}`}
             >
-              {isSaved ? 'Saved✓' : 'Save for Later'}
+              {isSaved ? 'Saved✓ Click again to remove from saved list' : 'Save for Later'}
             </Button>
           </div>
         </>

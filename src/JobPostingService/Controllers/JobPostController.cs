@@ -130,6 +130,8 @@ public class JobPostController : Controller
 
         if (jobPost.Employer != User.Identity.Name) return Forbid();
 
+        _jobPostRepository.RemoveAllSavedPostsByJobPostId(id);
+
         _jobPostRepository.DeleteJobPost(jobPost);
 
         await _publishEndpoint.Publish<JobPostDeleted>(new { Id = jobPost.Id.ToString() });
@@ -146,25 +148,57 @@ public class JobPostController : Controller
     {
         Console.WriteLine($"Saving job post with id: {id} and type: {id.GetType()}");
         if (!await _jobPostRepository.ExistsJobPost(id)) return BadRequest($"There is no Job post with id: {id}");
-
+        
         var username = User.Identity?.Name;
         if (username == null) return Unauthorized();
 
-        var savedPost = new SavedPost
+        if (await _jobPostRepository.IsJobPostSaved(id, User.Identity.Name!))
         {
-            JobPostId = id,
-            Username = username
-        };
+            _jobPostRepository.DeleteSavedPost(
+                new SavedPost
+                {
+                    JobPostId = id,
+                    Username = username
+                }
+            );
 
-        _jobPostRepository.SaveJobPost(savedPost);
+            //await _publishEndpoint.Publish<JobPostUnsaved>(new { Id = id.ToString() });     
+        } 
+        else
+        {
+            _jobPostRepository.SaveJobPost(
+                new SavedPost
+                {
+                    JobPostId = id,
+                    Username = username,
+                    SavedAt = DateTime.UtcNow
+                }
+            );      
+
+            //await _publishEndpoint.Publish<JobPostSaved>(savedPost);  
+        }
         
-
-        await _publishEndpoint.Publish<JobPostSaved>(savedPost);
 
         var result = await _jobPostRepository.SaveChangesAsync();
 
         if (!result) return BadRequest("Could not save changes to the db");
 
         return Ok();
+    }
+
+    [Authorize]
+    [HttpGet("saved")]
+    public async Task<ActionResult<List<SavedPost>>> GetSavedJobsForUser()
+    {
+        var username = User.Identity?.Name;
+        if (username == null) return Unauthorized();
+
+        var savedPosts = await _jobPostRepository.GetSavedPosts(username);
+        if (savedPosts == null || savedPosts.Count == 0)
+        {
+            return NotFound("No saved posts found for the user.");
+        }
+        return Ok(savedPosts);
+
     }
 }

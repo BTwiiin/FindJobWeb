@@ -14,6 +14,6 @@ namespace JobPostingService.Entities
         [Column(Order = 2)]
         public Guid JobPostId { get; set; }
 
-        public DateTime SavedAt { get; set; } // Example of an additional field
+        public DateTime SavedAt { get; set; } = DateTime.UtcNow;
     }
 }

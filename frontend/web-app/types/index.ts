@@ -29,6 +29,12 @@ export type JobPost = {
     isSaved?: boolean
 }
 
+export type SavedPost = {
+    username: string
+    jobPostId: string
+    savedAt: string
+}
+
 export type JobPostRequest = {
     id: string
     jobPostId: string

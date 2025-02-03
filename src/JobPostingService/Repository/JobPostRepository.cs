@@ -76,12 +76,29 @@ namespace JobPostingService.Repository
 
         public void SaveJobPost(SavedPost savedPost)
         {
-            _context.SavedJobs.Add(savedPost);
+            _context.SavedPosts.Add(savedPost);
         }
 
-        public Task<bool> IsJobPostSaved(Guid jobPostId, string username)
+        public async Task<bool> IsJobPostSaved(Guid jobPostId, string username)
         {
-            return _context.SavedJobs.AnyAsync(x => x.JobPostId == jobPostId && x.Username == username);
+            return await _context.SavedPosts.AnyAsync(x => x.JobPostId == jobPostId && x.Username == username);
+        }
+
+        public async Task<List<SavedPost>> GetSavedPosts(string username)
+        {
+            return await _context.SavedPosts.Where(x => x.Username == username).ToListAsync();
+        }
+
+        public void DeleteSavedPost(SavedPost savedPost)
+        {
+            _context.SavedPosts.Remove(savedPost);
+        }
+
+        public void RemoveAllSavedPostsByJobPostId(Guid jobPostId)
+        {
+            var savedPosts = _context.SavedPosts.Where(post => post.JobPostId == jobPostId).ToList();
+            _context.SavedPosts.RemoveRange(savedPosts);
+            Console.WriteLine($"Deleting {savedPosts.Count} SavedPosts for JobPostId: {jobPostId}");
         }
     }
 }

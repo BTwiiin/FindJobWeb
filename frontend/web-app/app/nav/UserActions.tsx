@@ -38,8 +38,10 @@ export default function UserActions({user}: Props) {
                     Create
                 </Link>
             </Dropdown.Item>
-            <Dropdown.Item icon={BsFilePostFill} onClick={setEmployer} className='hover:scale-105 hover:bg-transparent'>
-                My Posts
+            <Dropdown.Item icon={BsFilePostFill} className='hover:scale-105 hover:bg-transparent'>
+                <Link href="/jobposts/savedposts">
+                    Saved Posts
+                </Link>
             </Dropdown.Item>
             <Dropdown.Item icon={HiCog} className='hover:scale-105 hover:bg-transparent'>
                 <Link href="/session">

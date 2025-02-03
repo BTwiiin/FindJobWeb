@@ -8,7 +8,7 @@ namespace JobPostingService.Data
     {
 
         public DbSet<JobPost> JobPosts { get; set; }
-        public DbSet<SavedPost> SavedJobs { get; set; }
+        public DbSet<SavedPost> SavedPosts { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
