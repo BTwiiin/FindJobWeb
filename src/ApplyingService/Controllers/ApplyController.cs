@@ -104,4 +104,35 @@ public class ApplyController : ControllerBase
 
         return Ok(jobPostRequests.Select(_mapper.Map<JobPostRequestDto>).ToList());
     }
+
+    [Authorize]
+    [HttpPost("update-status/{jobPostId}/{employee}")]
+    public async Task<ActionResult<JobPostRequestDto>> UpdateRequestStatus(string jobPostId, string employee, [FromBody] UpdateStatusDto updateStatusDto)
+    {
+        var jobPost = await DB.Find<JobPost>().OneAsync(jobPostId);
+        
+        if (jobPost == null)
+        {
+            return BadRequest("Job post not found.");
+        }
+
+        if (User.Identity.Name != jobPost.Employer)
+        {
+            return Unauthorized("You are not the employer of this job post.");
+        }
+
+        var jobPostRequest = await DB.Find<JobPostRequest>()
+            .Match(jpr => jpr.JobPostId == jobPostId && jpr.Employee == employee)
+            .ExecuteFirstAsync();
+
+        if (jobPostRequest == null)
+        {
+            return BadRequest("Request not found.");
+        }
+
+        jobPostRequest.Status = updateStatusDto.Status;
+        await DB.SaveAsync(jobPostRequest);
+
+        return Ok(_mapper.Map<JobPostRequestDto>(jobPostRequest));
+    }
 }

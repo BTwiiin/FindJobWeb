@@ -58,6 +58,11 @@ public class JobPostController : Controller
 
         jobPost.Employer = User.Identity.Name;
 
+        if (jobPost.Deadline <= DateTime.UtcNow)
+        {
+            return BadRequest("The deadline must be a future date.");
+        }
+        
         _jobPostRepository.AddJobPost(jobPost);
 
         var newJobPost = _mapper.Map<JobPostDto>(jobPost);
