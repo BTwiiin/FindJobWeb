@@ -74,3 +74,17 @@ export async function applyToJobPost(jobPostId: string, data: FieldValues) {
         return { status: 500, error: { message: 'An unexpected error occurred' } };
     }
 }
+
+export async function updateApplicationStatus(jobPostId: string, username: string, status: number) {
+    console.log(jobPostId, username, status);
+    
+    revalidatePath(`/jobposts/details/${jobPostId}`);
+
+    const res = await fetchWrapper.put(
+        `apply/update-status/${jobPostId}/${username}`, 
+        { status }
+    );
+
+    revalidatePath(`/jobposts/details/${jobPostId}`);
+    return res;
+}

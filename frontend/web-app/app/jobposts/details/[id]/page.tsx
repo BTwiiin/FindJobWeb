@@ -3,13 +3,13 @@ import Heading from '@/app/components/Heading';
 import React from 'react';
 import SimilarJobCard from '../../cards/SimilarJobCard';
 import { getCurrentUser } from '@/app/actions/authActions';
-import EditButton from './EditButton';
-import DeleteButton from './DeleteButton';
+import EditButton from './components/EditButton';
+import DeleteButton from './components/DeleteButton';
 import ApplyForm from '../../ApplyForm';
 import EmptyFilter from '@/app/components/EmptyFilter';
-import MapComponent from './MapComponent';
+import MapComponent from './components/MapComponent';
 import { JobPostRequest } from '@/types';
-import ApplicantList from './ApplicantList';
+import ApplicantList from './components/ApplicantList';
 
 
 type Params = {

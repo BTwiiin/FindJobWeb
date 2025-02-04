@@ -105,8 +105,10 @@ public class ApplyController : ControllerBase
         return Ok(jobPostRequests.Select(_mapper.Map<JobPostRequestDto>).ToList());
     }
 
+
+    // TRY PUT HERE
     [Authorize]
-    [HttpPost("update-status/{jobPostId}/{employee}")]
+    [HttpPut("update-status/{jobPostId}/{employee}")]
     public async Task<ActionResult<JobPostRequestDto>> UpdateRequestStatus(string jobPostId, string employee, [FromBody] UpdateStatusDto updateStatusDto)
     {
         var jobPost = await DB.Find<JobPost>().OneAsync(jobPostId);
