@@ -2,6 +2,8 @@ using ApplyingService.DTOs;
 using ApplyingService.Models;
 using ApplyingService.Services;
 using AutoMapper;
+using Contracts;
+using MassTransit;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Entities;
@@ -14,11 +16,13 @@ public class ApplyController : ControllerBase
 {
     private readonly IMapper _mapper;
     private readonly GrpcJobPostClient _grpcJobPostClient;
+    private readonly IPublishEndpoint _publishEndpoint;
 
-    public ApplyController(IMapper mapper, GrpcJobPostClient grpcJobPostClient)
+    public ApplyController(IMapper mapper, GrpcJobPostClient grpcJobPostClient, IPublishEndpoint publishEndpoint)
     {
         _mapper = mapper;
         _grpcJobPostClient = grpcJobPostClient;
+        _publishEndpoint = publishEndpoint;
     }
 
     [Authorize]
@@ -52,6 +56,7 @@ public class ApplyController : ControllerBase
         {
             JobPostId = jobPostId,
             Employee = User.Identity.Name,
+            Employer = jobPost.Employer,
             Status = Status.Pending,
             //Email = User.FindFirstValue(ClaimTypes.Email),
             Email = applicantInfo.Email,
@@ -66,6 +71,8 @@ public class ApplyController : ControllerBase
         }
 
         await DB.SaveAsync(jobPostRequest);
+
+        await _publishEndpoint.Publish(_mapper.Map<JobPostRequestPlaced>(jobPostRequest));
 
         return Ok(_mapper.Map<JobPostRequestDto>(jobPostRequest));
     }

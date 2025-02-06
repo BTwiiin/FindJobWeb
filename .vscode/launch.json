@@ -4,6 +4,7 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
+
         
         {
             "name": "Docker .NET Attach (Preview)",
@@ -18,7 +19,7 @@
             "name": "C#: <project-name> Debug",
             "type": "dotnet",
             "request": "launch",
-            "projectPath": "${workspaceFolder}/src/ApplyingService/ApplyingService.csproj"
+            "projectPath": "${workspaceFolder}/src/NotificationService/NotificationService.csproj"
         },
         {
             "name": ".NET Core Attach",

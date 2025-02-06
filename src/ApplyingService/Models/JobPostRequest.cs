@@ -6,6 +6,7 @@ namespace ApplyingService.Models
     {
         public string JobPostId { get; set; }
         public string Employee { get; set; }
+        public string Employer { get; set; }
         public DateTime ApplyDate { get; set; } = DateTime.Now;
         public Status Status { get; set; }
         public string Email { get; set; }

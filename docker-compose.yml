@@ -129,6 +129,7 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
+      - IdentityServiceUrl=http://identity-svc
       - RabbitMq__Host=rabbitmq
     ports:
       - 7004:80

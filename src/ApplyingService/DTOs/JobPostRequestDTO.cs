@@ -5,6 +5,7 @@ namespace ApplyingService.DTOs
         public string Id { get; set; }
         public string JobPostId { get; set; }
         public string Employee { get; set; }
+        public string Employer { get; set; }
         public DateTime ApplyDate { get; set; }
         public string Status { get; set; }
         public string Email { get; set; }

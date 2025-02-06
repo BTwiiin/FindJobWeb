@@ -1,6 +1,7 @@
 using ApplyingService.DTOs;
 using ApplyingService.Models;
 using AutoMapper;
+using Contracts;
 
 namespace ApplyingService.RequestHelpers
 {
@@ -9,6 +10,7 @@ namespace ApplyingService.RequestHelpers
         public MappingProfiles()
         {
             CreateMap<JobPostRequest, JobPostRequestDto>().ReverseMap();
+            CreateMap<JobPostRequest, JobPostRequestPlaced>().ReverseMap();
         }
     }
 }

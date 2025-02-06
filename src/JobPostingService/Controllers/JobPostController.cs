@@ -5,7 +5,6 @@ using JobPostingService.DTOs;
 using JobPostingService.Entities;
 using JobPostingService.Repository;
 using MassTransit;
-using MassTransit.Testing;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
