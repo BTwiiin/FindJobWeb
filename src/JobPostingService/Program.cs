@@ -1,4 +1,3 @@
-using Contracts;
 using JobPostingService.Consumers;
 using JobPostingService.Data;
 using JobPostingService.Repository;
@@ -6,11 +5,15 @@ using JobPostingService.Services;
 using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Amazon.S3;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllers();
+
+builder.Services.AddDefaultAWSOptions(builder.Configuration.GetAWSOptions());
+builder.Services.AddAWSService<IAmazonS3>();
 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddMassTransit(x =>
@@ -51,6 +54,7 @@ builder.Services.AddDbContext<JobPostingDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddScoped<IJobPostRepository, JobPostRepository>();
+builder.Services.AddScoped<IImageUploadService, ImageUploadService>();
 
 builder.Services.AddGrpc();
 

@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json;
 using AutoMapper;
 using Contracts;
 using JobPostingService.DTOs;
@@ -18,12 +19,17 @@ public class JobPostController : Controller
     private readonly IJobPostRepository _jobPostRepository;
     private readonly IMapper _mapper;
     private readonly IPublishEndpoint _publishEndpoint;
+    private readonly IImageUploadService _imageUploadService;
 
-    public JobPostController(IJobPostRepository jobPostRepository, IMapper mapper, IPublishEndpoint publishEndpoint)
+    public JobPostController(IJobPostRepository jobPostRepository, 
+                                IMapper mapper, 
+                                IPublishEndpoint publishEndpoint, 
+                                IImageUploadService imageUploadService)
     {
         _jobPostRepository = jobPostRepository;
         _mapper = mapper;
         _publishEndpoint = publishEndpoint;
+        _imageUploadService = imageUploadService;
     }
 
     [HttpGet]
@@ -51,17 +57,19 @@ public class JobPostController : Controller
 
     [Authorize]
     [HttpPost]
-    public async Task<ActionResult<JobPostDto>> CreateJobPost(CreateJobPostDto createJobPostDto)
+    public async Task<ActionResult<JobPostDto>> CreateJobPost([FromBody] CreateJobPostDto createJobPostDto)
     {
         var jobPost = _mapper.Map<JobPost>(createJobPostDto);
-
         jobPost.Employer = User.Identity.Name;
 
         if (jobPost.Deadline <= DateTime.UtcNow)
         {
             return BadRequest("The deadline must be a future date.");
         }
-        
+
+        // Initialize PhotoUrls list
+        jobPost.PhotoUrls = new List<string>();
+
         _jobPostRepository.AddJobPost(jobPost);
 
         var newJobPost = _mapper.Map<JobPostDto>(jobPost);
@@ -76,7 +84,52 @@ public class JobPostController : Controller
             new { jobPost.Id },
             newJobPost);
     }
+    
+    [Authorize]
+    [HttpPost("upload-image/{id}")]
+    public async Task<IActionResult> UploadImage(Guid id, [FromForm] List<IFormFile> images)
+    {
+        var jobPost = await _jobPostRepository.GetEntityByIdAsync(id);
+        if (jobPost == null) return NotFound("Job post not found");
 
+        if (jobPost.Employer != User.Identity.Name) return Forbid();
+
+        foreach (var image in images)
+        {
+            var imageUrl = await _imageUploadService.SaveImageAsync(image);
+            Console.WriteLine($"Adding Image URL: {imageUrl}");
+            Console.WriteLine($"PhotoUrls before saving: {JsonSerializer.Serialize(jobPost.PhotoUrls)}");
+            jobPost.PhotoUrls.Add(imageUrl);
+        }
+
+        _jobPostRepository.Update(jobPost);
+        var result = await _jobPostRepository.SaveChangesAsync();
+        Console.WriteLine($"SaveChangesAsync result: {result}");
+        Console.WriteLine($"PhotoUrls after saving: {JsonSerializer.Serialize(jobPost.PhotoUrls)}");
+
+        if (result)
+        {
+            Console.WriteLine($"PhotoUrls after saving: {JsonSerializer.Serialize(jobPost.PhotoUrls)}");
+            return Ok("Image(s) uploaded successfully");
+        }
+        else
+        {
+            return BadRequest("No changes were saved to the database.");
+        }
+    }
+
+    [HttpGet("get-image/{id}")]
+    public async Task<IActionResult> GetImage(Guid id)
+    {
+        var jobPost = await _jobPostRepository.GetEntityByIdAsync(id);
+        if (jobPost == null) return NotFound("Job post not found");
+
+        if (jobPost.PhotoUrls.Count == 0) return NotFound("No images found");
+
+        var imageUrl = jobPost.PhotoUrls[0];
+
+        return Ok(imageUrl);
+    }
 
     [Authorize]
     [HttpPut("{id}")]

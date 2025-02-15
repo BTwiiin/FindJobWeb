@@ -52,6 +52,11 @@ namespace JobPostingService.Repository
             _context.JobPosts.Add(jobPost);
         }
 
+        public void Update(JobPost jobPost)
+        {
+            _context.Entry(jobPost).State = EntityState.Modified;
+        }
+
         public void DeleteJobPost(JobPost jobPost)
         {
             _context.JobPosts.Remove(jobPost);

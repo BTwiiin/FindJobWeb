@@ -18,6 +18,7 @@ namespace JobPostingService.Entities
         public Status Status { get; set; }
         public Category Category { get; set; }
         public Location Location { get; set; }
+        public List<string> PhotoUrls { get; set; } = new();
 
         public bool HasPaymentAmount() => PaymentAmount > 0;
     }

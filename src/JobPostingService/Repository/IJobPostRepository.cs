@@ -18,5 +18,6 @@ namespace JobPostingService.Repository
         Task<bool> IsJobPostSaved(Guid jobPostId, string username);
         void DeleteSavedPost(SavedPost savedPost);
         void RemoveAllSavedPostsByJobPostId(Guid jobPostId);
+        void Update(JobPost jobPost);
     }
 }
