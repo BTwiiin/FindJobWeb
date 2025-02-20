@@ -1,3 +1,4 @@
+// frontend/web-app/app/components/TemplateModal.tsx
 'use client';
 
 import { Button } from 'flowbite-react';
@@ -31,7 +32,7 @@ export default function TemplateModal({ show, onClose, title, children }: ModalP
       >
         <div
           onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside the modal
-          className="bg-white w-full max-w-md max-h-[90vh] rounded-lg shadow-lg overflow-hidden flex flex-col"
+          className="bg-white w-full max-w-3xl max-h-[90vh] rounded-lg shadow-lg overflow-hidden flex flex-col"
         >
           {/* Header */}
           <div className="flex justify-between items-center p-4 border-b">

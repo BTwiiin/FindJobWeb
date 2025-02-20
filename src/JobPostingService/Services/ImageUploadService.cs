@@ -1,6 +1,7 @@
 using Amazon;
 using Amazon.Runtime;
 using Amazon.S3;
+using Amazon.S3.Model;
 using Amazon.S3.Transfer;
 
 public class ImageUploadService : IImageUploadService
@@ -28,14 +29,27 @@ public class ImageUploadService : IImageUploadService
         _s3Client = new AmazonS3Client(credentials, regionEndpoint);
     }
 
-     public async Task<string> SaveImageAsync(IFormFile image)
+    public async Task<string> GetPreSignedUrl(string photoUrl)
+    {
+        var key = photoUrl.Split('/').Last();
+        var request = new GetPreSignedUrlRequest
+        {
+            BucketName = _bucketName,
+            Key = key,
+            Expires = DateTime.UtcNow.AddHours(1) // URL valid for 1 hour
+        };
+
+        return await Task.FromResult(_s3Client.GetPreSignedURL(request));
+    }
+
+    public async Task<string> SaveImageAsync(IFormFile image)
     {
         if (string.IsNullOrEmpty(_bucketName))
         {
             throw new Exception("AWS bucket name is missing from configuration.");
         }
 
-        var fileName = $"{Guid.NewGuid()}{Path.GetExtension(image.FileName)}";
+        var fileName = $"{Guid.NewGuid()}{Path.GetExtension(image.FileName.Replace("/", "_"))}";
 
         using var stream = image.OpenReadStream(); // Directly read from form file
 

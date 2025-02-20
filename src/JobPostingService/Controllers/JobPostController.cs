@@ -32,6 +32,8 @@ public class JobPostController : Controller
         _imageUploadService = imageUploadService;
     }
 
+    #region HttpGet Methods
+
     [HttpGet]
     public async Task<ActionResult<List<JobPostDto>>> GetJobPosts(string date)
     {
@@ -54,6 +56,29 @@ public class JobPostController : Controller
 
         return jobPostDto;
     }
+
+    [HttpGet("get-image/{id}")]
+    public async Task<ActionResult<List<string>>> GetImage(Guid id)
+    {
+        var jobPost = await _jobPostRepository.GetEntityByIdAsync(id);
+        if (jobPost == null) return NotFound("Job post not found");
+
+        if (jobPost.PhotoUrls == null || jobPost.PhotoUrls.Count == 0) return Ok(new List<string>());;
+
+        List<string> imageUrls = new List<string>();
+
+        foreach (var photoUrl in jobPost.PhotoUrls)
+        {
+            var preSignedUrl = await _imageUploadService.GetPreSignedUrl(photoUrl);
+            imageUrls.Add(preSignedUrl);
+        }
+
+        return Ok(imageUrls);
+    }
+
+    #endregion
+
+    #region HttpPost Methods
 
     [Authorize]
     [HttpPost]
@@ -118,18 +143,9 @@ public class JobPostController : Controller
         }
     }
 
-    [HttpGet("get-image/{id}")]
-    public async Task<IActionResult> GetImage(Guid id)
-    {
-        var jobPost = await _jobPostRepository.GetEntityByIdAsync(id);
-        if (jobPost == null) return NotFound("Job post not found");
+    #endregion
 
-        if (jobPost.PhotoUrls.Count == 0) return NotFound("No images found");
-
-        var imageUrl = jobPost.PhotoUrls[0];
-
-        return Ok(imageUrl);
-    }
+    #region HttpPut Methods
 
     [Authorize]
     [HttpPut("{id}")]
@@ -177,6 +193,9 @@ public class JobPostController : Controller
         return BadRequest("Could not update data");
     }
 
+    #endregion
+
+    #region HttpDelete Methods
 
     [Authorize]
     [HttpDelete("{id}")]
@@ -198,6 +217,10 @@ public class JobPostController : Controller
         if (result) return Ok();
         return BadRequest("Could not delete data");
     }
+
+    #endregion
+
+    #region Saved Job Post Methods
 
     [Authorize]
     [HttpPost("save/{id}")]
@@ -258,4 +281,6 @@ public class JobPostController : Controller
         return Ok(savedPosts);
 
     }
+
+    #endregion
 }

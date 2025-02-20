@@ -1,4 +1,4 @@
-import { getApplicants, getJobPostById, getMyRequests, getSimilarJobPosts } from '@/app/actions/jobPostActions';
+import { getApplicants, getJobPostById, getMyRequests, getSimilarJobPosts, getImages } from '@/app/actions/jobPostActions';
 import Heading from '@/app/components/Heading';
 import React from 'react';
 import SimilarJobCard from '../../cards/SimilarJobCard';
@@ -10,6 +10,8 @@ import EmptyFilter from '@/app/components/EmptyFilter';
 import MapComponent from './components/MapComponent';
 import { JobPostRequest } from '@/types';
 import ApplicantList from './components/ApplicantList';
+import ImageGallery from './components/ImageGallery';
+import ImageIconButton from './components/ImageButton';
 
 
 type Params = {
@@ -22,6 +24,9 @@ export default async function Details(props: Params) {
   const params = await props.params;
   const data = await getJobPostById(params.id);
   const user = await getCurrentUser();
+  const images = await getImages(params.id);
+
+  const imageUrls = Array.isArray(images) ? images : [];
   
   let applied = false;
 
@@ -87,11 +92,13 @@ export default async function Details(props: Params) {
           Updated: {new Date(data.updatedAt).toLocaleDateString()}
         </div>
       </div>
-
+      
+      {/* Edit and Delete Buttons */}
       {user?.username === data.employer && (
         <div className='flex flex-row items-center pt-4'>
           <EditButton id={data.id} />
           <DeleteButton id={data.id} />
+          <ImageIconButton id={data.id} images={imageUrls} />
         </div>
       )}
 
@@ -131,6 +138,12 @@ export default async function Details(props: Params) {
             {data?.status || 'Unknown'}
           </p>
         </div>
+        {/* Images Section */}
+        <div className="col-span-2 md:col-span-1 hover:cursor-pointer	">
+          <h3 className="font-semibold text-gray-600 mb-2">Images</h3>
+          <ImageGallery images={imageUrls} />
+        </div>
+
         {/* Small Map Section */}
         <div className="map-box col-span-2 md:col-span-1">
           <h3 className="font-semibold text-gray-600">Location</h3>
@@ -138,6 +151,7 @@ export default async function Details(props: Params) {
                         longitude={data.location.longitude as number}            
           />
         </div>
+        
       </div>
 
       {/* Apply Section */}

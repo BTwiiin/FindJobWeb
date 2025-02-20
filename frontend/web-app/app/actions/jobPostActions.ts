@@ -3,20 +3,12 @@
 import { fetchWrapper } from '@/lib/fetchWrapper';
 import { JobPost, PagedResult } from '@/types';
 import { revalidatePath } from 'next/cache';
+import { List } from 'postcss/lib/list';
 import { FieldValues } from 'react-hook-form';
 
-export async function getData(query: string): Promise<PagedResult<JobPost>> {
-    console.log(query);
-    return fetchWrapper.get(`search${query}`);
-}
-
-export async function updateJobTest() {
-    const data = {
-        paymentAmount: Math.floor(Math.random() * 10000) + 1
-    }
-    
-    return await fetchWrapper.put(`jobpost/2b7c99a6-2723-45cb-a445-acbc6a9aaa71`, data);
-}
+/* #####################################
+   ## Job Post Management Actions   ##
+   ##################################### */
 
 export async function createJobPost(data: FieldValues) {
     return await fetchWrapper.post(`jobpost`, data);
@@ -26,9 +18,9 @@ export async function getJobPostById(id: string): Promise<JobPost> {
     return await fetchWrapper.get(`jobpost/${id}`);
 }
 
-export async function getSimilarJobPosts(category: string): Promise<JobPost[]> {
-    const response = await fetchWrapper.get(`search?filterBy=${category}&pageSize=4`);
-    return response && response.results ? response.results : [];
+export async function getData(query: string): Promise<PagedResult<JobPost>> {
+    console.log(query);
+    return fetchWrapper.get(`search${query}`);
 }
 
 export async function updateJobPost(data: FieldValues, id: string) {
@@ -42,22 +34,25 @@ export async function deleteJobPost(id: string) {
     return await fetchWrapper.del(`jobpost/${id}`);
 }
 
-export async function getMyRequests() {
-    return await fetchWrapper.get(`apply/my-requests`);
+/* #####################################
+   ## Image Management Actions      ##
+   ##################################### */
+
+export async function uploadImages() {
+    // Define your image upload logic here
 }
 
-export async function getApplicants(jobPostId: string) {
-    return await fetchWrapper.get(`apply/${jobPostId}`);
+export async function deleteImage(imageUrl: string) {
+    return await fetchWrapper.del(`jobpost/delete-image/${imageUrl}`);
 }
 
-export async function saveJobPost(jobPostId: string) {
-    revalidatePath(`/jobposts/details/${jobPostId}`);
-    return await fetchWrapper.post(`jobpost/save/${jobPostId}`, {});
+export async function getImages(id: string): Promise<string[]> {
+    return await fetchWrapper.get(`jobpost/get-image/${id}`);
 }
 
-export async function savedPosts() {
-    return await fetchWrapper.get(`jobpost/saved`);
-}
+/* #####################################
+   ## Application Actions           ##
+   ##################################### */
 
 export async function applyToJobPost(jobPostId: string, data: FieldValues) {
     try {
@@ -87,4 +82,42 @@ export async function updateApplicationStatus(jobPostId: string, username: strin
 
     revalidatePath(`/jobposts/details/${jobPostId}`);
     return res;
+}
+
+/* #####################################
+   ## Saved Job Post Actions        ##
+   ##################################### */
+
+export async function saveJobPost(jobPostId: string) {
+    revalidatePath(`/jobposts/details/${jobPostId}`);
+    return await fetchWrapper.post(`jobpost/save/${jobPostId}`, {});
+}
+
+export async function savedPosts() {
+    return await fetchWrapper.get(`jobpost/saved`);
+}
+
+/* #####################################
+   ## Additional Actions            ##
+   ##################################### */
+
+export async function updateJobTest() {
+    const data = {
+        paymentAmount: Math.floor(Math.random() * 10000) + 1
+    }
+    
+    return await fetchWrapper.put(`jobpost/2b7c99a6-2723-45cb-a445-acbc6a9aaa71`, data);
+}
+
+export async function getSimilarJobPosts(category: string): Promise<JobPost[]> {
+    const response = await fetchWrapper.get(`search?filterBy=${category}&pageSize=4`);
+    return response && response.results ? response.results : [];
+}
+
+export async function getMyRequests() {
+    return await fetchWrapper.get(`apply/my-requests`);
+}
+
+export async function getApplicants(jobPostId: string) {
+    return await fetchWrapper.get(`apply/${jobPostId}`);
 }
