@@ -54,9 +54,17 @@ export default function Loading() {
       </div>
 
       {/* Map Placeholder */}
-      <div className="mt-8 w-[40%]">
-        <h3 className="text-gray-500 text-sm mb-2">Location Map</h3>
-        <div className="h-64 bg-gray-200 rounded-lg shadow-md"></div>
+      <div className="flex flex-row justify-between gap-2 col-span-2">
+        <div className="mt-8 w-full">
+          <h3 className="text-gray-500 text-sm mb-2">Images</h3>
+          <div className="h-64 bg-gray-200 rounded-lg shadow-md"></div>
+        </div>
+
+        {/* Map Placeholder */}
+        <div className="mt-8 w-full">
+          <h3 className="text-gray-500 text-sm mb-2">Location Map</h3>
+          <div className="h-64 bg-gray-200 rounded-lg shadow-md"></div>
+        </div>
       </div>
 
       {/* Similar Jobs Section */}

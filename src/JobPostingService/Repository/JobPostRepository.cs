@@ -105,5 +105,23 @@ namespace JobPostingService.Repository
             _context.SavedPosts.RemoveRange(savedPosts);
             Console.WriteLine($"Deleting {savedPosts.Count} SavedPosts for JobPostId: {jobPostId}");
         }
+
+        public void DeleteImageFromJobPost(JobPost jobPost, string key)
+        {
+            var photoUrl = jobPost.PhotoUrls.FirstOrDefault(url => url.EndsWith(key, StringComparison.OrdinalIgnoreCase));
+
+            Console.WriteLine($"Extracted Key: {key}");
+            Console.WriteLine($"Matched URL: {photoUrl}");
+
+            if (photoUrl != null)
+            {
+                jobPost.PhotoUrls.Remove(photoUrl);
+                Console.WriteLine("Image removed successfully!");
+            }
+            else
+            {
+                Console.WriteLine("No matching URL found.");
+            }
+        }
     }
 }

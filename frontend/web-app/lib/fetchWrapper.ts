@@ -13,6 +13,18 @@ async function get(url: string) {
     return handleResponse(response);
 }
 
+async function postFormData(endpoint: string, formData: FormData) {
+    const headers = await getAuthHeaders(); // Get auth headers
+
+    const response = await fetch(`${baseUrl}${endpoint}`, {
+        method: "POST",
+        headers, 
+        body: formData,
+    });
+
+    return handleResponse(response);
+}
+
 async function post(url: string, body: {}) {
     const requestOptions = {
         method: 'POST',
@@ -61,6 +73,17 @@ async function getHeaders() {
     return headers;
 }
 
+async function getAuthHeaders() {
+    const session = await auth();
+    const headers: Record<string, string> = {};
+
+    if (session?.accessToken) {
+        headers.Authorization = 'Bearer ' + session.accessToken.trim();
+    }
+
+    return headers;
+}
+
 async function handleResponse(response: Response) {
     const text = await response.text();
     console.log(text);
@@ -91,6 +114,7 @@ async function handleResponse(response: Response) {
 export const fetchWrapper = {
     get,
     post,
+    postFormData,
     put,
     del
 };

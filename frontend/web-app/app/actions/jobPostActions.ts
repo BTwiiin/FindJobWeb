@@ -38,12 +38,12 @@ export async function deleteJobPost(id: string) {
    ## Image Management Actions      ##
    ##################################### */
 
-export async function uploadImages() {
-    // Define your image upload logic here
+export async function uploadImages(id: string, formData: FormData) {
+    return await fetchWrapper.postFormData(`jobpost/upload-image/${id}`, formData);
 }
 
-export async function deleteImage(imageUrl: string) {
-    return await fetchWrapper.del(`jobpost/delete-image/${imageUrl}`);
+export async function deleteImage(key: string, id: string) {
+    return await fetchWrapper.del(`jobpost/delete-image/${key}/${id}`);
 }
 
 export async function getImages(id: string): Promise<string[]> {

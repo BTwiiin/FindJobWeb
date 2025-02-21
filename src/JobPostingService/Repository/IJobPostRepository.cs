@@ -19,5 +19,6 @@ namespace JobPostingService.Repository
         void DeleteSavedPost(SavedPost savedPost);
         void RemoveAllSavedPostsByJobPostId(Guid jobPostId);
         void Update(JobPost jobPost);
+        void DeleteImageFromJobPost(JobPost jobPost,string key);
     }
 }

@@ -140,7 +140,7 @@ export default async function Details(props: Params) {
         </div>
         {/* Images Section */}
         <div className="col-span-2 md:col-span-1 hover:cursor-pointer	">
-          <h3 className="font-semibold text-gray-600 mb-2">Images</h3>
+          <h3 className="font-semibold text-gray-600">Images</h3>
           <ImageGallery images={imageUrls} />
         </div>
 

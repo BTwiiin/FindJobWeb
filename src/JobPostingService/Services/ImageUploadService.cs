@@ -2,15 +2,21 @@ using Amazon;
 using Amazon.Runtime;
 using Amazon.S3;
 using Amazon.S3.Model;
+using Amazon.S3.Model.Internal.MarshallTransformations;
 using Amazon.S3.Transfer;
 
 public class ImageUploadService : IImageUploadService
 {
+    #region Configuration
     private readonly IAmazonS3 _s3Client;
     private readonly string _bucketName;
+    private readonly ILogger<ImageUploadService> _logger;
+    private readonly TransferUtility _transferUtility;
 
-    public ImageUploadService(IConfiguration configuration)
+    public ImageUploadService(IConfiguration configuration, ILogger<ImageUploadService> logger)
     {
+        _logger = logger;
+
         var awsSettings = configuration.GetSection("AWS");
         var accessKey = awsSettings["AccessKey"];
         var secretKey = awsSettings["SecretKey"];
@@ -27,11 +33,56 @@ public class ImageUploadService : IImageUploadService
         var regionEndpoint = RegionEndpoint.GetBySystemName(region);
 
         _s3Client = new AmazonS3Client(credentials, regionEndpoint);
+        _transferUtility = new TransferUtility(_s3Client);
     }
 
-    public async Task<string> GetPreSignedUrl(string photoUrl)
+    #endregion
+
+    #region Delete
+
+    public async Task<bool> DeleteImageAcync(string key)
     {
-        var key = photoUrl.Split('/').Last();
+        if (string.IsNullOrEmpty(_bucketName))
+        {
+            throw new InvalidOperationException("AWS bucket name is missing from configuration.");
+        }
+
+        var request = new DeleteObjectRequest
+        {
+            BucketName = _bucketName,
+            Key = key
+        };
+
+        try 
+        {
+            var response = await _s3Client.DeleteObjectAsync(request);
+            return response.HttpStatusCode == System.Net.HttpStatusCode.NoContent || 
+                response.HttpStatusCode == System.Net.HttpStatusCode.OK;
+        }
+        catch (AmazonS3Exception ex)
+        {
+            _logger.LogError(ex, "S3 error deleting image {PreSignedUrl}: {Message}", key, ex.Message);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Unexpected error deleting image {PreSignedUrl}: {Message}", key, ex.Message);
+        }
+
+        return false;
+    }
+
+    #endregion
+
+    #region GetPreSignedUrl
+
+    public Task<string> GetPreSignedUrl(string imageUrl)
+    {
+        if (string.IsNullOrEmpty(_bucketName))
+        {
+            throw new Exception("AWS bucket name is missing from configuration.");
+        }
+
+        var key = imageUrl.Split('/').Last();
         var request = new GetPreSignedUrlRequest
         {
             BucketName = _bucketName,
@@ -39,8 +90,26 @@ public class ImageUploadService : IImageUploadService
             Expires = DateTime.UtcNow.AddHours(1) // URL valid for 1 hour
         };
 
-        return await Task.FromResult(_s3Client.GetPreSignedURL(request));
+        try 
+        {
+            var preSignedUrl = _s3Client.GetPreSignedURL(request);
+            return Task.FromResult(preSignedUrl);
+        }
+        catch (AmazonS3Exception ex)
+        {
+            _logger.LogError(ex, "Error generating pre-signed URL: {Message}", ex.Message);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Unexpected error generating pre-signed URL: {Message}", ex.Message);
+        }
+        
+        return Task.FromResult(string.Empty);
     }
+
+    #endregion
+
+    #region Save
 
     public async Task<string> SaveImageAsync(IFormFile image)
     {
@@ -51,7 +120,7 @@ public class ImageUploadService : IImageUploadService
 
         var fileName = $"{Guid.NewGuid()}{Path.GetExtension(image.FileName.Replace("/", "_"))}";
 
-        using var stream = image.OpenReadStream(); // Directly read from form file
+        await using var stream = image.OpenReadStream(); // Directly read from form file
 
         var uploadRequest = new TransferUtilityUploadRequest
         {
@@ -61,13 +130,28 @@ public class ImageUploadService : IImageUploadService
             ContentType = image.ContentType
         };
 
-        var transferUtility = new TransferUtility(_s3Client);
-        await transferUtility.UploadAsync(uploadRequest);
+        try
+        {
+            await _transferUtility.UploadAsync(uploadRequest);
 
-        // Get the region name from the S3 client configuration
-        string region = _s3Client.Config.RegionEndpoint.SystemName;
+            string region = _s3Client.Config.RegionEndpoint.SystemName;
+            string fileUrl = $"https://{_bucketName}.s3.{region}.amazonaws.com/{fileName}";
 
-        // Return S3 URL
-        return $"https://{_bucketName}.s3.{region}.amazonaws.com/{fileName}";
+            _logger.LogInformation("Image uploaded successfully: {FileUrl}", fileUrl);
+
+            return $"https://{_bucketName}.s3.{region}.amazonaws.com/{fileName}";
+        }
+        catch (AmazonS3Exception ex)
+        {
+            _logger.LogError(ex, "AWS S3 error: {Message}", ex.Message);
+            throw new Exception("Failed to upload image to S3.");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Unexpected error while uploading image.");
+            throw;
+        }
     }
+
+    #endregion
 }

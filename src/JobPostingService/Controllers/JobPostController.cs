@@ -8,6 +8,7 @@ using JobPostingService.Repository;
 using MassTransit;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 
 namespace JobPostingService.Controllers;
 
@@ -67,11 +68,10 @@ public class JobPostController : Controller
 
         List<string> imageUrls = new List<string>();
 
-        foreach (var photoUrl in jobPost.PhotoUrls)
-        {
-            var preSignedUrl = await _imageUploadService.GetPreSignedUrl(photoUrl);
-            imageUrls.Add(preSignedUrl);
-        }
+        imageUrls = jobPost.PhotoUrls
+                    .Select(photoUrl => _imageUploadService.GetPreSignedUrl(photoUrl).Result)
+                    .Where(url => !string.IsNullOrWhiteSpace(url))
+                    .ToList();
 
         return Ok(imageUrls);
     }
@@ -112,34 +112,34 @@ public class JobPostController : Controller
     
     [Authorize]
     [HttpPost("upload-image/{id}")]
-    public async Task<IActionResult> UploadImage(Guid id, [FromForm] List<IFormFile> images)
+    public async Task<ActionResult> UploadImage(Guid id, [FromForm] List<IFormFile> images)
     {
         var jobPost = await _jobPostRepository.GetEntityByIdAsync(id);
         if (jobPost == null) return NotFound("Job post not found");
 
         if (jobPost.Employer != User.Identity.Name) return Forbid();
 
-        foreach (var image in images)
-        {
-            var imageUrl = await _imageUploadService.SaveImageAsync(image);
-            Console.WriteLine($"Adding Image URL: {imageUrl}");
-            Console.WriteLine($"PhotoUrls before saving: {JsonSerializer.Serialize(jobPost.PhotoUrls)}");
-            jobPost.PhotoUrls.Add(imageUrl);
-        }
+        jobPost.PhotoUrls = (await Task.WhenAll(
+                                                images.Select(_imageUploadService.SaveImageAsync)
+                                                ))
+                                                .ToList();
+                                                
 
         _jobPostRepository.Update(jobPost);
         var result = await _jobPostRepository.SaveChangesAsync();
-        Console.WriteLine($"SaveChangesAsync result: {result}");
-        Console.WriteLine($"PhotoUrls after saving: {JsonSerializer.Serialize(jobPost.PhotoUrls)}");
+
+        var imageUrls = jobPost.PhotoUrls
+                    .Select(photoUrl => _imageUploadService.GetPreSignedUrl(photoUrl).Result)
+                    .Where(url => !string.IsNullOrWhiteSpace(url))
+                    .ToList();
 
         if (result)
         {
-            Console.WriteLine($"PhotoUrls after saving: {JsonSerializer.Serialize(jobPost.PhotoUrls)}");
-            return Ok("Image(s) uploaded successfully");
+            return Ok(new { status = "success", message = "Images uploaded successfully", imageUrls});
         }
         else
         {
-            return BadRequest("No changes were saved to the database.");
+            return BadRequest(new { status = "error", message = "No changes were saved to the database"});
         }
     }
 
@@ -206,6 +206,16 @@ public class JobPostController : Controller
 
         if (jobPost.Employer != User.Identity.Name) return Forbid();
 
+        var images = jobPost.PhotoUrls;
+
+        if (images != null && images.Count > 0)
+        {
+            foreach (var image in images)
+            {
+                await _imageUploadService.DeleteImageAcync(image);
+            }
+        }
+
         _jobPostRepository.RemoveAllSavedPostsByJobPostId(id);
 
         _jobPostRepository.DeleteJobPost(jobPost);
@@ -217,6 +227,30 @@ public class JobPostController : Controller
         if (result) return Ok();
         return BadRequest("Could not delete data");
     }
+
+    [Authorize]
+    [HttpDelete("delete-image/{key}/{id}")]
+    public async Task<IActionResult> DeleteImageFromJobPost(string key, Guid id)
+    {
+        var jobPost = await _jobPostRepository.GetEntityByIdAsync(id);
+        if (jobPost == null) return NotFound();
+
+        if (jobPost.Employer != User.Identity.Name) return Forbid();
+
+        if (key.IsNullOrEmpty()) return BadRequest("Image URL cannot be empty!");
+
+        var response = await _imageUploadService.DeleteImageAcync(key);
+        if (response)
+        {
+            _jobPostRepository.DeleteImageFromJobPost(jobPost, key);
+            _jobPostRepository.Update(jobPost);
+            if (await _jobPostRepository.SaveChangesAsync()) return Ok("Image deleted successfully!");
+            
+        }
+        return BadRequest("Failed to delete image!");
+    }
+
+
 
     #endregion
 
