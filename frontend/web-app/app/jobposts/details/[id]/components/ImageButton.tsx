@@ -2,38 +2,43 @@
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
-import { FaImage } from 'react-icons/fa6';
+import { PiImagesSquareBold } from "react-icons/pi";
 import { Button } from 'flowbite-react';
 
-type Props = {
+interface Props {
   id: string;
-  images: string[];
-};
+}
 
-export default function ImageIconButton({ id, images }: Props) {
+export default function ImageIconButton({ id }: Props) {
   const router = useRouter();
 
-  const handleEdit = () => {
-    const queryParams = new URLSearchParams({ images: JSON.stringify(images) }).toString();
-    router.push(`/jobposts/update-images/${id}?${queryParams}`);
+  const handleClick = () => {
+    router.push(`/jobposts/update-images/${id}`);
   };
 
   return (
     <Button
-      onClick={handleEdit}
+      onClick={handleClick}
       className="
-        p-1 
+        px-3
+        py-1
+        ml-2
         rounded 
-        text-gray-600 
-        hover:text-gray-800 
-        hover:bg-gray-200 
+        bg-gray-100
+        text-gray-700
+        hover:bg-gray-200
         transition 
-        transform 
-        hover:scale-105
+        border border-gray-300
+        flex
+        items-center
+        text-sm
       "
       title="Manage Images"
     >
-      <FaImage size={16} />
+      <div className='flex flex-row items-center'>
+        <PiImagesSquareBold size={14} className="mr-1.5" />
+        <span>Images</span>
+      </div>
     </Button>
   );
 }

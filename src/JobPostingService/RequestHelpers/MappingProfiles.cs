@@ -61,7 +61,7 @@ namespace JobPostingService.RequestHelpers
     {
         public Category Resolve(JobPostDto source, JobPost destination, Category destMember, ResolutionContext context)
         {
-            return Enum.TryParse<Category>(source.Category, true, out var category) ? category : Category.Other;
+            return Enum.TryParse<Category>(source.Category, true, out var category) ? category : Category.ArchitecturalDesign;
         }
     }
 }

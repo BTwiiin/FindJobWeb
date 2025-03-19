@@ -1,19 +1,25 @@
 ﻿@page
-@model IdentityService.Pages.Register.Index
+@model IdentityService.Pages.Account.Register.Index
 
-<div>
+<div class="login-page">
+    <div class="lead">
+        <h1>Register</h1>
+        <p>Choose how to register</p>
+    </div>
+
     <partial name="_ValidationSummary" />
 
     <div class="row">
-        <div class-"col-sm-6">
-            <div class="card" >
+        <div class="col-sm-6">
+            <div class="card">
                 <div class="card-header">
-                    <h2>Register</h2>
+                    <h2>Create a new account</h2>
                 </div>
+
                 <div class="card-body">
                     <form asp-page="/Account/Register/Index">
                         <input type="hidden" asp-for="Input.ReturnUrl" />
-
+                        
                         <div class="form-group">
                             <label asp-for="Input.Username"></label>
                             <input class="form-control" placeholder="Username" asp-for="Input.Username" autofocus>
@@ -23,29 +29,59 @@
                             <input class="form-control" placeholder="Email" asp-for="Input.Email">
                         </div>
                         <div class="form-group">
-                            <label asp-for="Input.FullName"></label>
-                            <input class="form-control" placeholder="Full Name" asp-for="Input.FullName">
+                            <label asp-for="Input.Password"></label>
+                            <input type="password" class="form-control" placeholder="Password" asp-for="Input.Password">
                         </div>
                         <div class="form-group">
-                            <label asp-for="Input.Password"></label>
-                            <input type="password" class="form-control" placeholder="Password" asp-for="Input.Password" autocomplete="off">
+                            <label asp-for="Input.ConfirmPassword"></label>
+                            <input type="password" class="form-control" placeholder="Confirm Password" asp-for="Input.ConfirmPassword">
                         </div>
-
-                        <a class="pb-2 d-block" asp-page="../Login/Index" asp-route-returnUrl="@Model.Input.ReturnUrl">
-                            Already have an account? Login here
-                        </a>
+                        
+                        <div class="form-group">
+                            <label asp-for="Input.SelectedRole"></label>
+                            <select asp-for="Input.SelectedRole" class="form-control" id="roleSelect">
+                                <option value="Employee">Employee</option>
+                                <option value="Employer">Employer</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group" id="taxNumberGroup" style="display: none;">
+                            <label asp-for="Input.TaxNumber"></label>
+                            <input class="form-control" placeholder="Tax Number" asp-for="Input.TaxNumber">
+                        </div>
 
                         <button class="btn btn-primary" name="Input.Button" value="register">Register</button>
                         <button class="btn btn-secondary" name="Input.Button" value="cancel">Cancel</button>
                     </form>
                 </div>
-                @if(Model.RegisterSuccess)
-                {
-                    <div class="alert alert-success">
-                        <strong>Registration successful</strong> - You can now login
-                    </div>
-                }
+                <div class="card-footer">
+                    <a href="/Account/Login">Login</a>
+                </div>
             </div>
         </div>
     </div>
 </div>
+
+@section scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var roleSelect = document.getElementById('roleSelect');
+            var taxNumberGroup = document.getElementById('taxNumberGroup');
+            
+            // Function to toggle tax number visibility
+            function toggleTaxNumberVisibility() {
+                if (roleSelect.value === 'Employer') {
+                    taxNumberGroup.style.display = 'block';
+                } else {
+                    taxNumberGroup.style.display = 'none';
+                }
+            }
+            
+            // Initialize visibility on page load
+            toggleTaxNumberVisibility();
+            
+            // Update visibility when role changes
+            roleSelect.addEventListener('change', toggleTaxNumberVisibility);
+        });
+    </script>
+}

@@ -28,9 +28,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
             if (profile) {
                 console.log("Received profile:", profile);
-                token.username = profile.username
+                token.username = profile.username,
                 token.email = profile.email,
-                token.name = profile.name
+                token.name = profile.name,
+                token.role = profile.role,
+                token.taxId = profile.tax_number ?? undefined
             }
             return token;
         },
@@ -38,8 +40,20 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         async session({ session, token }) {
             if (token) {
                 session.user.username = token.username
+                session.user.role = token.role
+                session.user.taxId = token.taxId
                 session.accessToken = token.accessToken
             }
             return session;
-        }
-}})
+        },
+
+        redirect({ url, baseUrl }) {
+            if (url.startsWith('/') || 
+                url.startsWith('http://localhost:3000') || 
+                url.startsWith('http://192.168.0.15:3000')) {
+                return url;
+            }
+            return baseUrl;
+        },
+    }
+})

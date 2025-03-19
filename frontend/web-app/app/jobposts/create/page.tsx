@@ -1,12 +1,25 @@
-import Heading from '@/app/components/Heading'
-import React from 'react'
-import JobPostForm from '../JobPostForm'
+import type { Metadata } from "next"
+import JobPostForm from "@/app/components/job-post-form"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 
-export default function Create() {
+export const metadata: Metadata = {
+  title: "Create Job Post | FindJob",
+  description: "Create a new job posting",
+}
+
+export default function CreateJobPostPage() {
   return (
-    <div className='mx-auto max-w-[75%] shadow-lg p-10 bg-white rounded-lg mt-3'>
-      <Heading title='Create Job Post' subtitle="Please, enter the details of your job" />
-      <JobPostForm />
+    <div className="container mx-auto p-6">
+      <Card>
+        <CardHeader>
+          <CardTitle>Create Job Post</CardTitle>
+          <CardDescription>Fill out the form below to create a new job posting</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <JobPostForm />
+        </CardContent>
+      </Card>
     </div>
   )
 }
+

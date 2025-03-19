@@ -1,27 +1,30 @@
-import Listings from './jobposts/Listings';
-import './globals.css';
-import OrderBy from './jobposts/OrderBy';
-import { MapComponent } from './components/MapComponent';
-
+import Listings from "./jobposts/Listings"
+import { MapComponent } from "./components/MapComponent"
+import JobSearchHeader from "./components/JobSearchHeader"
+import MapInfoPanel from "./components/MapComponent/MapInfoPanel"
 
 export default async function Home() {
   return (
-    <div className="flex flex-row fixed h-screen w-screen">
-      {/* Listings Section */}
-      <div className="flex-1 overflow-y-auto bg-gray-100 hide-scrollbar">
-        <Listings />
-      </div>
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      <JobSearchHeader />
 
-      {/* Map Section */}
-      <div className="flex-1 h-full bg-white shadow-md">
-        {/* Map Container */}
-        <div className="sticky top-0 h-full">
-          <MapComponent />
+      <div className="flex flex-col md:flex-row flex-1 h-[calc(100vh-64px)] relative">
+        {/* Listings Section - Scrollable */}
+        <div className="flex-1 overflow-y-auto bg-gray-50 hide-scrollbar">
+          <Listings />
+        </div>
+
+        {/* Map Section - Fixed */}
+        <div className="hidden md:block md:w-1/2 lg:w-2/5 xl:w-1/2">
+          <div className="fixed top-[64px] right-0 md:w-1/2 lg:w-2/5 xl:w-1/2 h-[calc(100vh-64px)] bg-white shadow-md overflow-hidden">
+            <MapInfoPanel />
+            <div className="h-[calc(100%-48px)]">
+              <MapComponent />
+            </div>
+          </div>
         </div>
       </div>
     </div>
-  );
+  )
 }
-
-
 

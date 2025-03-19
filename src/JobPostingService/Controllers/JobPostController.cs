@@ -119,11 +119,15 @@ public class JobPostController : Controller
 
         if (jobPost.Employer != User.Identity.Name) return Forbid();
 
-        jobPost.PhotoUrls = (await Task.WhenAll(
-                                                images.Select(_imageUploadService.SaveImageAsync)
-                                                ))
-                                                .ToList();
-                                                
+        // Initialize PhotoUrls list if it's null
+        if (jobPost.PhotoUrls == null)
+        {
+            jobPost.PhotoUrls = new List<string>();
+        }
+
+        // Get new image URLs and add them to the existing list
+        var newImageUrls = await Task.WhenAll(images.Select(_imageUploadService.SaveImageAsync));
+        jobPost.PhotoUrls.AddRange(newImageUrls);
 
         _jobPostRepository.Update(jobPost);
         var result = await _jobPostRepository.SaveChangesAsync();

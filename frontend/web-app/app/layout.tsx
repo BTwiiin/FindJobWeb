@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import Navbar from "./nav/Navbar";
 import ToasterProvider from "./providers/ToasterProvider";
 import SignalRProvider from "./providers/SignalRProvider";
 import { SessionProvider } from "next-auth/react";
@@ -17,9 +16,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>
+      <body className="hide-scrollbar">
         <ToasterProvider />
-        <Navbar />
         <main className='w-full'>
           <SessionProvider>
             <SignalRProvider>

@@ -46,8 +46,19 @@ export async function deleteImage(key: string, id: string) {
     return await fetchWrapper.del(`jobpost/delete-image/${key}/${id}`);
 }
 
-export async function getImages(id: string): Promise<string[]> {
-    return await fetchWrapper.get(`jobpost/get-image/${id}`);
+export async function getImages(id: string): Promise<any> {
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/jobpost/get-image/${id}`, {
+      cache: 'no-store'
+    });
+
+    if (!res.ok) return null;
+
+    return await res.json();
+  } catch (error) {
+    console.error('Error fetching image:', error);
+    return null;
+  }
 }
 
 /* #####################################

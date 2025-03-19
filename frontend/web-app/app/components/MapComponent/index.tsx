@@ -1,9 +1,17 @@
-'use client'
+"use client"
 
-import dynamic from 'next/dynamic';
+import dynamic from "next/dynamic"
 
-const MapComponent = dynamic(() => import('./MapComponent'), {
+// Dynamically import the MapComponent with no SSR
+const MapWithNoSSR = dynamic(() => import("./MapComponent").then((mod) => mod.default), {
   ssr: false,
-});
+  loading: () => (
+    <div className="h-full w-full flex items-center justify-center bg-muted/10">
+      <div className="animate-pulse text-muted-foreground">Loading map...</div>
+    </div>
+  ),
+})
 
-export { MapComponent };
+export function MapComponent() {
+  return <MapWithNoSSR />
+}

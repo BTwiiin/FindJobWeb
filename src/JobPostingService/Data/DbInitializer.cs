@@ -1,5 +1,4 @@
-﻿
-using JobPostingService.Entities;
+﻿using JobPostingService.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace JobPostingService.Data
@@ -37,7 +36,7 @@ namespace JobPostingService.Data
                     UpdatedAt = DateTime.UtcNow,
                     Deadline = DateTime.UtcNow.AddDays(7),
                     Status = Status.Open,
-                    Category = Category.IT,
+                    Category = Category.EngineeringSystems,
                     Location = new Location
                     {
                         City = "Warsaw",
@@ -59,7 +58,7 @@ namespace JobPostingService.Data
                     UpdatedAt = DateTime.UtcNow,
                     Deadline = DateTime.UtcNow.AddDays(3),
                     Status = Status.Open,
-                    Category = Category.ManualLabor,
+                    Category = Category.GeneralConstruction,
                     Location = new Location
                     {
                         City = "Warsaw",
@@ -81,7 +80,7 @@ namespace JobPostingService.Data
                     UpdatedAt = DateTime.UtcNow,
                     Deadline = DateTime.UtcNow.AddDays(5),
                     Status = Status.Open,
-                    Category = Category.EventPlanning,
+                    Category = Category.ProjectManagementConsulting,
                     Location = new Location
                     {
                         City = "Warsaw",
@@ -103,7 +102,7 @@ namespace JobPostingService.Data
                     UpdatedAt = DateTime.UtcNow,
                     Deadline = DateTime.UtcNow.AddDays(10),
                     Status = Status.Open,
-                    Category = Category.Marketing,
+                    Category = Category.ArchitecturalDesign,
                     Location = new Location
                     {
                         City = "Warsaw",
@@ -125,7 +124,7 @@ namespace JobPostingService.Data
                     UpdatedAt = DateTime.UtcNow,
                     Deadline = DateTime.UtcNow.AddDays(14),
                     Status = Status.Open,
-                    Category = Category.Tutoring,
+                    Category = Category.ConstructionCostEstimation,
                     Location = new Location
                     {
                         City = "Warsaw",
@@ -135,8 +134,50 @@ namespace JobPostingService.Data
                         Longitude = 20.982
                     }
                 },
-
-
+                new JobPost
+                {
+                    Id = Guid.NewGuid(),
+                    Title = "Construction Cost Estimation",
+                    Description = "Estimate construction costs for new projects. Experience with building materials and construction methods required.",
+                    Employer = "BuildPro Consultants",
+                    Employee = null,
+                    PaymentAmount = 250,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow,
+                    Deadline = DateTime.UtcNow.AddDays(10),
+                    Status = Status.Open,
+                    Category = Category.ConstructionCostEstimation,
+                    Location = new Location
+                    {
+                        City = "Warsaw",
+                        District = "Śródmieście",
+                        Street = "Marszałkowska 55",
+                        Latitude = 52.229,
+                        Longitude = 21.011
+                    }
+                },
+                new JobPost
+                {
+                    Id = Guid.NewGuid(),
+                    Title = "Technical Expertise",
+                    Description = "Provide technical expertise in various projects. Experience with software development and hardware troubleshooting required.",
+                    Employer = "TechCorp Solutions",
+                    Employee = null,
+                    PaymentAmount = 300,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow,
+                    Deadline = DateTime.UtcNow.AddDays(14),
+                    Status = Status.Open,
+                    Category = Category.TechnicalExpertise,
+                    Location = new Location
+                    {
+                        City = "Warsaw",
+                        District = "Mokotów",
+                        Street = "Puławska 145",
+                        Latitude = 52.193,
+                        Longitude = 21.035
+                    }
+                },
             };
 
             context.AddRange(jobposts);

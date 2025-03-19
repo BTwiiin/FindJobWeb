@@ -4,7 +4,6 @@ import React, { useCallback } from 'react';
 import Select from 'react-select';
 import debounce from 'lodash.debounce';
 import { useLocationStore } from '../hooks/useLocationStore';
-import { reactSelectClassPrefix } from '../utils/formStyles';
 import '../globals.css';
 
 const LocationInput = () => {

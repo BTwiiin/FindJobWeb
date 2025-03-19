@@ -92,9 +92,6 @@ export default function ApplyForm({ jobPostId, isSaved }: ApplyFormProps) {
               },
             }}
           />
-          {errors.Phone?.message && (
-            <p className="text-red-500 text-sm">{String(errors.Phone.message)}</p>
-          )}
           <Input
             label="Email"
             name="Email"
@@ -108,9 +105,6 @@ export default function ApplyForm({ jobPostId, isSaved }: ApplyFormProps) {
               },
             }}
           />
-          {errors.Email && (
-            <p className="text-red-500 text-sm">{String(errors.Email.message)}</p>
-          )}
           <InputArea
             label="Message to the Employer (optional)"
             name="Message"

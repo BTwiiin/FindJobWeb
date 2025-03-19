@@ -49,6 +49,9 @@ namespace JobPostingService.Migrations
                     b.Property<int>("PaymentAmount")
                         .HasColumnType("integer");
 
+                    b.Property<string>("PhotoUrls")
+                        .HasColumnType("jsonb");
+
                     b.Property<int>("Status")
                         .HasColumnType("integer");
 

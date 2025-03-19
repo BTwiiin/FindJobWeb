@@ -7,6 +7,7 @@ import toast from 'react-hot-toast';
 import { deleteJobPost } from '@/app/actions/jobPostActions';
 import TemplateModal from '@/app/components/TemplateModal';
 import { Button } from 'flowbite-react';
+import { MdDeleteOutline } from 'react-icons/md';
 
 type Props = {
   id: string;
@@ -40,18 +41,25 @@ export default function DeleteIconButton({ id }: Props) {
       <Button
         onClick={openConfirm}
         className="
-          p-1 
+          px-3
+          py-1
+          ml-2
           rounded 
-          text-gray-600 
-          hover:text-gray-800 
-          hover:bg-gray-200 
+          bg-gray-100
+          text-gray-700
+          hover:bg-gray-200
           transition 
-          transform 
-          hover:scale-105
+          border border-gray-300
+          flex
+          items-center
+          text-sm
         "
         title="Delete Job Post"
       >
-        <FaTrash size={16} />
+        <div className='flex flex-row items-center'>
+          <MdDeleteOutline size={14} className="mr-1.5" />
+          <span>Delete</span>
+        </div>
       </Button>
 
       {showModal && (

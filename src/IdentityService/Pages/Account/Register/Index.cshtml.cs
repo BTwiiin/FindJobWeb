@@ -1,66 +1,124 @@
+using System.Security.Claims;
 using IdentityModel;
 using IdentityService.Models;
-using IdentityService.Pages.Register;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using System.Security.Claims;
 
-namespace IdentityService.Pages.Register
+namespace IdentityService.Pages.Account.Register;
+
+[SecurityHeaders]
+[AllowAnonymous]
+public class Index : PageModel
 {
-    [SecurityHeaders]
-    [AllowAnonymous]
-    public class Index : PageModel
+    private readonly UserManager<ApplicationUser> _userManager;
+    private readonly RoleManager<IdentityRole> _roleManager;
+    private readonly SignInManager<ApplicationUser> _signInManager;
+
+    public Index(
+        UserManager<ApplicationUser> userManager,
+        RoleManager<IdentityRole> roleManager,
+        SignInManager<ApplicationUser> signInManager)
     {
-        private readonly UserManager<ApplicationUser> _userManager;
-        public Index(UserManager<ApplicationUser> userManager)
+        _userManager = userManager;
+        _roleManager = roleManager;
+        _signInManager = signInManager;
+    }
+
+    [BindProperty]
+    public RegisterViewModel Input { get; set; }
+
+    [BindProperty]
+    public bool RegisterSuccess { get; set; }
+
+    public IActionResult OnGet(string returnUrl = "")
+    {
+        Input = new RegisterViewModel
         {
-            _userManager = userManager;
+            ReturnUrl = returnUrl ?? string.Empty
+        };
+
+        return Page();
+    }
+
+    public async Task<IActionResult> OnPostAsync()
+    {
+        // Clear the model state errors for TaxNumber if Employee is selected
+        if (Input.SelectedRole == "Employee" && ModelState.ContainsKey("Input.TaxNumber"))
+        {
+            ModelState.Remove("Input.TaxNumber");
+        }
+        
+        // Clear the model state errors for ReturnUrl since it's optional
+        if (ModelState.ContainsKey("Input.ReturnUrl"))
+        {
+            ModelState.Remove("Input.ReturnUrl");
         }
 
-        [BindProperty]
-        public RegisterViewModel Input { get; set; }
-
-        [BindProperty]
-        public bool RegisterSuccess { get; set; }
-
-        public IActionResult OnGet(string returnUrl)
+        if (ModelState.IsValid)
         {
-            Input = new RegisterViewModel
+            // Validate that TaxNumber is provided for Employer role
+            if (Input.SelectedRole == "Employer" && string.IsNullOrWhiteSpace(Input.TaxNumber))
             {
-                ReturnUrl = returnUrl
+                ModelState.AddModelError("Input.TaxNumber", "Tax Number is required for Employer accounts");
+                return Page();
+            }
+
+            var user = new ApplicationUser
+            {
+                UserName = Input.Username,
+                Email = Input.Email,
+                EmailConfirmed = true
             };
-
-            return Page();
-        }
-
-        public async Task<IActionResult> OnPost()
-        {
-            if (Input.Button != "register")
+            
+            // Set TaxNumber property on the user if provided
+            if (!string.IsNullOrWhiteSpace(Input.TaxNumber))
             {
-                return Redirect("~/");
+                user.TaxNumber = Input.TaxNumber;
             }
 
-            if (ModelState.IsValid)
+            var result = await _userManager.CreateAsync(user, Input.Password);
+
+            if (result.Succeeded)
             {
-                var user = new ApplicationUser
+                // Ensure roles exist
+                var roles = new[] { "Admin", "Employee", "Employer" };
+                foreach (var role in roles)
                 {
-                    UserName = Input.Username,
-                    Email = Input.Email,
-                    EmailConfirmed = true
-                };
-                var result = await _userManager.CreateAsync(user, Input.Password);
-                if (result.Succeeded)
-                {
-                    await _userManager.AddClaimsAsync(user, new Claim[]
+                    if (!await _roleManager.RoleExistsAsync(role))
                     {
-                        new Claim(JwtClaimTypes.Name, Input.FullName),
-                    });
-                    RegisterSuccess = true;
+                        await _roleManager.CreateAsync(new IdentityRole(role));
+                    }
                 }
+
+                // Add user to selected role
+                await _userManager.AddToRoleAsync(user, Input.SelectedRole);
+
+                // Add standard claims
+                await _userManager.AddClaimsAsync(user, new Claim[]
+                {
+                    new Claim(JwtClaimTypes.Name, Input.Username),
+                    new Claim(JwtClaimTypes.Email, Input.Email),
+                    new Claim(JwtClaimTypes.Role, Input.SelectedRole)
+                });
+
+                // Add TaxNumber claim for Employer
+                if (Input.SelectedRole == "Employer" && !string.IsNullOrWhiteSpace(Input.TaxNumber))
+                {
+                    await _userManager.AddClaimAsync(user, new Claim("tax_number", Input.TaxNumber));
+                }
+
+                await _signInManager.SignInAsync(user, false);
+                return RedirectToPage("/Account/Login/Index");
             }
-            return Page();
+
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError(string.Empty, error.Description);
+            }
         }
+
+        return Page();
     }
 }
