@@ -9,6 +9,7 @@ import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { ImagesModule } from './images/images.module';
 import { ApplyingModule } from './applying/applying.module';
+import { SearchModule } from './search/search.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { ApplyingModule } from './applying/applying.module';
     UsersModule,
     ImagesModule,
     ApplyingModule,
+    SearchModule,
   ],
   controllers: [AppController],
   providers: [AppService, LoggerService],

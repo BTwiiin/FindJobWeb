@@ -1,10 +1,11 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { JobPostController } from './job-post.controller';
 import { JobPostService } from './job-post.service';
-import { DatabaseModule } from '../common/database/database.module';
+import { SearchModule } from '../search/search.module';
+import { DatabaseModule } from 'src/common/database/database.module';
 
 @Module({
-  imports: [DatabaseModule],
+  imports: [forwardRef(() => SearchModule), DatabaseModule],
   controllers: [JobPostController],
   providers: [JobPostService],
   exports: [JobPostService],

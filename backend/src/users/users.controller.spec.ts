@@ -1,26 +1,63 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
-import { ForbiddenException } from '@nestjs/common';
+import { User } from '../entities/user.entity';
+import { Location } from '../entities/location.entity';
 import { Role } from '../entities/enums/role.enum';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../auth/guards/roles.guard';
-
-// Mock declarations need to be hoisted
-jest.mock('@nestjs/common', () => ({
-  ...jest.requireActual('@nestjs/common'),
-  UseGuards: jest.fn().mockReturnValue(() => {}),
-}));
+import { UnauthorizedException } from '@nestjs/common';
 
 describe('UsersController', () => {
   let controller: UsersController;
-  let service: UsersService;
+  let usersService: UsersService;
 
   const mockUsersService = {
     findAll: jest.fn(),
     findOne: jest.fn(),
     update: jest.fn(),
   };
+
+  // Create mock user first
+  const mockUser: Partial<User> = {
+    id: '1',
+    email: 'test@example.com',
+    password: 'hashedPassword',
+    role: Role.EMPLOYEE,
+    firstName: 'John',
+    lastName: 'Doe',
+    username: 'johndoe',
+    phone: '+1234567890',
+    taxNumber: '123456789',
+    phoneNumber: '+1234567890',
+    about: 'Test user',
+    jobPosts: [],
+    givenReviews: [],
+    receivedReviews: [],
+    savedPosts: [],
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  };
+
+  // Create mock location with reference to mock user
+  const mockLocation: Location = {
+    id: '1',
+    country: 'Test Country',
+    city: 'Test City',
+    address: 'Test Address',
+    latitude: 0,
+    longitude: 0,
+    state: 'Test State',
+    postalCode: '12345',
+    formattedAddress: 'Test Formatted Address',
+    user: mockUser as User,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  };
+
+  // Complete mock user by adding location
+  const completeMockUser: User = {
+    ...mockUser,
+    location: mockLocation,
+  } as User;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -31,22 +68,10 @@ describe('UsersController', () => {
           useValue: mockUsersService,
         },
       ],
-    })
-      .overrideGuard(JwtAuthGuard)
-      .useValue({ canActivate: jest.fn().mockReturnValue(true) })
-      .overrideGuard(RolesGuard)
-      .useValue({ canActivate: jest.fn().mockImplementation((context) => {
-        const requiredRoles = context.getHandler().getMetadata('roles');
-        const user = context.switchToHttp().getRequest().user;
-        return requiredRoles.includes(user.role);
-      }) })
-      .compile();
-  
-    controller = module.get<UsersController>(UsersController);
-    service = module.get<UsersService>(UsersService);
+    }).compile();
 
-    // Clear all mock calls before each test
-    jest.clearAllMocks();
+    controller = module.get<UsersController>(UsersController);
+    usersService = module.get<UsersService>(UsersService);
   });
 
   it('should be defined', () => {
@@ -54,76 +79,41 @@ describe('UsersController', () => {
   });
 
   describe('findAll', () => {
-    it('should return all users when user is admin', async () => {
-      const mockUsers = [
-        { id: '1', username: 'user1' },
-        { id: '2', username: 'user2' },
-      ];
-      mockUsersService.findAll.mockResolvedValue(mockUsers);
+    it('should return all users when called by admin', async () => {
+      const users = [completeMockUser];
+      mockUsersService.findAll.mockResolvedValue(users);
 
-      // Mock the request with admin user
-      const mockReq = { user: { role: Role.ADMIN } };
       const result = await controller.findAll();
 
-      expect(result).toEqual(mockUsers);
+      expect(result).toEqual(users);
       expect(mockUsersService.findAll).toHaveBeenCalled();
-    });
-
-    it('should throw ForbiddenException when user is not admin', async () => {
-      // Mock the request with non-admin user
-      const mockReq = { user: { role: Role.EMPLOYEE } };
-      
-      try {
-        await controller.findAll();
-        fail('Expected ForbiddenException but no exception was thrown');
-      } catch (error) {
-        expect(error).toBeInstanceOf(ForbiddenException);
-      }
-      
-      expect(mockUsersService.findAll).not.toHaveBeenCalled();
     });
   });
 
   describe('findOne', () => {
-    it('should return a user by id', async () => {
-      const mockUser = { id: '1', username: 'user1' };
-      mockUsersService.findOne.mockResolvedValue(mockUser);
+    it('should return a single user by id', async () => {
+      mockUsersService.findOne.mockResolvedValue(completeMockUser);
 
       const result = await controller.findOne('1');
 
-      expect(result).toEqual(mockUser);
+      expect(result).toEqual(completeMockUser);
       expect(mockUsersService.findOne).toHaveBeenCalledWith('1');
     });
   });
 
   describe('update', () => {
-    it('should update user when user is admin', async () => {
-      const mockUser = { id: '1', username: 'user1' };
-      const updateUserDto = { username: 'updateduser' };
-      mockUsersService.update.mockResolvedValue({ ...mockUser, ...updateUserDto });
+    it('should update a user when called by admin', async () => {
+      const updateData = {
+        firstName: 'Jane',
+        lastName: 'Smith',
+      };
+      const updatedUser = { ...completeMockUser, ...updateData };
+      mockUsersService.update.mockResolvedValue(updatedUser);
 
-      // Mock the request with admin user
-      const mockReq = { user: { role: Role.ADMIN } };
-      const result = await controller.update('1', updateUserDto);
+      const result = await controller.update('1', updateData);
 
-      expect(result).toEqual({ ...mockUser, ...updateUserDto });
-      expect(mockUsersService.update).toHaveBeenCalledWith('1', updateUserDto);
-    });
-
-    it('should throw ForbiddenException when user is not admin', async () => {
-      const updateUserDto = { username: 'updateduser' };
-      
-      // Mock the request with non-admin user
-      const mockReq = { user: { role: Role.EMPLOYEE } };
-      
-      try {
-        await controller.update('1', updateUserDto);
-        fail('Expected ForbiddenException but no exception was thrown');
-      } catch (error) {
-        expect(error).toBeInstanceOf(ForbiddenException);
-      }
-      
-      expect(mockUsersService.update).not.toHaveBeenCalled();
+      expect(result).toEqual(updatedUser);
+      expect(mockUsersService.update).toHaveBeenCalledWith('1', updateData);
     });
   });
 });

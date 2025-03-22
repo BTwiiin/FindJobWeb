@@ -1,4 +1,4 @@
-import { Injectable, Inject, NotFoundException } from '@nestjs/common';
+import { Injectable, Inject, NotFoundException, forwardRef } from '@nestjs/common';
 import { JobPost } from '../entities/job-post.entity';
 import { Repository, DataSource } from 'typeorm';
 import { SavedPost } from '../entities/saved-post.entity';
@@ -6,6 +6,7 @@ import { Location } from '../entities/location.entity';
 import { User } from '../entities/user.entity';
 import { CreateJobPostDto } from './dto/create-job-post.dto';
 import { UpdateJobPostDto } from './dto/update-job-post.dto';
+import { SearchService } from '../search/search.service';
 
 @Injectable()
 export class JobPostService {
@@ -17,6 +18,8 @@ export class JobPostService {
     constructor(
         @Inject('DATA_SOURCE')
         private dataSource: DataSource,
+        @Inject(forwardRef(() => SearchService))
+        private readonly searchService: SearchService,
     ) {
         this.jobPostRepository = this.dataSource.getRepository(JobPost);
         this.savedPostRepository = this.dataSource.getRepository(SavedPost);
@@ -128,6 +131,9 @@ export class JobPostService {
             throw new Error('Failed to create job post');
         }
 
+        // Index the job post in Elasticsearch
+        await this.searchService.indexJobPost(jobPostWithRelations);
+
         return jobPostWithRelations;
     }
 
@@ -156,13 +162,18 @@ export class JobPostService {
                         formattedAddress: updateJobPostDto.location.formattedAddress
                     });
                     location = await this.locationRepository.save(location);
-                    console.log('Created new location:', location);
                 }
 
                 updateJobPostDto.location = location;
             }
 
             await this.jobPostRepository.update(id, updateJobPostDto);
+
+            // Update the job post in Elasticsearch
+            const updatedJobPost = await this.findOne(id);
+            if (updatedJobPost) {
+                await this.searchService.updateJobPost(updatedJobPost);
+            }
         } catch (error) {
             throw error;
         }
@@ -170,6 +181,8 @@ export class JobPostService {
 
     async delete(id: string): Promise<void> {
         await this.jobPostRepository.delete(id);
+        // Delete the job post from Elasticsearch
+        await this.searchService.deleteJobPost(id);
     }
 
     async toggleSave(jobPostId: string, userId: string): Promise<void> {
