@@ -9,6 +9,14 @@ import { LoggerService } from './common/services/logger.service';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   
+  // Enable CORS
+  app.enableCors({
+    origin: ['http://localhost:3000', 'http://192.168.0.15:3000'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    credentials: true,
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+  });
+  
   // Apply global exception filter
   app.useGlobalFilters(new HttpExceptionFilter());
   

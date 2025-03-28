@@ -7,6 +7,8 @@ import { User } from '../entities/user.entity';
 import { CreateJobPostDto } from './dto/create-job-post.dto';
 import { UpdateJobPostDto } from './dto/update-job-post.dto';
 import { SearchService } from '../search/search.service';
+import { CalendarService } from '../calendar/calendar.service';
+import { EventType } from 'src/entities/enums/event-type.enum';
 
 @Injectable()
 export class JobPostService {
@@ -20,6 +22,7 @@ export class JobPostService {
         private dataSource: DataSource,
         @Inject(forwardRef(() => SearchService))
         private readonly searchService: SearchService,
+        private readonly calendarService: CalendarService,
     ) {
         this.jobPostRepository = this.dataSource.getRepository(JobPost);
         this.savedPostRepository = this.dataSource.getRepository(SavedPost);
@@ -81,7 +84,7 @@ export class JobPostService {
             where: {
                 country: createJobPostDto.location.country,
                 city: createJobPostDto.location.city,
-                address: createJobPostDto.location.address,
+                street: createJobPostDto.location.street,
                 latitude: createJobPostDto.location.latitude,
                 longitude: createJobPostDto.location.longitude
             }
@@ -91,7 +94,7 @@ export class JobPostService {
             location = this.locationRepository.create({
                 country: createJobPostDto.location.country,
                 city: createJobPostDto.location.city,
-                address: createJobPostDto.location.address,
+                street: createJobPostDto.location.street,
                 latitude: createJobPostDto.location.latitude,
                 longitude: createJobPostDto.location.longitude,
                 state: createJobPostDto.location.state,
@@ -114,6 +117,18 @@ export class JobPostService {
 
         const savedJobPost = await this.jobPostRepository.save(jobPost);
         
+        // Create calendar event for the job post deadline
+        if (createJobPostDto.deadline) {
+            await this.calendarService.create({
+                title: `Срок действия: ${createJobPostDto.title}`,
+                description: `Срок действия вакансии: ${createJobPostDto.title}\n\n${createJobPostDto.description}`,
+                eventDate: createJobPostDto.deadline.toISOString(),
+                type: EventType.JOB_POST_DEADLINE,
+                jobPostId: savedJobPost.id,
+                userId: userId
+            });
+        }
+
         // Return the job post with all relations loaded using QueryBuilder
         const jobPostWithRelations = await this.jobPostRepository.createQueryBuilder('jobPost')
             .innerJoinAndSelect('jobPost.employer', 'employer')
@@ -144,7 +159,7 @@ export class JobPostService {
                     where: {
                         country: updateJobPostDto.location.country,
                         city: updateJobPostDto.location.city,
-                        address: updateJobPostDto.location.address,
+                        street: updateJobPostDto.location.street,
                         latitude: updateJobPostDto.location.latitude,
                         longitude: updateJobPostDto.location.longitude
                     }
@@ -154,7 +169,7 @@ export class JobPostService {
                     location = this.locationRepository.create({
                         country: updateJobPostDto.location.country,
                         city: updateJobPostDto.location.city,
-                        address: updateJobPostDto.location.address,
+                        street: updateJobPostDto.location.street,
                         latitude: updateJobPostDto.location.latitude,
                         longitude: updateJobPostDto.location.longitude,
                         state: updateJobPostDto.location.state,

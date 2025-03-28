@@ -4,6 +4,7 @@ import { JobPost } from './job-post.entity';
 import { Review } from './review.entity';
 import { SavedPost } from './saved-post.entity';
 import { Role } from './enums/role.enum';
+import { CalendarEvent } from '../calendar/calendar.entity';
 
 @Entity('users')
 export class User {
@@ -58,6 +59,9 @@ export class User {
 
   @OneToMany(() => SavedPost, savedPost => savedPost.user)
   savedPosts: SavedPost[];
+
+  @OneToMany(() => CalendarEvent, calendarEvent => calendarEvent.user)
+  calendarEvents: CalendarEvent[];
 
   @CreateDateColumn()
   createdAt: Date;

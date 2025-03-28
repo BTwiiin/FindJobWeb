@@ -13,7 +13,7 @@ export class LocationDto {
 
   @IsString()
   @IsOptional()
-  address?: string;
+  street?: string;
 
   @IsNumber()
   @Min(-90)

@@ -4,6 +4,7 @@ import { Location } from './location.entity';
 import { SavedPost } from './saved-post.entity'
 import { JobPostStatus } from './enums/job-post-status.enum';
 import { JobPostCategory } from './enums/job-post-category.enum';
+import { CalendarEvent } from '../calendar/calendar.entity';
 
 @Entity('job_posts')
 export class JobPost {
@@ -55,6 +56,9 @@ export class JobPost {
 
   @Column('simple-array', { nullable: true })
   photoUrls: string[];
+
+  @OneToMany(() => CalendarEvent, calendarEvent => calendarEvent.jobPost)
+  calendarEvents: CalendarEvent[];
 
   @CreateDateColumn()
   createdAt: Date;

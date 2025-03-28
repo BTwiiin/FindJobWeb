@@ -6,6 +6,7 @@ import { Review } from '../../entities/review.entity';
 import { SavedPost } from '../../entities/saved-post.entity';
 import { Location } from '../../entities/location.entity';
 import { JobApplication } from '../../entities/job-application.entity';
+import { CalendarEvent } from 'src/calendar/calendar.entity';
 
 export const databaseProvider = [
     {
@@ -44,6 +45,7 @@ export const databaseProvider = [
                 SavedPost,
                 Location,
                 JobApplication,
+                CalendarEvent,
             ],
             synchronize: true,
             logging: true,

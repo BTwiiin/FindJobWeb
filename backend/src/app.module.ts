@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { LoggerService } from './common/services/logger.service';
 import { AppController } from './app.controller';
@@ -10,6 +11,7 @@ import { UsersModule } from './users/users.module';
 import { ImagesModule } from './images/images.module';
 import { ApplyingModule } from './applying/applying.module';
 import { SearchModule } from './search/search.module';
+import { CalendarModule } from './calendar/calendar.module';
 
 @Module({
   imports: [
@@ -25,6 +27,7 @@ import { SearchModule } from './search/search.module';
     ImagesModule,
     ApplyingModule,
     SearchModule,
+    CalendarModule,
   ],
   controllers: [AppController],
   providers: [AppService, LoggerService],

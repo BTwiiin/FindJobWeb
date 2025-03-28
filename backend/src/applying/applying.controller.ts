@@ -52,8 +52,6 @@ export class ApplyingController {
     @Param('id') id: string,
     @Body() updateApplicationDto: UpdateApplicationDto
   ) {
-    updateApplicationDto.status = ApplicationStatus.WITHDRAWN;
-    updateApplicationDto.employerNotes = 'Withdrawn by employee';
     return this.applyingService.update(id, req.user.id, updateApplicationDto);
   }
 

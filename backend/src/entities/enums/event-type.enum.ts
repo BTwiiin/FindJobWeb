@@ -1,0 +1,5 @@
+export enum EventType {
+    INTERVIEW = 'INTERVIEW',
+    JOB_POST_DEADLINE = 'JOB_POST_DEADLINE',
+    CUSTOM = 'CUSTOM'
+} 

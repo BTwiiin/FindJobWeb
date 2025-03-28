@@ -13,7 +13,7 @@ export class Location {
   city: string;
 
   @Column({ nullable: true })
-  address: string;
+  street: string;
 
   @Column('decimal', { precision: 10, scale: 8 })
   latitude: number;
