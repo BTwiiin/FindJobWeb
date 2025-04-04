@@ -101,11 +101,115 @@ Services communicate through an **event-driven model** using RabbitMQ. This deco
    - Frontend: `http://localhost:3000` (or specified port)
    - Gateway: `http://localhost:6000` (or specified port)
 
-## Future Enhancements
-- Complete implementation of the notifications.
-- Add support for multilingual interfaces.
-- Change Search Service to Elasticsearch (done)
-- Further optimization of Elasticsearch queries and indexing strategies.
+
+
+## Database Schema
+```mermaid
+erDiagram
+    User ||--o{ JobPost : "creates"
+    User ||--o{ JobApplication : "applies"
+    User ||--o{ Review : "gives"
+    User ||--o{ Review : "receives"
+    User ||--o{ SavedPost : "saves"
+    User ||--o{ CalendarEvent : "has"
+    User ||--|| Location : "has"
+    
+    JobPost ||--o{ JobApplication : "has"
+    JobPost ||--o{ SavedPost : "has"
+    JobPost ||--o{ CalendarEvent : "has"
+    JobPost }|--|| Location : "has"
+    JobPost }|--|| User : "has employee"
+
+    User {
+        uuid id PK
+        string email
+        string username
+        string password
+        string firstName
+        string lastName
+        enum role
+        string taxNumber
+        string phoneNumber
+        string about
+        datetime createdAt
+        datetime updatedAt
+    }
+
+    JobPost {
+        uuid id PK
+        string title
+        text description
+        uuid employerId FK
+        uuid employeeId FK
+        int paymentAmount
+        datetime deadline
+        boolean isArchived
+        enum status
+        enum category
+        uuid locationId FK
+        string[] photoUrls
+        datetime createdAt
+        datetime updatedAt
+    }
+
+    JobApplication {
+        uuid id PK
+        string email
+        string phone
+        uuid jobPostId FK
+        uuid applicantId FK
+        enum status
+        text coverLetter
+        text employerNotes
+        datetime createdAt
+        datetime updatedAt
+        datetime reviewedAt
+        boolean isArchived
+        text message
+    }
+
+    Review {
+        uuid id PK
+        int rating
+        text comment
+        uuid reviewerId FK
+        uuid reviewedUserId FK
+        datetime createdAt
+        datetime updatedAt
+    }
+
+    Location {
+        uuid id PK
+        string country
+        string city
+        string street
+        string state
+        string postalCode
+        float latitude
+        float longitude
+        string formattedAddress
+        uuid userId FK
+    }
+
+    SavedPost {
+        uuid id PK
+        uuid userId FK
+        uuid jobPostId FK
+        datetime createdAt
+    }
+
+    CalendarEvent {
+        uuid id PK
+        string title
+        text description
+        datetime eventDate
+        enum type
+        uuid userId FK
+        uuid jobPostId FK
+        datetime createdAt
+        datetime updatedAt
+    }
+```
 
 ## Screenshots
 
