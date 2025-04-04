@@ -3,8 +3,8 @@ import JobPostForm from "@/app/components/job-post-form"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 
 export const metadata: Metadata = {
-  title: "Create Job Post | FindJob",
-  description: "Create a new job posting",
+  title: "Создать вакансию | FindJob",
+  description: "Создание новой вакансии",
 }
 
 export default function CreateJobPostPage() {
@@ -12,8 +12,8 @@ export default function CreateJobPostPage() {
     <div className="container mx-auto p-6">
       <Card>
         <CardHeader>
-          <CardTitle>Create Job Post</CardTitle>
-          <CardDescription>Fill out the form below to create a new job posting</CardDescription>
+          <CardTitle>Создать вакансию</CardTitle>
+          <CardDescription>Заполните форму ниже, чтобы создать новую вакансию</CardDescription>
         </CardHeader>
         <CardContent>
           <JobPostForm />

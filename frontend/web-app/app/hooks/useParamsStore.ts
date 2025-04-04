@@ -25,7 +25,7 @@ const initialState: State = {
   filterBy: '',
   employer: undefined,
   minSalary: 0,
-  maxSalary: 5000,
+  maxSalary: 1000000,
 };
 
 export const useParamsStore = create<State & Actions>()((set) => ({

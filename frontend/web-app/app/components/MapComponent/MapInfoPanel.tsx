@@ -24,7 +24,7 @@ export default function MapInfoPanel() {
   return (
     <Card className="absolute top-4 left-4 z-[1000] w-64 shadow-lg bg-white/90 backdrop-blur-sm">
       <CardHeader className="pb-2 flex flex-row items-center justify-between">
-        <CardTitle className="text-sm">Map Controls</CardTitle>
+        <CardTitle className="text-sm">Управление картой</CardTitle>
         <Button onClick={() => setIsOpen(false)} variant="ghost" size="icon" className="h-6 w-6">
           <X className="h-4 w-4" />
         </Button>
@@ -32,10 +32,10 @@ export default function MapInfoPanel() {
       <CardContent className="text-xs space-y-2">
         <CardDescription>
           <ul className="list-disc pl-4 space-y-1">
-            <li>Click markers to view job details</li>
-            <li>Use bottom-right controls to zoom in/out</li>
-            <li>Use the location button to find jobs near you</li>
-            <li>Clusters show the number of jobs in an area</li>
+            <li>Нажмите на маркеры для просмотра деталей вакансии</li>
+            <li>Используйте элементы управления в правом нижнем углу для масштабирования</li>
+            <li>Нажмите на кнопку местоположения, чтобы найти вакансии рядом с вами</li>
+            <li>Кластеры показывают количество вакансий в районе</li>
           </ul>
         </CardDescription>
       </CardContent>

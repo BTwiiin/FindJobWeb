@@ -18,20 +18,19 @@ import { Calendar } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { cn } from "@/lib/utils"
 import { format } from "date-fns"
-import { CalendarIcon, Loader2} from "lucide-react"
+import { ArrowLeft, CalendarIcon, Loader2} from "lucide-react"
 import LocationInput from "@/app/components/location-input"
 import { categoryOptions } from "@/types/options"
-import { getCategoryLabel } from "@/utils/categoryMapping"
 
 const formSchema = z.object({
-  title: z.string().min(1, "Title is required"),
-  description: z.string().min(10, "Description must be at least 10 characters"),
-  paymentAmount: z.string().min(1, "Payment amount is required"),
+  title: z.string().min(1, "Введите название вакансии"),
+  description: z.string().min(10, "Описание должно содержать минимум 10 символов"),
+  paymentAmount: z.coerce.number().min(1, "Введите сумму оплаты"),
   deadline: z.date({
-    required_error: "Deadline is required",
+    required_error: "Выберите дату дедлайна",
   }),
   category: z.string({
-    required_error: "Please select a category",
+    required_error: "Выберите категорию",
   }),
 })
 
@@ -49,7 +48,7 @@ export default function JobPostForm({ jobPost }: JobPostFormProps) {
     defaultValues: {
       title: "",
       description: "",
-      paymentAmount: "",
+      paymentAmount: 0,
       category: "",
     },
     mode: "onTouched",
@@ -60,7 +59,7 @@ export default function JobPostForm({ jobPost }: JobPostFormProps) {
       form.reset({
         title: jobPost.title,
         description: jobPost.description,
-        paymentAmount: jobPost.paymentAmount?.toString() || "",
+        paymentAmount: jobPost.paymentAmount || 0,
         deadline: jobPost.deadline ? new Date(jobPost.deadline) : new Date(),
         category: jobPost.category,
       })
@@ -73,6 +72,7 @@ export default function JobPostForm({ jobPost }: JobPostFormProps) {
 
     const payload = {
       ...data,
+      paymentAmount: Number(data.paymentAmount),
       location: selectedLocation,
     }
 
@@ -83,12 +83,12 @@ export default function JobPostForm({ jobPost }: JobPostFormProps) {
       if (!jobPost) {
         res = await createJobPost(payload)
         id = res.id
-        toast.success("Job post created successfully")
+        toast.success("Вакансия успешно создана")
         router.push(`/jobposts/update-images/${id}`)
       } else {
         res = await updateJobPost(payload, jobPost.id)
         id = jobPost.id
-        toast.success("Job post updated successfully")
+        toast.success("Вакансия успешно обновлена")
         router.push(`/jobposts/details/${id}`)
       }
 
@@ -96,7 +96,7 @@ export default function JobPostForm({ jobPost }: JobPostFormProps) {
         throw res.error
       }
     } catch (error: any) {
-      toast.error(`Error: ${error.status} ${error.message}`)
+      toast.error(`Ошибка: ${error.status} ${error.message}`)
     } finally {
       setIsSubmitting(false)
     }
@@ -104,6 +104,17 @@ export default function JobPostForm({ jobPost }: JobPostFormProps) {
 
   return (
     <>
+      <div className="flex items-center justify-between mb-4">
+          <Button
+              variant="outline"
+              size="sm"
+              className="flex items-center gap-1"
+              onClick={() => router.push(`/my-posts`)}
+          >
+              <ArrowLeft className="h-4 w-4" />
+              На главную
+          </Button>
+      </div>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <FormField
@@ -111,9 +122,9 @@ export default function JobPostForm({ jobPost }: JobPostFormProps) {
             name="title"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Title</FormLabel>
+                <FormLabel>Название</FormLabel>
                 <FormControl>
-                  <Input placeholder="Enter job title" {...field} />
+                  <Input placeholder="Введите название вакансии" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -125,9 +136,9 @@ export default function JobPostForm({ jobPost }: JobPostFormProps) {
             name="description"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Description</FormLabel>
+                <FormLabel>Описание</FormLabel>
                 <FormControl>
-                  <Textarea placeholder="Enter job description" className="min-h-[120px]" {...field} />
+                  <Textarea placeholder="Введите описание вакансии" className="min-h-[120px]" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -140,9 +151,9 @@ export default function JobPostForm({ jobPost }: JobPostFormProps) {
               name="paymentAmount"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Payment Amount ($)</FormLabel>
+                  <FormLabel>Оплата (₽)</FormLabel>
                   <FormControl>
-                    <Input type="number" placeholder="Enter payment amount" {...field} />
+                    <Input type="number" placeholder="Введите сумму оплаты" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -154,7 +165,7 @@ export default function JobPostForm({ jobPost }: JobPostFormProps) {
               name="deadline"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Deadline</FormLabel>
+                  <FormLabel>Дедлайн</FormLabel>
                   <Popover>
                     <PopoverTrigger asChild>
                       <FormControl>
@@ -162,7 +173,7 @@ export default function JobPostForm({ jobPost }: JobPostFormProps) {
                           variant={"outline"}
                           className={cn("w-full pl-3 text-left font-normal", !field.value && "text-muted-foreground")}
                         >
-                          {field.value ? format(field.value, "PPP") : <span>Pick a date</span>}
+                          {field.value ? format(field.value, "PPP") : <span>Выберите дату</span>}
                           <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                         </Button>
                       </FormControl>
@@ -187,11 +198,11 @@ export default function JobPostForm({ jobPost }: JobPostFormProps) {
               name="category"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Category</FormLabel>
+                  <FormLabel>Категория</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select a category" />
+                        <SelectValue placeholder="Выберите категорию" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
@@ -215,27 +226,27 @@ export default function JobPostForm({ jobPost }: JobPostFormProps) {
             />
 
             <FormItem>
-              <FormLabel>Location</FormLabel>
+              <FormLabel>Местоположение</FormLabel>
               <LocationInput />
-              <FormDescription>Search for a location by typing an address or place name</FormDescription>
+              <FormDescription>Поиск местоположения по адресу или названию места</FormDescription>
               <FormMessage />
             </FormItem>
           </div>
 
           <div className="flex justify-end gap-4 pt-4">
             <Button type="button" variant="outline" onClick={() => router.back()}>
-              Cancel
+              Отмена
             </Button>
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  {jobPost ? "Updating..." : "Creating..."}
+                  {jobPost ? "Обновление..." : "Создание..."}
                 </>
               ) : jobPost ? (
-                "Update Job Post"
+                "Обновить вакансию"
               ) : (
-                "Create Job Post"
+                "Создать вакансию"
               )}
             </Button>
           </div>
@@ -247,9 +258,9 @@ export default function JobPostForm({ jobPost }: JobPostFormProps) {
         <div className="mt-8 pt-6 border-t">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h3 className="text-lg font-medium">Job Images</h3>
+              <h3 className="text-lg font-medium">Изображения вакансии</h3>
               <p className="text-sm text-muted-foreground">
-                Add or manage images for this job posting
+                Добавьте или управляйте изображениями для этой вакансии
               </p>
             </div>
             <Button
@@ -277,18 +288,18 @@ export default function JobPostForm({ jobPost }: JobPostFormProps) {
                 <circle cx="8.5" cy="8.5" r="1.5"/>
                 <polyline points="21 15 16 10 5 21"/>
               </svg>
-              Manage Images
+              Управление изображениями
             </Button>
           </div>
           <div className="bg-muted/40 rounded-md p-4 border border-dashed">
             <div className="text-center py-6">
               <p className="text-muted-foreground mb-2">
                 {(jobPost as any).imageCount > 0 
-                  ? `This job post has ${(jobPost as any).imageCount} images` 
-                  : "No images added yet"}
+                  ? `У этой вакансии ${(jobPost as any).imageCount} изображений` 
+                  : "Изображения еще не добавлены"}
               </p>
               <p className="text-sm text-muted-foreground">
-                Click "Manage Images" to add, view, or remove images for this job post
+                Нажмите "Управление изображениями", чтобы добавить, просмотреть или удалить изображения для этой вакансии
               </p>
             </div>
           </div>

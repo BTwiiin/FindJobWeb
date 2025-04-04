@@ -33,7 +33,7 @@ export const useLocationStore = create<LocationStore>((set) => ({
 
     const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(
       query
-    )}&format=json&addressdetails=1&limit=5&countrycodes=pl&accept-language=en`;
+    )}&format=json&addressdetails=1&limit=5&countrycodes=by&accept-language=ru`;
 
     const response = await fetch(url, {
       headers: {

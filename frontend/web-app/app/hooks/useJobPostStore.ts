@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
 import { JobPost, PagedResult } from '../../types';
 
 
@@ -18,14 +19,23 @@ const initalState: State = {
 }
 
 
-export const useJobPostStore = create<State & Actions>((set) => ({
-    ...initalState,
-    setData: (data: PagedResult<JobPost>) => set({
-        jobPosts: data.results,
-        totalCount: data.totalCount,
-    }),
-    addJobPost: (jobPost: JobPost) => set((state) => ({
-        jobPosts: [...state.jobPosts, jobPost],
-        totalCount: state.totalCount + 1,
-    })),
-}));
+export const useJobPostStore = create<State & Actions>()(
+    persist(
+        (set) => ({
+            ...initalState,
+            setData: (data: PagedResult<JobPost>) => set({
+                jobPosts: data.results,
+                totalCount: data.totalCount,
+            }),
+            addJobPost: (jobPost: JobPost) => set((state) => ({
+                jobPosts: [...state.jobPosts, jobPost],
+                totalCount: state.totalCount + 1,
+            })),
+        }),
+        {
+            name: 'job-posts-storage',
+            storage: createJSONStorage(() => localStorage),
+            partialize: (state) => ({ jobPosts: state.jobPosts, totalCount: state.totalCount }),
+        }
+    )
+);

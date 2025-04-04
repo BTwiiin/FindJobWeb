@@ -8,6 +8,8 @@ import {
   getMyRequests,
   getSimilarJobPosts,
   getImages,
+  updateApplicationStatus,
+  deleteJobPost
 } from "@/app/actions/jobPostActions"
 import { getCurrentUser } from "@/app/actions/authActions"
 import type { JobPost, JobPostRequest } from "@/types"
@@ -24,6 +26,16 @@ import ImageGallery from "./components/image-gallery"
 import MapView from "./components/map-view"
 import ApplyDialog from "./components/apply-dialog"
 import { getCategoryLabel } from "@/utils/categoryMapping"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { MoreVertical } from "lucide-react"
+import UpdateStatusDialog from "./components/update-status-dialog"
+import { applyToJobPost } from "@/app/actions/applicationActions"
+import { saveJobPost } from "@/app/actions/savedJobActions"
 
 
 export default function JobDetails({ id }: { id: string }) {
@@ -35,6 +47,10 @@ export default function JobDetails({ id }: { id: string }) {
   const [similarJobs, setSimilarJobs] = useState<JobPost[]>([])
   const [loading, setLoading] = useState(true)
   const [showApplyDialog, setShowApplyDialog] = useState(false)
+  const [updatingStatus, setUpdatingStatus] = useState<string | null>(null)
+  const [statusDialogOpen, setStatusDialogOpen] = useState(false)
+  const [selectedApplicant, setSelectedApplicant] = useState<{ id: string; name: string; status: string } | null>(null)
+  const [selectedStatus, setSelectedStatus] = useState<"approved" | "rejected" | null>(null)
   const router = useRouter()
 
   useEffect(() => {
@@ -59,9 +75,13 @@ export default function JobDetails({ id }: { id: string }) {
         }
 
         if (userData) {
-          if (userData.username === jobData.employer) {
-            const applicantsData = await getApplicants(id)
-            setApplicants(Array.isArray(applicantsData) ? applicantsData : [])
+          if (userData.username === jobData.employer?.username) {
+            const applicantsData = await getApplicants()
+            // Filter applications to only show those for this job post
+            const filteredApplicants = Array.isArray(applicantsData) 
+              ? applicantsData.filter((applicant: JobPostRequest) => applicant.jobPostId === id)
+              : []
+            setApplicants(filteredApplicants)
           } else {
             const requests = await getMyRequests()
             setHasApplied(Array.isArray(requests) && requests.some((request: JobPostRequest) => request.jobPostId === id))
@@ -77,11 +97,35 @@ export default function JobDetails({ id }: { id: string }) {
     fetchData()
   }, [id])
 
+  const handleStatusUpdate = async (applicationId: string, newStatus: string, notes?: string) => {
+    try {
+      setUpdatingStatus(applicationId)
+      await updateApplicationStatus(applicationId, newStatus, notes)
+      // Refresh applicants list
+      const applicantsData = await getApplicants()
+      setApplicants(Array.isArray(applicantsData) ? applicantsData : [])
+    } catch (error) {
+      console.error("Error updating application status:", error)
+    } finally {
+      setUpdatingStatus(null)
+    }
+  }
+
+  const openStatusDialog = (applicant: JobPostRequest, status: "approved" | "rejected") => {
+    setSelectedApplicant({
+      id: applicant.id,
+      name: applicant.applicant?.username || "Неизвестный пользователь",
+      status: applicant.status
+    })
+    setSelectedStatus(status)
+    setStatusDialogOpen(true)
+  }
+
   if (loading || !jobPost) {
     return <div className="container mx-auto p-6 animate-pulse">{/* Add loading skeleton here */}</div>
   }
 
-  const isEmployer = user?.username === jobPost.employer
+  const isEmployer = user?.username === jobPost.employer.username
 
   return (
     <div className="container mx-auto p-6">
@@ -93,7 +137,7 @@ export default function JobDetails({ id }: { id: string }) {
           onClick={() => router.push(`/`)}
         >
           <ArrowLeft className="h-4 w-4" />
-          Go to Job Posts
+          К списку вакансий
         </Button>
 
       </div>
@@ -108,7 +152,7 @@ export default function JobDetails({ id }: { id: string }) {
                   <CardTitle className="text-2xl">{jobPost.title}</CardTitle>
                   <CardDescription className="flex items-center gap-2">
                     <Briefcase className="h-4 w-4" />
-                    {jobPost.employer}
+                    {jobPost.employer?.username || "Название компании"}
                   </CardDescription>
                 </div>
                 {isEmployer && (
@@ -124,42 +168,42 @@ export default function JobDetails({ id }: { id: string }) {
               <div className="flex flex-wrap gap-2">
                 <Badge variant="outline">
                   <Calendar className="h-3 w-3 mr-1" />
-                  Posted {new Date(jobPost.createdAt).toLocaleDateString()}
+                  Опубликовано {new Date(jobPost.createdAt).toLocaleDateString()}
                 </Badge>
                 <Badge variant="secondary">
                   <DollarSign className="h-3 w-3 mr-1" />
                   {jobPost.paymentAmount}
                 </Badge>
                 <Badge>{getCategoryLabel(jobPost.category)}</Badge>
-                <Badge variant={jobPost.status === "Open" ? "default" : "secondary"}>{jobPost.status}</Badge>
+                <Badge variant={jobPost.status === "open" ? "default" : "secondary"}>{jobPost.status === "open" ? "Открыто" : "Закрыто"}</Badge>
               </div>
 
               <div className="space-y-2">
-                <h3 className="font-semibold">Description</h3>
+                <h3 className="font-semibold">Описание</h3>
                 <p className="text-muted-foreground whitespace-pre-line">{jobPost.description}</p>
               </div>
 
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
-                  <h3 className="font-semibold">Deadline</h3>
+                  <h3 className="font-semibold">Срок подачи</h3>
                   <p className="text-muted-foreground flex items-center gap-2">
                     <Clock className="h-4 w-4" />
                     {new Date(jobPost.deadline).toLocaleDateString()}
                   </p>
                 </div>
                 <div className="space-y-2">
-                  <h3 className="font-semibold">Location</h3>
+                  <h3 className="font-semibold">Местоположение</h3>
                   <p className="text-muted-foreground flex items-center gap-2">
                     <MapPin className="h-4 w-4" />
-                    {jobPost.location?.city + ", " + jobPost.location?.street || "Location not specified"}
+                    {jobPost.location?.city + ", " + jobPost.location?.street || "Местоположение не указано"}
                   </p>
                 </div>
               </div>
             </CardContent>
-            {!isEmployer && (
+            {!isEmployer && user && (
               <CardFooter>
                 <Button className="w-full" onClick={() => setShowApplyDialog(true)} disabled={hasApplied}>
-                  {hasApplied ? "Already Applied" : "Apply Now"}
+                  {hasApplied ? "Вы уже откликнулись" : "Откликнуться"}
                 </Button>
               </CardFooter>
             )}
@@ -171,7 +215,7 @@ export default function JobDetails({ id }: { id: string }) {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <ImageIcon className="h-5 w-5" />
-                  Images
+                  Фотографии
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -183,7 +227,7 @@ export default function JobDetails({ id }: { id: string }) {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <MapPin className="h-5 w-5" />
-                  Location
+                  Местоположение
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -201,35 +245,68 @@ export default function JobDetails({ id }: { id: string }) {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Users className="h-5 w-5" />
-                  Applicants
+                  Отклики к вакансии
                 </CardTitle>
                 <CardDescription>
-                  {Array.isArray(applicants) ? applicants.length : 0} application{(Array.isArray(applicants) ? applicants.length : 0) !== 1 && "s"}
+                  {Array.isArray(applicants) ? applicants.length : 0} отклик{(Array.isArray(applicants) ? applicants.length : 0) !== 1 && "ов"}
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <ScrollArea className="h-[300px]">
                   <div className="space-y-4">
-                    {Array.isArray(applicants) && applicants.map((applicant, i) => (
-                      <div key={applicant.id}>
-                        {i > 0 && <Separator className="my-2" />}
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <Avatar>
-                              <AvatarImage src="/placeholder.svg" />
-                              <AvatarFallback>{applicant.employee[0].toUpperCase()}</AvatarFallback>
-                            </Avatar>
-                            <div>
-                              <p className="font-medium">{applicant.employee}</p>
-                              <p className="text-sm text-muted-foreground">
-                                Applied {new Date(applicant.applyDate).toLocaleDateString()}
-                              </p>
+                    {Array.isArray(applicants) && applicants.length > 0 ? (
+                      applicants.map((applicant, i) => (
+                        <div key={applicant.id}>
+                          {i > 0 && <Separator className="my-2" />}
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <Avatar>
+                                <AvatarImage src="/placeholder.svg" />
+                                <AvatarFallback>{applicant.applicant?.username?.[0].toUpperCase() || "?"}</AvatarFallback>
+                              </Avatar>
+                              <div>
+                                <p className="font-medium">{applicant.applicant?.username || "Неизвестный пользователь"}</p>
+                                <p className="text-sm text-muted-foreground">
+                                  Откликнулся {applicant.createdAt ? new Date(applicant.createdAt).toLocaleDateString() : "Дата не указана"}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Badge>{applicant.status === "pending" ? "На рассмотрении" : applicant.status === "approved" ? "Одобрено" : "Отклонено"}</Badge>
+                              {applicant.status === "pending" && (
+                                <DropdownMenu>
+                                  <DropdownMenuTrigger asChild>
+                                    <Button variant="ghost" size="icon" disabled={updatingStatus === applicant.id}>
+                                      <MoreVertical className="h-4 w-4" />
+                                    </Button>
+                                  </DropdownMenuTrigger>
+                                  <DropdownMenuContent align="end">
+                                    <DropdownMenuItem
+                                      onClick={() => openStatusDialog(applicant, "approved")}
+                                      disabled={updatingStatus === applicant.id}
+                                    >
+                                      Одобрить
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem
+                                      onClick={() => openStatusDialog(applicant, "rejected")}
+                                      disabled={updatingStatus === applicant.id}
+                                    >
+                                      Отклонить
+                                    </DropdownMenuItem>
+                                  </DropdownMenuContent>
+                                </DropdownMenu>
+                              )}
                             </div>
                           </div>
-                          <Badge>{applicant.status}</Badge>
                         </div>
+                      ))
+                    ) : (
+                      <div className="flex flex-col items-center justify-center py-8 text-center">
+                        <Users className="h-12 w-12 text-muted-foreground mb-4" />
+                        <p className="text-muted-foreground">Пока нет откликов на вакансию</p>
+                        <p className="text-sm text-muted-foreground mt-2">Когда кто-то откликнется, вы увидите его здесь</p>
                       </div>
-                    ))}
+                    )}
                   </div>
                 </ScrollArea>
               </CardContent>
@@ -240,8 +317,8 @@ export default function JobDetails({ id }: { id: string }) {
           {!isEmployer && (
             <Card>
               <CardHeader>
-                <CardTitle>Similar Jobs</CardTitle>
-                <CardDescription>More {getCategoryLabel(jobPost.category)} jobs you might like</CardDescription>
+                <CardTitle>Похожие вакансии</CardTitle>
+                <CardDescription>Другие вакансии в категории {getCategoryLabel(jobPost.category)}</CardDescription>
               </CardHeader>
               <CardContent>
                 <ScrollArea className="h-[400px]">
@@ -256,7 +333,7 @@ export default function JobDetails({ id }: { id: string }) {
                         <div className="flex items-start justify-between">
                           <div className="space-y-1">
                             <p className="font-medium group-hover:text-primary">{job.title}</p>
-                            <p className="text-sm text-muted-foreground">{job.employer}</p>
+                            <p className="text-sm text-muted-foreground">{job.employer?.username || "Название компании"}</p>
                             <div className="flex items-center gap-2">
                               <Badge variant="secondary">
                                 <DollarSign className="h-3 w-3 mr-1" />
@@ -279,6 +356,17 @@ export default function JobDetails({ id }: { id: string }) {
 
       {/* Apply Dialog */}
       <ApplyDialog open={showApplyDialog} onOpenChange={setShowApplyDialog} jobPost={jobPost} />
+
+      {/* Status Update Dialog */}
+      {selectedApplicant && selectedStatus && (
+        <UpdateStatusDialog
+          open={statusDialogOpen}
+          onOpenChange={setStatusDialogOpen}
+          onConfirm={(notes) => handleStatusUpdate(selectedApplicant.id, selectedStatus, notes)}
+          status={selectedStatus}
+          applicantName={selectedApplicant.name}
+        />
+      )}
     </div>
   )
 }

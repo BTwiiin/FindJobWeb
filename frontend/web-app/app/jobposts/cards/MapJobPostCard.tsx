@@ -3,6 +3,7 @@ import type { JobPost } from "@/types"
 import { MapPin, Clock, DollarSign, Calendar, ArrowUpRight } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { getCategoryLabel } from "@/utils/categoryMapping"
 
 type Props = {
   jobPost: JobPost
@@ -31,17 +32,17 @@ export default function MapJobPostCard({ jobPost }: Props) {
       <div className="p-3 border-b bg-muted/10">
         <div className="flex items-start gap-3">
           <div className="h-8 w-8 rounded-md overflow-hidden bg-muted flex items-center justify-center">
-            <img src="/favicon.ico" alt={`Company logo for ${jobPost.title}`} className="h-full w-full object-cover" />
+            <img src="/favicon.ico" alt={`Логотип компании для ${jobPost.title}`} className="h-full w-full object-cover" />
           </div>
           <div className="flex-1 min-w-0">
             <h3 className="font-semibold text-sm truncate">{jobPost.title}</h3>
-            <p className="text-muted-foreground text-xs">{jobPost.employer || "Company Name"}</p>
+            <p className="text-muted-foreground text-xs">{jobPost.employer?.username || "Название компании"}</p>
           </div>
           <Badge
             variant={jobPost.category === "IT" ? "default" : jobPost.category === "Marketing" ? "secondary" : "outline"}
             className="text-xs"
           >
-            {jobPost.category}
+            {getCategoryLabel(jobPost.category)}
           </Badge>
         </div>
       </div>
@@ -50,13 +51,13 @@ export default function MapJobPostCard({ jobPost }: Props) {
         <div className="flex items-center gap-2 text-xs">
           <DollarSign className="h-3 w-3 text-green-500" />
           <span className="font-medium text-green-600">
-            {jobPost.paymentAmount ? `${jobPost.paymentAmount}$` : "Undisclosed"}
+            {jobPost.paymentAmount ? `${jobPost.paymentAmount}` : "Не указана"}
           </span>
         </div>
 
         <div className="flex items-center gap-2 text-xs">
           <MapPin className="h-3 w-3 text-muted-foreground" />
-          <span className="text-muted-foreground truncate">{locationString || "Location not provided"}</span>
+          <span className="text-muted-foreground truncate">{locationString || "Местоположение не указано"}</span>
         </div>
 
         <div className="flex items-center gap-2 text-xs">
@@ -71,15 +72,15 @@ export default function MapJobPostCard({ jobPost }: Props) {
             <Clock className="h-3 w-3 text-muted-foreground" />
             {isNew ? (
               <span className="text-[10px] bg-green-100 text-green-600 font-semibold px-1.5 py-0.5 rounded-full">
-                New
+                Новое
               </span>
             ) : (
-              <span className="text-[10px] text-muted-foreground">{diffDays}d ago</span>
+              <span className="text-[10px] text-muted-foreground">{diffDays}д назад</span>
             )}
           </div>
           <Link href={`/jobposts/details/${jobPost.id}`}>
             <Button size="sm" variant="outline" className="h-7 text-xs gap-1">
-              View Details
+              Подробнее
               <ArrowUpRight className="h-3 w-3" />
             </Button>
           </Link>

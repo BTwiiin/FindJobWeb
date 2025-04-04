@@ -6,12 +6,12 @@ import { Clock, DollarSign } from "lucide-react"
 
 const orderButtons = [
   {
-    label: "Payment Amount",
+    label: "По зарплате",
     icon: DollarSign,
     value: "paymentAmount",
   },
   {
-    label: "Recently Posted",
+    label: "По дате публикации",
     icon: Clock,
     value: "new",
   },

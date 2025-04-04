@@ -1,7 +1,8 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { savedPosts, getJobPostById, saveJobPost } from "@/app/actions/jobPostActions"
+import { getJobPostById } from "@/app/actions/jobPostActions"
+import { savedPosts, saveJobPost } from "@/app/actions/savedJobActions"
 import type { JobPost, SavedPost } from "@/types"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -135,7 +136,7 @@ export default function SavedContent() {
               <div className="flex items-start justify-between">
                 <div className="space-y-1">
                   <CardTitle className="line-clamp-1">{job.title}</CardTitle>
-                  <CardDescription>{job.employer}</CardDescription>
+                  <CardDescription>{job.employer.username}</CardDescription>
                 </div>
                 <Badge variant="secondary">
                   <Calendar className="h-3 w-3 mr-1" />

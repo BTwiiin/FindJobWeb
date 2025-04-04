@@ -16,8 +16,8 @@ import { Button } from "@/components/ui/button"
 import { Loader2, MapPin, Maximize, LocateFixed } from "lucide-react"
 
 // Move constants outside component for better performance
-const defaultMapCenter: [number, number] = [51.9194, 19.1451]
-const defaultMapZoom = 6.3
+const defaultMapCenter: [number, number] = [53.31, 27.5665]
+const defaultMapZoom = 6.6
 
 // Create icons outside component to prevent recreation on each render
 const createIcon = (size: number) =>
@@ -45,7 +45,7 @@ function LocationFinder() {
       className="absolute bottom-20 right-2 z-[5] bg-white text-black hover:bg-gray-100"
       size="icon"
       variant="outline"
-      title="Find my location"
+      title="Найти мое местоположение"
     >
       <LocateFixed className="h-4 w-4" />
     </Button>
@@ -74,7 +74,7 @@ function FullscreenControl() {
       className="absolute bottom-32 right-2 z-[5] bg-white text-black hover:bg-gray-100"
       size="icon"
       variant="outline"
-      title={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
+      title={isFullscreen ? "Выйти из полноэкранного режима" : "Войти в полноэкранный режим"}
     >
       <Maximize className="h-4 w-4" />
     </Button>
@@ -96,6 +96,18 @@ const MapComponent = () => {
     }),
     [],
   )
+
+  useEffect(() => {
+    // Hide attribution control
+    const style = document.createElement('style');
+    style.textContent = `.leaflet-control-attribution {
+      display: none !important;
+    }`;
+    document.head.appendChild(style);
+    return () => {
+      document.head.removeChild(style);
+    };
+  }, []);
 
   // Get params from store with useShallow for performance
   const params = useParamsStore(
@@ -131,7 +143,7 @@ const MapComponent = () => {
       })
       .catch((err) => {
         console.error("Error fetching job data:", err)
-        setError("Failed to load job listings. Please try again later.")
+        setError("Не удалось загрузить список вакансий. Пожалуйста, попробуйте позже.")
         setIsLoading(false)
       })
   }, [url])
@@ -187,12 +199,12 @@ const MapComponent = () => {
                     setData(data)
                     setError(null)
                   })
-                  .catch((err) => setError("Failed to load job listings. Please try again later."))
+                  .catch((err) => setError("Не удалось загрузить список вакансий. Пожалуйста, попробуйте позже."))
               }
               className="mt-4"
               variant="outline"
             >
-              Retry
+              Повторить
             </Button>
           </div>
         </div>
@@ -204,11 +216,10 @@ const MapComponent = () => {
         zoomControl={false}
         style={mapContainerStyle}
         className="h-full"
+        attributionControl={false}
       >
-        {/* Custom map tile layer with better styling */}
         <TileLayer
           url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
           subdomains="abcd"
           maxZoom={19}
         />

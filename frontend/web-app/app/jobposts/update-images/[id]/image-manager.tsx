@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { deleteImage, getImages } from "@/app/actions/jobPostActions"
+import { deleteImage, getImages } from "@/app/actions/imageActions"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -21,14 +21,14 @@ export default function ImageManager({ id }: { id: string }) {
   useEffect(() => {
     async function fetchImages() {
       try {
-        console.log('Fetching images for job post:', id)
+        console.log('Загрузка изображений для вакансии:', id)
         const fetchedImages = await getImages(id)
-        console.log('Fetched images:', fetchedImages)
+        console.log('Загруженные изображения:', fetchedImages)
         setImages(Array.isArray(fetchedImages) ? fetchedImages : [])
-        console.log('Images state set to:', Array.isArray(fetchedImages) ? fetchedImages : [])
+        console.log('Состояние изображений установлено:', Array.isArray(fetchedImages) ? fetchedImages : [])
       } catch (error) {
-        console.error('Error fetching images:', error)
-        toast.error("Failed to load images")
+        console.error('Ошибка загрузки изображений:', error)
+        toast.error("Не удалось загрузить изображения")
       } finally {
         setLoading(false)
       }
@@ -40,21 +40,21 @@ export default function ImageManager({ id }: { id: string }) {
   const handleDelete = async (imageUrl: string) => {
     setDeletingImage(imageUrl)
     try {
-      console.log('Deleting image:', imageUrl)
+      console.log('Удаление изображения:', imageUrl)
       const cleanUrl = imageUrl.split("?")[0]
       const key = cleanUrl.substring(cleanUrl.lastIndexOf("/") + 1)
-      console.log('Extracted key:', key)
+      console.log('Извлеченный ключ:', key)
 
       if (!key) {
-        throw new Error("Failed to extract image key")
+        throw new Error("Не удалось извлечь ключ изображения")
       }
 
       await deleteImage(key, id)
       setImages((prev) => prev.filter((img) => img !== imageUrl))
-      toast.success("Image deleted successfully")
+      toast.success("Изображение успешно удалено")
     } catch (error) {
-      console.error('Error deleting image:', error)
-      toast.error("Failed to delete image")
+      console.error('Ошибка удаления изображения:', error)
+      toast.error("Не удалось удалить изображение")
     } finally {
       setDeletingImage(null)
     }
@@ -90,24 +90,24 @@ export default function ImageManager({ id }: { id: string }) {
           onClick={() => router.push(`/jobposts/details/${id}`)}
         >
           <ArrowLeft className="h-4 w-4" />
-          Go to Details
+          К деталям вакансии
         </Button>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Manage Images</CardTitle>
-          <CardDescription>Add or remove images for your job posting</CardDescription>
+          <CardTitle>Управление изображениями</CardTitle>
+          <CardDescription>Добавьте или удалите изображения для вашей вакансии</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-6">
             <div className="flex items-center justify-between">
               <p className="text-sm text-muted-foreground">
-                {images.length} image{images.length !== 1 && "s"}
+                {images.length} изображени{images.length === 1 ? 'е' : images.length > 1 && images.length < 5 ? 'я' : 'й'}
               </p>
               <Button onClick={() => setShowUploadDialog(true)}>
                 <Upload className="h-4 w-4 mr-2" />
-                Upload Image
+                Загрузить изображение
               </Button>
             </div>
 
@@ -117,7 +117,7 @@ export default function ImageManager({ id }: { id: string }) {
                   <div key={index} className="group relative aspect-square rounded-md overflow-hidden">
                     <img
                       src={image || "/placeholder.svg"}
-                      alt={`Job image ${index + 1}`}
+                      alt={`Изображение вакансии ${index + 1}`}
                       className="object-cover w-full h-full"
                     />
                     <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
@@ -140,9 +140,9 @@ export default function ImageManager({ id }: { id: string }) {
                 {images.length === 0 && (
                   <div className="col-span-full flex flex-col items-center justify-center py-12 text-center">
                     <Plus className="h-12 w-12 text-muted-foreground mb-4" />
-                    <p className="text-muted-foreground">No images uploaded yet</p>
+                    <p className="text-muted-foreground">Изображения еще не загружены</p>
                     <Button variant="outline" className="mt-4" onClick={() => setShowUploadDialog(true)}>
-                      Upload your first image
+                      Загрузите первое изображение
                     </Button>
                   </div>
                 )}
@@ -158,7 +158,7 @@ export default function ImageManager({ id }: { id: string }) {
         jobPostId={id}
         onSuccess={(newImage) => {
           setImages((prev) => [...prev, newImage])
-          toast.success("Image uploaded successfully")
+          toast.success("Изображение успешно загружено")
         }}
       />
     </div>

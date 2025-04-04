@@ -20,7 +20,7 @@ export default function JobPostCard({ jobPost }: Props) {
   const now = new Date()
   const diffTime = now.getTime() - createdAt.getTime()
   const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24))
-
+  
   // Color the deadline icon based on how old the post is
   let deadlineColorClass = "text-red-600"
   if (diffDays > 7) deadlineColorClass = "text-green-600"
@@ -51,7 +51,7 @@ export default function JobPostCard({ jobPost }: Props) {
               </div>
               <div className="flex-1 min-w-0">
                 <h3 className="font-semibold text-lg truncate">{jobPost.title}</h3>
-                <p className="text-muted-foreground text-sm">{jobPost.employer || "Company Name"}</p>
+                <p className="text-muted-foreground text-sm">{jobPost.employer.username || "Company Name"}</p>
               </div>
               <Badge
                 variant="outline"
@@ -87,13 +87,13 @@ export default function JobPostCard({ jobPost }: Props) {
                 <Clock className="h-4 w-4 text-muted-foreground" />
                 {isNew ? (
                   <span className="text-xs bg-green-100 text-green-600 font-semibold px-2 py-0.5 rounded-full">
-                    New
+                    Новое
                   </span>
                 ) : (
                   <span className="text-xs text-muted-foreground">{diffDays}d ago</span>
                 )}
               </div>
-              <Button size="sm">Apply Now</Button>
+              <Button size="sm">Откликнуться</Button>
             </div>
           </div>
         </Link>

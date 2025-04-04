@@ -28,11 +28,21 @@ import { useForm } from "react-hook-form"
 import * as z from "zod"
 import type { JobPost } from "@/types"
 import { Textarea } from "@/components/ui/textarea"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
 const formSchema = z.object({
-  email: z.string().email("Invalid email address").min(1, "Email is required"),
-  phone: z.string().min(1, "Phone number is required"),
-  message: z.string().min(1, "Message is required"),
+  email: z.string().email("Неверный email адрес").min(1, "Email обязателен"),
+  phone: z.string().min(1, "Номер телефона обязателен"),
+  message: z.string().optional(),
+  contactType: z.enum(["email", "phone", "both"], {
+    required_error: "Выберите предпочтительный способ связи",
+  }),
 })
 
 type ApplyDialogProps = {
@@ -51,6 +61,7 @@ export default function ApplyDialog({ open, onOpenChange, jobPost }: ApplyDialog
       email: "",
       phone: "",
       message: "",
+      contactType: "both",
     },
   })
 
@@ -58,20 +69,21 @@ export default function ApplyDialog({ open, onOpenChange, jobPost }: ApplyDialog
     setIsSubmitting(true)
     try {
       const result = await applyToJobPost(jobPost.id, {
-        Email: values.email,
-        Phone: values.phone,
-        Message: values.message
+        email: values.email,
+        phone: values.phone,
+        coverLetter: values.message,
+        contactType: values.contactType
       })
       
       if (result.error) {
-        throw new Error(result.error.message || "Failed to apply for job")
+        throw new Error(result.error.message || "Не удалось отправить отклик")
       }
       
-      toast.success("Application submitted successfully")
+      toast.success("Отклик успешно отправлен")
       onOpenChange(false)
       router.refresh()
     } catch (error: any) {
-      toast.error(error.message || "Failed to apply for job")
+      toast.error(error.message || "Не удалось отправить отклик")
     } finally {
       setIsSubmitting(false)
     }
@@ -81,9 +93,9 @@ export default function ApplyDialog({ open, onOpenChange, jobPost }: ApplyDialog
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Apply for {jobPost.title}</DialogTitle>
+          <DialogTitle>Откликнуться на вакансию {jobPost.title}</DialogTitle>
           <DialogDescription>
-            Complete the form below to apply for this job position.
+            Заполните форму ниже, чтобы откликнуться на эту вакансию.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -95,10 +107,10 @@ export default function ApplyDialog({ open, onOpenChange, jobPost }: ApplyDialog
                   <FormItem>
                     <FormLabel>Email</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter your email" {...field} />
+                      <Input placeholder="Введите ваш email" {...field} />
                     </FormControl>
                     <FormDescription>
-                      The employer will use this to contact you.
+                      Работодатель будет использовать этот email для связи с вами.
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -109,12 +121,12 @@ export default function ApplyDialog({ open, onOpenChange, jobPost }: ApplyDialog
               name="phone"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Phone Number</FormLabel>
+                  <FormLabel>Номер телефона</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter your phone number" {...field} />
+                    <Input placeholder="Введите ваш номер телефона" {...field} />
                   </FormControl>
                   <FormDescription>
-                    The employer will use this to contact you.
+                    Работодатель будет использовать этот номер для связи с вами.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -125,17 +137,42 @@ export default function ApplyDialog({ open, onOpenChange, jobPost }: ApplyDialog
               name="message"
               render={({ field }: { field: any }) => (
                 <FormItem>
-                  <FormLabel>Cover Message</FormLabel>
+                  <FormLabel>Сопроводительное письмо (необязательно)</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="Briefly explain why you're a good fit for this position"
+                      placeholder="Кратко объясните, почему вы подходите на эту должность"
                       className="resize-none"
                       rows={5}
                       {...field}
                     />
                   </FormControl>
                   <FormDescription>
-                    Highlight your relevant skills and experience.
+                    Опишите ваши навыки и опыт, релевантные для этой должности. Это поле не является обязательным.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="contactType"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Предпочтительный способ связи</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Выберите способ связи" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="email">Email</SelectItem>
+                      <SelectItem value="phone">Телефон</SelectItem>
+                      <SelectItem value="both">Email и телефон</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormDescription>
+                    Выберите, как работодатель может связаться с вами.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -143,7 +180,7 @@ export default function ApplyDialog({ open, onOpenChange, jobPost }: ApplyDialog
             />
             <DialogFooter>
               <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? "Submitting..." : "Submit Application"}
+                {isSubmitting ? "Отправка..." : "Отправить отклик"}
               </Button>
             </DialogFooter>
           </form>

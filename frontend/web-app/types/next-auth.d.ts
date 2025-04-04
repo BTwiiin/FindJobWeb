@@ -1,14 +1,25 @@
-import NextAuth, { type DefaultSession } from "next-auth"
+import { Location } from "@/types"
+import NextAuth from "next-auth"
 import { JWT } from "next-auth/jwt"
- 
+
 declare module "next-auth" {
+  interface User {
+    id: string
+    email: string
+    username: string
+    firstName: string
+    lastName: string
+    role?: string
+    phoneNumber?: string
+    location?: Location
+    about?: string
+    taxNumber?: string
+    accessToken?: string
+  }
+
   interface Session {
-    user: {
-      username: string,
-      role?: string,
-      taxId?: string
-    } & DefaultSession["user"]
-    accessToken: string
+    user: User
+    accessToken?: string
   }
 
   interface Profile {
@@ -18,21 +29,20 @@ declare module "next-auth" {
     role?: string,
     tax_number?: string
   }
-  
-  interface User {
-    username: string,
-    email: string,
-    name: string,
-    role?: string,
-    taxId?: string
-  }
 }
 
 declare module "next-auth/jwt" {
   interface JWT {
-    username: string,
-    accessToken: string,
-    role?: string,
-    taxId?: string
+    id: string
+    email: string
+    username: string
+    firstName: string
+    lastName: string
+    role?: string
+    phoneNumber?: string
+    location?: Location
+    about?: string
+    taxNumber?: string
+    accessToken?: string
   }
 }

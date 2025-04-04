@@ -3,9 +3,9 @@
 import type React from "react"
 
 import { useState } from "react"
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogTitle, DialogClose } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
-import { ChevronLeft, ChevronRight, ImageIcon, Maximize2 } from "lucide-react"
+import { ChevronLeft, ChevronRight, ImageIcon, Maximize2, X } from "lucide-react"
 
 interface ImageGalleryProps {
   images: string[]
@@ -91,6 +91,10 @@ export default function ImageGallery({ images }: ImageGalleryProps) {
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="max-w-3xl p-0 overflow-hidden">
           <div className="relative">
+            <DialogClose className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
+              <X className="h-4 w-4 text-white" />
+              <span className="sr-only">Close</span>
+            </DialogClose>
             <img
               src={images[currentIndex] || "/placeholder.svg"}
               alt={`Job image ${currentIndex + 1}`}

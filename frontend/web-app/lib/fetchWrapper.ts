@@ -1,6 +1,6 @@
 import { auth } from "@/auth";
 
-const baseUrl = 'http://localhost:6001/';
+const baseUrl = 'http://localhost:3001/';
 
 async function get(url: string) {
     const requestOptions = {

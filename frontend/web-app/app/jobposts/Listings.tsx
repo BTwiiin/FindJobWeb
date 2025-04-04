@@ -96,13 +96,13 @@ export default function Listings() {
     return <Loading />
   }
 
-  if (data.jobPosts.length === 0) return <EmptyFilter />
+  if (data.jobPosts?.length === 0 || !data.jobPosts) return <EmptyFilter />
 
   return (
     <div className="container mx-auto px-4 py-6">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-xl font-semibold">Job Offers: {data.totalCount}</h2>
+          
           <div className="flex flex-wrap items-center gap-2 mt-2">
             {params.searchTerm && (
               <Badge variant="outline" className="flex items-center gap-1">
@@ -155,7 +155,7 @@ export default function Listings() {
                 className="h-6 px-2 text-xs"
                 onClick={() => reset()}
               >
-                Clear all
+                Сбросить все
               </Button>
             )}
           </div>
@@ -168,10 +168,10 @@ export default function Listings() {
             <Tabs value={view} className="w-[120px]">
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="list" onClick={() => setView("list")}>
-                  List
+                  Список
                 </TabsTrigger>
                 <TabsTrigger value="map" onClick={() => setView("map")}>
-                  Map
+                  Карта
                 </TabsTrigger>
               </TabsList>
             </Tabs>
@@ -183,12 +183,12 @@ export default function Listings() {
       {view === "list" ? (
         <div
           className={`
-            grid gap-4 md:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 pb-32
+            grid gap-4 md:grid-cols-1 lg:grid-cols-1 xl:grid-cols-1 pb-32
             transition-opacity duration-500
             ${fading === "out" ? "opacity-0" : "opacity-100"}
           `}
         >
-          {data.jobPosts.map((jobpost) => (
+          {data.jobPosts?.map((jobpost) => (
             <JobPostCard jobPost={jobpost} key={jobpost.id} />
           ))}
         </div>

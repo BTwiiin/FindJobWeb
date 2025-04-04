@@ -12,11 +12,11 @@ export default function EmptyFilter() {
       <div className="inline-block p-6 bg-muted rounded-full mb-4">
         <Search className="h-10 w-10 text-muted-foreground" />
       </div>
-      <h3 className="text-lg font-medium mb-2">No jobs found</h3>
+      <h3 className="text-lg font-medium mb-2">Вакансии не найдены</h3>
       <p className="text-muted-foreground mb-6">
-        Try adjusting your search or filters to find what you're looking for.
+        Попробуйте изменить параметры поиска или фильтры, чтобы найти то, что вы ищете.
       </p>
-      <Button onClick={reset}>Reset all filters</Button>
+      <Button onClick={reset}>Сбросить все фильтры</Button>
     </div>
   )
 }
