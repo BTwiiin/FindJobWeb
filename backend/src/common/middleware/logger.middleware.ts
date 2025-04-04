@@ -1,14 +1,13 @@
 import { Request, Response, NextFunction } from 'express';
 
+const MAX_BODY_LENGTH = 500; // Maximum length of response body to log
+
 export function LoggerMiddleware(req: Request, res: Response, next: NextFunction) {
   const startTime = Date.now();
-  const { method, originalUrl, ip, body } = req;
+  const { method, originalUrl, ip } = req;
 
   // Log request
   console.log(`[${new Date().toISOString()}] ${method} ${originalUrl} - Request from ${ip}`);
-  if (body && Object.keys(body).length > 0) {
-    console.log('Request Body:', JSON.stringify(body, null, 2));
-  }
 
   // Capture response
   const originalSend = res.send;
@@ -17,16 +16,21 @@ export function LoggerMiddleware(req: Request, res: Response, next: NextFunction
     const duration = endTime - startTime;
     const statusCode = res.statusCode;
 
-    // Log response
+    // Log response with status and duration
     console.log(`[${new Date().toISOString()}] ${method} ${originalUrl} - ${statusCode} - ${duration}ms`);
-    if (body) {
+
+    // Only log response body for errors or if it's small
+    if (statusCode >= 400 || (body && typeof body === 'object' && Object.keys(body).length <= 3)) {
       try {
-        // If body is already an object, use it directly
         const responseBody = typeof body === 'string' ? JSON.parse(body) : body;
-        console.log('Response Body:', JSON.stringify(responseBody, null, 2));
+        const bodyStr = JSON.stringify(responseBody);
+        const truncatedBody = bodyStr.length > MAX_BODY_LENGTH 
+          ? bodyStr.substring(0, MAX_BODY_LENGTH) + '...' 
+          : bodyStr;
+        console.log('Response:', truncatedBody);
       } catch (e) {
         // If parsing fails, log the original body
-        console.log('Response Body:', body);
+        console.log('Response:', body);
       }
     }
 

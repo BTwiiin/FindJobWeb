@@ -2,13 +2,18 @@ import { Module } from '@nestjs/common';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { JwtStrategy } from './strategies/jwt.strategy';
-import { DatabaseModule } from '../common/database/database.module';
+import { User } from '../entities/user.entity';
+import { Token } from '../entities/token.entity';
+import { MailerModule } from '../mailer/mailer.module';
+import { VerificationTokenService } from './verification-token.service';
 
-@Module({
+@Module({ 
   imports: [
+    MailerModule,
     PassportModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
@@ -18,9 +23,9 @@ import { DatabaseModule } from '../common/database/database.module';
       }),
       inject: [ConfigService],
     }),
-    DatabaseModule,
+    TypeOrmModule.forFeature([User, Token])
   ],
-  providers: [AuthService, JwtStrategy],
+  providers: [AuthService, JwtStrategy, VerificationTokenService],
   controllers: [AuthController],
   exports: [AuthService],
 })

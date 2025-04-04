@@ -9,9 +9,12 @@ export class Review {
   @Column('int')
   rating: number;
 
-  @Column('text')
-  comment: string;
+  @Column('text', { nullable: true })
+  comment?: string;
 
+  @Column('uuid')
+  jobApplicationId: string;
+  
   @ManyToOne(() => User, user => user.givenReviews)
   reviewer: User;
 

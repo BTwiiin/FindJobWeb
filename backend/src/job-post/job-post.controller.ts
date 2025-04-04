@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, NotFoundException, Param, Post, Put, UseGuards, ForbiddenException } from '@nestjs/common';
+import { Body, Controller, Delete, Get, NotFoundException, Param, Post, Put, UseGuards, ForbiddenException, Request, UseInterceptors } from '@nestjs/common';
 import { JobPost } from '../entities/job-post.entity';
 import { JobPostService } from './job-post.service';
 import { CreateJobPostDto } from './dto/create-job-post.dto';
@@ -25,6 +25,13 @@ export class JobPostController {
         return this.jobPostService.getSavedJobs(user.id);
     }
 
+    @Get('my-posts')
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles(Role.EMPLOYER)
+    async getMyJobPosts(@Request() req) {
+        return this.jobPostService.findByEmployer(req.user.id);
+    }
+
     @Get(':id')
     async findOne(@Param('id') id: string, @OptionalUser() userId?: string): Promise<JobPost> {
         const jobPost = await this.jobPostService.findOne(id, userId);
@@ -36,6 +43,13 @@ export class JobPostController {
             });
         }
         return jobPost;
+    }
+
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles(Role.EMPLOYER)
+    @Put('archive/:id')
+    async archive(@Param('id') id: string, @CurrentUser() user: { id: string }): Promise<void> {
+        return this.jobPostService.archive(id, user.id);
     }
 
     @UseGuards(JwtAuthGuard, RolesGuard)

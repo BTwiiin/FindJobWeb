@@ -1,10 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Put, Request } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { User } from '../entities/user.entity';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { Role } from '../entities/enums/role.enum';
+import { GetUserDto } from './dto/get-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Controller('users')
 export class UsersController {
@@ -17,9 +19,9 @@ export class UsersController {
     return this.usersService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string): Promise<User> {
-    return this.usersService.findOne(id);
+  @Get(':username')
+  findOne(@Param('username') username: string): Promise<GetUserDto> {
+    return this.usersService.findOneByUsername(username);
   }
 
   // @Post()
@@ -27,14 +29,14 @@ export class UsersController {
   //   return this.usersService.create(userData);
   // }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN)
-  @Patch(':id')
+  @UseGuards(JwtAuthGuard)
+  @Put(':id')
   async update(
+    @Request() req,
     @Param('id') id: string,
-    @Body() userData: Partial<User>
+    @Body() userData: UpdateUserDto
   ): Promise<User> {
-    return this.usersService.update(id, userData);
+    return this.usersService.update(id, userData, req.user.id);
   }
 
   // @Delete(':id')

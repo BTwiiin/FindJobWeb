@@ -1,9 +1,11 @@
 import { Module, forwardRef } from '@nestjs/common';
 import { ElasticsearchModule } from '@nestjs/elasticsearch';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { SearchService } from './search.service';
 import { SearchController } from './search.controller';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JobPostModule } from '../job-post/job-post.module';
+import { Review } from '../entities/review.entity';
 
 @Module({
   imports: [
@@ -24,6 +26,7 @@ import { JobPostModule } from '../job-post/job-post.module';
       }),
       inject: [ConfigService],
     }),
+    TypeOrmModule.forFeature([Review]),
     forwardRef(() => JobPostModule),
   ],
   controllers: [SearchController],

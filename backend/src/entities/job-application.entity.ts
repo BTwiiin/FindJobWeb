@@ -6,10 +6,12 @@ export enum ApplicationStatus {
   PENDING = 'pending',
   ACCEPTED = 'accepted',
   REJECTED = 'rejected',
-  WITHDRAWN = 'withdrawn'
+  COMPLETED = 'completed',
+  WITHDRAWN = 'withdrawn',
+  CANCELLED = 'cancelled'
 }
 
-@Entity()
+@Entity('job_applications')
 export class JobApplication {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -56,4 +58,7 @@ export class JobApplication {
 
   @Column({ default: false })
   isArchived: boolean;
+
+  @Column({ type: 'text', nullable: true })
+  message: string;
 } 

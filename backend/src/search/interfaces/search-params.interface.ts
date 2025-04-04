@@ -6,4 +6,5 @@ export interface SearchParams {
   filterBy?: string;
   minSalary?: number;
   maxSalary?: number;
+  employer?: string;
 } 

@@ -1,22 +1,21 @@
-import { Injectable, NotFoundException, ForbiddenException, Inject } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { S3 } from 'aws-sdk';
 import { ConfigService } from '@nestjs/config';
-import { Repository, DataSource } from 'typeorm';
+import { Repository } from 'typeorm';
 import { JobPost } from '../entities/job-post.entity';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class ImagesService {
   private s3Client: S3;
   private bucketName: string;
   private region: string;
-  private jobPostRepository: Repository<JobPost>;
 
   constructor(
     private configService: ConfigService,
-    @Inject('DATA_SOURCE')
-    private dataSource: DataSource,
+    @InjectRepository(JobPost)
+    private jobPostRepository: Repository<JobPost>,
   ) {
-    this.jobPostRepository = this.dataSource.getRepository(JobPost);
     this.region = this.configService.get('AWS_REGION') || '';
     this.s3Client = new S3({
       region: this.region,

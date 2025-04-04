@@ -1,24 +1,28 @@
-import { Inject, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
-import { Repository, In, DataSource } from 'typeorm';
+import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { In, Repository } from 'typeorm';
 import { JobApplication, ApplicationStatus } from '../entities/job-application.entity';
 import { CreateApplicationDto } from './dto/create-application.dto';
 import { UpdateApplicationDto } from './dto/update-application.dto';
 import { JobPost } from '../entities/job-post.entity';
 import { User } from 'src/entities/user.entity';
 import { ContactType } from 'src/entities/enums/contact-type.enum';
+import { InjectRepository } from '@nestjs/typeorm';
+import { SearchService } from 'src/search/search.service';
+import { CalendarService } from 'src/calendar/calendar.service';
 
 @Injectable()
 export class ApplyingService {
-  private readonly jobApplicationRepository: Repository<JobApplication>;
-  private readonly jobPostRepository: Repository<JobPost>;
-
   constructor(
-    @Inject("DATA_SOURCE")
-    private dataSource: DataSource,
-  ) {
-    this.jobApplicationRepository = this.dataSource.getRepository(JobApplication);
-    this.jobPostRepository = this.dataSource.getRepository(JobPost);
-  }
+    @InjectRepository(JobApplication)
+    private readonly jobApplicationRepository: Repository<JobApplication>,
+
+    @InjectRepository(JobPost)
+    private readonly jobPostRepository: Repository<JobPost>,
+    
+    private readonly searchService: SearchService,
+
+    private readonly calendarService: CalendarService,
+  ) {}
 
   async apply(user: User, createApplicationDto: CreateApplicationDto): Promise<JobApplication> {
     const jobPost = await this.jobPostRepository.findOne({
@@ -122,6 +126,17 @@ export class ApplyingService {
     if (updateApplicationDto.status) {
       application.status = updateApplicationDto.status;
       application.reviewedAt = new Date();
+      
+      // Automatically archive the application and job post when it's marked as completed
+      if (updateApplicationDto.status === ApplicationStatus.COMPLETED) {
+        application.isArchived = true;
+        application.jobPost.isArchived = true;
+        await Promise.all([
+          this.jobPostRepository.save(application.jobPost),
+          this.searchService.deleteJobPost(application.jobPost.id),
+          this.calendarService.deleteEventByJobPostId(application.jobPost.id)
+        ]);
+      }
     }
 
     if (updateApplicationDto.employerNotes) {

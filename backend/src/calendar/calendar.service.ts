@@ -1,24 +1,21 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { Repository, DataSource } from 'typeorm';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { Repository } from 'typeorm';
 import { CalendarEvent, EventType } from './calendar.entity';
 import { CreateCalendarEventDto } from './dto/create-calendar-event.dto';
 import { JobPost } from '../entities/job-post.entity';
 import { User } from '../entities/user.entity';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class CalendarService {
-  private calendarEventRepository: Repository<CalendarEvent>;
-  private jobPostRepository: Repository<JobPost>;
-  private userRepository: Repository<User>;
-
   constructor(
-    @Inject('DATA_SOURCE')
-    private dataSource: DataSource,
-  ) {
-    this.calendarEventRepository = this.dataSource.getRepository(CalendarEvent);
-    this.jobPostRepository = this.dataSource.getRepository(JobPost);
-    this.userRepository = this.dataSource.getRepository(User);
-  }
+    @InjectRepository(CalendarEvent)
+    private calendarEventRepository: Repository<CalendarEvent>,
+    @InjectRepository(JobPost)
+    private jobPostRepository: Repository<JobPost>,
+    @InjectRepository(User)
+    private userRepository: Repository<User>,
+  ) {}
 
   async create(createCalendarEventDto: CreateCalendarEventDto): Promise<CalendarEvent> {
     const jobPost = await this.jobPostRepository.findOne({
@@ -86,6 +83,12 @@ export class CalendarService {
     return event;
   }
 
+  async findAllByJobPostId(jobPostId: string): Promise<CalendarEvent[]> {
+    return this.calendarEventRepository.find({
+      where: { jobPost: { id: jobPostId } },
+    });
+  }
+
   async update(id: string, updateData: Partial<CalendarEvent>): Promise<CalendarEvent> {
     const event = await this.findOne(id);
     Object.assign(event, updateData);
@@ -94,6 +97,11 @@ export class CalendarService {
 
   async remove(id: string): Promise<void> {
     const event = await this.findOne(id);
+    await this.calendarEventRepository.remove(event);
+  }
+
+  async deleteEventByJobPostId(jobPostId: string): Promise<void> {
+    const event = await this.findAllByJobPostId(jobPostId);
     await this.calendarEventRepository.remove(event);
   }
 

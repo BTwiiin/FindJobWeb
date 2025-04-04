@@ -3,12 +3,19 @@ import { ElasticsearchService } from '@nestjs/elasticsearch';
 import { SearchParams } from './interfaces/search-params.interface';
 import { JobPost } from '../entities/job-post.entity';
 import { SearchResponse } from '@elastic/elasticsearch/lib/api/types';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Review } from '../entities/review.entity';
 
 @Injectable()
 export class SearchService implements OnModuleInit {
   private readonly index = 'jobposts';
 
-  constructor(private readonly elasticsearchService: ElasticsearchService) {}
+  constructor(
+    private readonly elasticsearchService: ElasticsearchService,
+    @InjectRepository(Review)
+    private readonly reviewRepository: Repository<Review>
+  ) {}
 
   async onModuleInit() {
     await this.createIndex();
@@ -38,7 +45,9 @@ export class SearchService implements OnModuleInit {
                 type: 'object',
                 properties: {
                   id: { type: 'keyword' },
-                  username: { type: 'keyword' }
+                  username: { type: 'keyword' },
+                  rating: { type: 'float' },
+                  reviewCount: { type: 'integer' }
                 }
               },
               employee: { type: 'keyword' },
@@ -69,6 +78,16 @@ export class SearchService implements OnModuleInit {
   }
 
   async indexJobPost(jobPost: JobPost) {
+    // Get employer's average rating and review count
+    const employerReviews = await this.reviewRepository.find({
+      where: { reviewedUser: { id: jobPost.employer.id } },
+      relations: ['reviewedUser']
+    });
+
+    const rating = employerReviews.length > 0
+      ? employerReviews.reduce((sum, review) => sum + review.rating, 0) / employerReviews.length
+      : 0;
+
     return this.elasticsearchService.index({
       index: this.index,
       id: jobPost.id.toString(),
@@ -76,7 +95,12 @@ export class SearchService implements OnModuleInit {
         id: jobPost.id,
         title: jobPost.title,
         description: jobPost.description,
-        employer: jobPost.employer,
+        employer: {
+          id: jobPost.employer.id,
+          username: jobPost.employer.username,
+          rating: rating,
+          reviewCount: employerReviews.length
+        },
         employee: jobPost.employee,
         createdAt: jobPost.createdAt,
         updatedAt: jobPost.updatedAt,
@@ -90,7 +114,7 @@ export class SearchService implements OnModuleInit {
   }
 
   async search(searchParams: SearchParams) {
-    const { searchTerm, pageNumber = 1, pageSize = 10, orderBy, filterBy, minSalary, maxSalary } = searchParams;
+    const { searchTerm, pageNumber = 1, pageSize = 10, orderBy, filterBy, minSalary, maxSalary, employer } = searchParams;
 
     const query = {
       bool: {
@@ -116,6 +140,12 @@ export class SearchService implements OnModuleInit {
           operator: 'or',
           type: 'best_fields'
         },
+      });
+    }
+
+    if (employer) {
+      query.bool.must.push({
+        term: { 'employer.username': employer }
       });
     }
 
@@ -181,10 +211,21 @@ export class SearchService implements OnModuleInit {
   }
 
   async deleteJobPost(jobPostId: string) {
-    return this.elasticsearchService.delete({
+    const jobPost = await this.elasticsearchService.get({
       index: this.index,
       id: jobPostId,
     });
+
+    if (jobPost) {
+      const result = await this.elasticsearchService.delete({
+        index: this.index,
+        id: jobPostId,
+      });
+
+      return result;
+    }
+
+    return null;
   }
 
   private getSortCriteria(orderBy?: string) {

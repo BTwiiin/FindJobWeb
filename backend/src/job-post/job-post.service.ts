@@ -1,33 +1,45 @@
 import { Injectable, Inject, NotFoundException, forwardRef } from '@nestjs/common';
 import { JobPost } from '../entities/job-post.entity';
-import { Repository, DataSource } from 'typeorm';
 import { SavedPost } from '../entities/saved-post.entity';
 import { Location } from '../entities/location.entity';
-import { User } from '../entities/user.entity';
 import { CreateJobPostDto } from './dto/create-job-post.dto';
 import { UpdateJobPostDto } from './dto/update-job-post.dto';
-import { SearchService } from '../search/search.service';
-import { CalendarService } from '../calendar/calendar.service';
 import { EventType } from 'src/entities/enums/event-type.enum';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { SearchService } from 'src/search/search.service';
+import { CalendarService } from 'src/calendar/calendar.service';
+import { User } from 'src/entities/user.entity';
+import { ApplicationStatus, JobApplication } from 'src/entities/job-application.entity';
 
 @Injectable()
 export class JobPostService {
-    private jobPostRepository: Repository<JobPost>;
-    private savedPostRepository: Repository<SavedPost>;
-    private locationRepository: Repository<Location>;
-    private userRepository: Repository<User>;
-
     constructor(
-        @Inject('DATA_SOURCE')
-        private dataSource: DataSource,
-        @Inject(forwardRef(() => SearchService))
+        @InjectRepository(JobPost)
+        private jobPostRepository: Repository<JobPost>,
+
+        @InjectRepository(SavedPost)
+        private savedPostRepository: Repository<SavedPost>,
+
+        @InjectRepository(Location)
+        private locationRepository: Repository<Location>,
+
+        @InjectRepository(User)
+        private userRepository: Repository<User>,
+
+        @InjectRepository(JobApplication)
+        private readonly jobApplicationRepository: Repository<JobApplication>,
+        
         private readonly searchService: SearchService,
         private readonly calendarService: CalendarService,
-    ) {
-        this.jobPostRepository = this.dataSource.getRepository(JobPost);
-        this.savedPostRepository = this.dataSource.getRepository(SavedPost);
-        this.locationRepository = this.dataSource.getRepository(Location);
-        this.userRepository = this.dataSource.getRepository(User);
+    ) { 
+
+    }
+
+    async findByEmployer(employerId: string): Promise<JobPost[]> {
+        return this.jobPostRepository.find({
+            where: { employer: { id: employerId } }
+        });
     }
 
     async findAll(userId?: string): Promise<JobPost[]> {
@@ -147,9 +159,29 @@ export class JobPostService {
         }
 
         // Index the job post in Elasticsearch
-        await this.searchService.indexJobPost(jobPostWithRelations);
+        const result = await this.searchService.indexJobPost(jobPostWithRelations);
+        console.log("Result:", result);
+        if (!result) {
+            throw new Error('Failed to index job post');
+        }
 
         return jobPostWithRelations;
+    }
+
+    async archive(id: string, userId: string): Promise<void> {
+        const jobPost = await this.jobPostRepository.findOne({
+            where: { id, employer: { id: userId } }
+        });
+
+        if (!jobPost) {
+            throw new NotFoundException('Job post not found');
+        }
+        await Promise.all([
+            this.jobPostRepository.update(id, { isArchived: true }),
+            this.searchService.deleteJobPost(id),
+            this.calendarService.deleteEventByJobPostId(id),
+            this.jobApplicationRepository.update({ jobPostId: id }, { isArchived: true, status: ApplicationStatus.CANCELLED })
+        ]);
     }
 
     async update(id: string, updateJobPostDto: UpdateJobPostDto): Promise<void> {
