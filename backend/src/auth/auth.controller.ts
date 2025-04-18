@@ -6,6 +6,9 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { Request, Response } from 'express';
 import { JwtService } from '@nestjs/jwt';
 
+// Import types
+type RequestWithUser = { user: any };
+
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService, private readonly jwtService: JwtService) {}
@@ -59,5 +62,27 @@ export class AuthController {
   @Post('reset-password')
   async resetPassword(@Body() body: { token: string, newPassword: string }) {
     return this.authService.resetPassword(body.token, body.newPassword);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('ws-token')
+  async getWebSocketToken(@Req() req) {
+    // Get the user from the request
+    const user = req.user;
+    
+    // Create a token specifically for WebSocket connections
+    const wsToken = this.jwtService.sign(
+      { 
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        role: user.role
+      },
+      { 
+        expiresIn: '24h'
+      }
+    );
+    
+    return { token: wsToken };
   }
 } 

@@ -140,6 +140,7 @@ export default function JobSearchHeaderClient({ user }: JobSearchHeaderClientPro
                 <DropdownMenuLabel>Мой аккаунт</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <LinkedMenuItem href="/profile">Профиль</LinkedMenuItem>
+                <LinkedMenuItem href="/chat">Чат</LinkedMenuItem>
                 { user.role === 'employee' && (
                   <>
                     <LinkedMenuItem href="/jobposts/savedposts">Сохраненные вакансии</LinkedMenuItem>

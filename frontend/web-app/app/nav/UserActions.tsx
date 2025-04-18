@@ -11,6 +11,7 @@ import { AiOutlineLogout } from 'react-icons/ai'
 import { IoCreateOutline } from "react-icons/io5";
 import { useParamsStore } from '../hooks/useParamsStore'
 import { BsFilePostFill } from "react-icons/bs";
+import { MessageSquare } from 'lucide-react';
 
 type Props ={
     user: User
@@ -41,6 +42,12 @@ export default function UserActions({user}: Props) {
             <Dropdown.Item icon={BsFilePostFill} className='hover:scale-105 hover:bg-transparent'>
                 <Link href="/jobposts/savedposts">
                     Saved Posts
+                </Link>
+            </Dropdown.Item>
+            <Dropdown.Item className='hover:scale-105 hover:bg-transparent'>
+                <Link href="/chat" className="flex items-center">
+                    <MessageSquare className="h-4 w-4 mr-2" />
+                    Чат
                 </Link>
             </Dropdown.Item>
             <Dropdown.Item icon={HiCog} className='hover:scale-105 hover:bg-transparent'>

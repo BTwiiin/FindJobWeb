@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import { ArrowLeft, Calendar, Clock, FileText, Search, SlidersHorizontal, X, Star, Check } from "lucide-react"
+import { ArrowLeft, Calendar, Clock, FileText, Search, SlidersHorizontal, X, Star, Check, MessageSquare } from "lucide-react"
 import { getCurrentUser } from "@/app/actions/authActions"
 import { getMyRequests, withdrawApplication } from "@/app/actions/applicationActions"
 import { createReview, getAlreadyReviewed, getReviewsByUser } from "@/app/actions/reviewActions"
@@ -204,6 +204,20 @@ function ApplicationsList({
                       <Check className="h-4 w-4" />
                       <span>Отзыв оставлен</span>
                     </Badge>
+                  )}
+                  {application.status === ApplicationStatus.ACCEPTED && (
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      className="gap-2"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        router.push(`/chat?application=${application.id}`)
+                      }}
+                    >
+                      <MessageSquare className="h-4 w-4" />
+                      <span>Сообщения</span>
+                    </Button>
                   )}
                   <Button
                     variant="outline"

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Put, Request } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Put, Request, Query } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { User } from '../entities/user.entity';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -43,4 +43,14 @@ export class UsersController {
   // remove(@Param('id') id: string): Promise<void> {
   //   return this.usersService.remove(id);
   // }
+
+  @Get('search')
+  @UseGuards(JwtAuthGuard)
+  async searchUsers(@Query('query') query: string) {
+    if (!query || query.length < 2) {
+      return [];
+    }
+    
+    return this.usersService.searchUsers(query);
+  }
 } 

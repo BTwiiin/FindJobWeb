@@ -3,6 +3,7 @@
 import { fetchWrapper } from '@/lib/fetchWrapper';
 import { FieldValues } from 'react-hook-form';
 import { revalidatePath } from 'next/cache';
+import { getOrCreateApplicationChat } from './chatActions';
 
 export async function applyToJobPost(jobPostId: string, data: FieldValues) {
     try {
@@ -29,6 +30,20 @@ export async function updateApplicationStatus(applicationId: string, status: str
       status,
       employerNotes 
     });
+    
+    // If the application is accepted, create a chat automatically
+    if (status === 'accepted') {
+      try {
+        await getOrCreateApplicationChat(
+          applicationId, 
+          'Ваша заявка была одобрена! Можем обсудить детали работы и договориться о встрече.'
+        );
+      } catch (error) {
+        console.error('Error creating chat for application:', error);
+        // Don't fail the whole operation if chat creation fails
+      }
+    }
+    
     return response;
   } catch (error) {
     console.error("Error updating application status:", error);

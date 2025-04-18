@@ -5,16 +5,42 @@ import { ValidationPipe } from '@nestjs/common';
 import 'reflect-metadata';
 import { LoggerMiddleware } from './common/middleware/logger.middleware';
 import { LoggerService } from './common/services/logger.service';
+import { Logger } from '@nestjs/common';
+import { IoAdapter } from '@nestjs/platform-socket.io';
+import { ConfigService } from '@nestjs/config';
+import { ServerOptions } from 'socket.io';
+
+// Create a custom IoAdapter that properly configures Socket.io
+class CustomIoAdapter extends IoAdapter {
+  createIOServer(port: number, options?: ServerOptions): any {
+    const server = super.createIOServer(port, {
+      ...options,
+      cors: {
+        origin: true,
+        methods: ['GET', 'POST'],
+        credentials: true,
+      },
+      allowEIO3: true, // Allow Engine.IO v3 client
+      transports: ['websocket', 'polling'],
+    });
+    return server;
+  }
+}
 
 async function bootstrap() {
+  const logger = new Logger('Main');
   const app = await NestFactory.create(AppModule);
+  const configService = app.get(ConfigService);
   
+  // Enable Socket.IO adapter for WebSockets with proper configuration
+  app.useWebSocketAdapter(new CustomIoAdapter(app));
+
   // Enable CORS
   app.enableCors({
-    origin: ['http://localhost:3000', 'http://192.168.0.15:3000'],
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    origin: true,
     credentials: true,
-    allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Authorization', 'Content-Type'],
   });
   
   // Apply global exception filter
@@ -47,12 +73,12 @@ async function bootstrap() {
   app.use(LoggerMiddleware);
 
   // Use custom logger
-  const logger = app.get(LoggerService);
-  app.useLogger(logger);
+  const loggerService = app.get(LoggerService);
+  app.useLogger(loggerService);
 
-  const port = process.env.PORT ?? 3001;
+  const port = configService.get('PORT') || 3001;
   await app.listen(port);
   
-  logger.log(`Application is running on: http://localhost:${port}`);
+  logger.log(`Application is running on: ${await app.getUrl()}`);
 }
 bootstrap();

@@ -25,6 +25,9 @@ import { CustomCacheInterceptor } from './common/decorators/cache.decorator';
 import { cacheConfig } from './config/cache.config';
 import { MailerModule } from './mailer/mailer.module';
 import { Token } from './entities/token.entity';
+import { ChatModule } from './chat/chat.module';
+import { ChatRoom } from './entities/chat-room.entity';
+import { ChatMessage } from './entities/chat-message.entity';
 
 
 @Module({
@@ -53,6 +56,8 @@ import { Token } from './entities/token.entity';
           JobApplication,
           CalendarEvent,
           Token,
+          ChatRoom,
+          ChatMessage,
         ],
         synchronize: true,
       }),
@@ -67,6 +72,7 @@ import { Token } from './entities/token.entity';
     ReviewsModule,
     // CacheModule.register(cacheConfig),
     MailerModule,
+    ChatModule,
   ],
   controllers: [AppController],
   providers: [

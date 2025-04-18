@@ -137,4 +137,12 @@ export class UsersService {
     const user = await this.findOneById(id);
     await this.usersRepository.remove(user);
   }
+
+  async searchUsers(query: string): Promise<User[]> {
+    return this.usersRepository.createQueryBuilder('user')
+      .select(['user.id', 'user.username'])
+      .where('LOWER(user.username) LIKE LOWER(:query)', { query: `%${query}%` })
+      .limit(10)
+      .getMany();
+  }
 } 

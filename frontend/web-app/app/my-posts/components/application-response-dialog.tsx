@@ -23,7 +23,6 @@ import { updateApplicationStatus } from "@/app/actions/jobPostActions"
 import { toast } from "react-hot-toast"
 import { Star } from "lucide-react"
 import { createReview, markJobAsCompleted } from "@/app/actions/reviewActions"
-import { revalidatePath } from "next/cache"
 
 interface ApplicationResponseDialogProps {
   applicationId: string
@@ -58,8 +57,7 @@ export function ApplicationResponseDialog({
 
             // Then create review
             await createReview(applicationId, rating, reviewComment || "")
-
-            revalidatePath(`/my-posts`)
+            // TODO: revalidate path
       } else {
         // For pending applications, just update the status
         await updateApplicationStatus(applicationId, status, notes)
