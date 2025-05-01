@@ -16,12 +16,14 @@ class CustomIoAdapter extends IoAdapter {
     const server = super.createIOServer(port, {
       ...options,
       cors: {
-        origin: true,
+        origin: true, // Allow all origins in development
         methods: ['GET', 'POST'],
         credentials: true,
+        allowedHeaders: ['Authorization', 'Content-Type'],
       },
-      allowEIO3: true, // Allow Engine.IO v3 client
+      allowEIO3: true,
       transports: ['websocket', 'polling'],
+      path: '/socket.io/',
     });
     return server;
   }

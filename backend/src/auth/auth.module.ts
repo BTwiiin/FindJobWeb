@@ -27,6 +27,6 @@ import { VerificationTokenService } from './verification-token.service';
   ],
   providers: [AuthService, JwtStrategy, VerificationTokenService],
   controllers: [AuthController],
-  exports: [AuthService],
+  exports: [AuthService, JwtModule],
 })
 export class AuthModule {} 

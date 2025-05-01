@@ -20,7 +20,7 @@ interface CalendarDayProps {
   onEventClick: (event: CalendarEvent) => void
 }
 
-const CalendarDay = ({ day, currentDate, events, onEventClick }: CalendarDayProps) => {
+const CalendarDay = ({ day, currentDate, events = [], onEventClick }: CalendarDayProps) => {
   // Only format date and get events if day exists
   if (!day) {
     return <Card className="p-2 min-h-[100px] bg-muted/10 relative" />
@@ -30,7 +30,7 @@ const CalendarDay = ({ day, currentDate, events, onEventClick }: CalendarDayProp
     .toString()
     .padStart(2, "0")}-${String(day).padStart(2, "0")}`
 
-  const dayEvents = events.filter((event) => {
+  const dayEvents = Array.isArray(events) ? events.filter((event) => {
     const eventDate = new Date(event.eventDate)
     const targetDate = new Date(formattedDate)
     return (
@@ -38,7 +38,7 @@ const CalendarDay = ({ day, currentDate, events, onEventClick }: CalendarDayProp
       eventDate.getMonth() === targetDate.getMonth() &&
       eventDate.getFullYear() === targetDate.getFullYear()
     )
-  })
+  }) : []
 
   return (
     <Card className="p-2 min-h-[100px] hover:bg-muted/50 relative">

@@ -1,19 +1,20 @@
 "use client"
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { useState, useEffect } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
 import { toast } from "react-hot-toast"
 import { motion } from "framer-motion"
-import { Eye, EyeOff, Loader2 } from "lucide-react"
+import { Eye, EyeOff, Loader2, AlertCircle } from "lucide-react"
 import Link from "next/link"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { loginUser } from "@/app/actions/authActions"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 
 const formSchema = z.object({
   email: z.string().email({
@@ -26,8 +27,10 @@ const formSchema = z.object({
 
 export default function LoginForm() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [isLoading, setIsLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
+  const [sessionExpired, setSessionExpired] = useState(false)
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -36,6 +39,14 @@ export default function LoginForm() {
       password: "",
     },
   })
+
+  useEffect(() => {
+    // Check if the user was redirected here due to an expired session
+    const expired = searchParams.get('expired')
+    if (expired === 'true') {
+      setSessionExpired(true)
+    }
+  }, [searchParams])
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
@@ -58,6 +69,16 @@ export default function LoginForm() {
 
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+      {sessionExpired && (
+        <Alert variant="destructive" className="mb-6">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Сессия истекла</AlertTitle>
+          <AlertDescription>
+            Ваша сессия истекла. Пожалуйста, войдите снова для продолжения работы.
+          </AlertDescription>
+        </Alert>
+      )}
+
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <FormField

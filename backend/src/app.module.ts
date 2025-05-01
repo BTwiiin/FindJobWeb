@@ -28,7 +28,7 @@ import { Token } from './entities/token.entity';
 import { ChatModule } from './chat/chat.module';
 import { ChatRoom } from './entities/chat-room.entity';
 import { ChatMessage } from './entities/chat-message.entity';
-
+import { MongooseModule } from '@nestjs/mongoose';
 
 @Module({
   imports: [
@@ -37,6 +37,8 @@ import { ChatMessage } from './entities/chat-message.entity';
       envFilePath: '.env',
       cache: true,
     }),
+    MongooseModule.forRoot('mongodb://localhost:27017/chatdb'),
+    ChatModule,
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -70,7 +72,6 @@ import { ChatMessage } from './entities/chat-message.entity';
     SearchModule,
     CalendarModule,
     ReviewsModule,
-    // CacheModule.register(cacheConfig),
     MailerModule,
     ChatModule,
   ],
@@ -78,10 +79,6 @@ import { ChatMessage } from './entities/chat-message.entity';
   providers: [
     AppService,
     LoggerService,
-    // {
-    //   provide: APP_INTERCEPTOR,
-    //   useClass: CustomCacheInterceptor,
-    // }
   ],
 })
 export class AppModule {}

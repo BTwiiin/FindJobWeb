@@ -1,4 +1,5 @@
 import { auth } from "@/auth";
+import { signOut } from "next-auth/react";
 
 const baseUrl = 'http://localhost:3001/';
 
@@ -82,6 +83,11 @@ async function getAuthHeaders() {
     }
 
     return headers;
+}
+
+async function handleUnauthorized() {
+    // Redirect to login page
+    await signOut({ redirect: true, callbackUrl: '/auth/login' });
 }
 
 async function handleResponse(response: Response) {

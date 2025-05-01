@@ -8,7 +8,7 @@ interface ChatMessage {
   senderId: string;
   senderUsername: string;
   roomId: string;
-  timestamp: Date;
+  createdAt: Date;
 }
 
 interface ChatRoom {

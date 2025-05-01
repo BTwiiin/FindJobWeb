@@ -1,151 +1,145 @@
-import { Controller, Get, Post, Body, Param, UseGuards, Request, Req, NotFoundException, ForbiddenException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, UseGuards, Request, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { ChatService } from './chat.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { CreateRoomDto } from './dto/create-room.dto';
 import { StartConversationDto } from './dto/start-conversation.dto';
 import { SendMessageDto } from './dto/send-message.dto';
+import { UsersService } from '../users/users.service';
+import { ApplyingService } from '../applying/applying.service';
 
 @Controller('chat')
 export class ChatController {
-  constructor(private readonly chatService: ChatService) {}
-
-  @UseGuards(JwtAuthGuard)
-  @Post('rooms')
-  async createRoom(@Body() createRoomDto: CreateRoomDto, @Request() req) {
-    const { name, description = '', isPrivate } = createRoomDto;
-    return this.chatService.createRoom(name, description, isPrivate, req.user.id);
-  }
-
-  @Get('rooms')
-  async getRooms() {
-    return this.chatService.getRooms();
-  }
-
-  @Get('rooms/:id')
-  async getRoomById(@Param('id') id: string) {
-    return this.chatService.getRoomById(id);
-  }
-
-  @Get('rooms/:id/messages')
-  async getMessagesByRoom(@Param('id') roomId: string) {
-    return this.chatService.getMessagesByRoom(roomId);
-  }
-  
-  @Post('create-default-room')
-  async createDefaultRoom() {
-    const existingRooms = await this.chatService.getRooms();
-    
-    // Only create if no rooms exist
-    if (existingRooms.length === 0) {
-      return this.chatService.createRoom(
-        'Общий чат', 
-        'Комната для общения всех пользователей', 
-        false, 
-        ''
-      );
-    }
-    
-    return { message: 'Default room already exists' };
-  }
+  constructor(
+    private readonly chatService: ChatService,
+    private readonly usersService: UsersService,
+    private readonly applyingService: ApplyingService
+  ) {}
 
   @UseGuards(JwtAuthGuard)
   @Post('conversations')
   async startConversation(@Body() dto: StartConversationDto, @Request() req) {
     const { targetUserId } = dto;
-    return this.chatService.getOrCreateDirectMessageRoom(req.user.id, targetUserId);
+    return this.chatService.getOrCreateConversation(req.user.id, targetUserId);
   }
 
   @UseGuards(JwtAuthGuard)
   @Get('conversations')
   async getMyConversations(@Request() req) {
-    const userId = req.user.id;
-    console.log(`Fetching conversations for user ${userId}`);
-    const conversations = await this.chatService.getDirectMessageRoomsForUser(userId);
-    console.log(`Found ${conversations.length} conversations`, 
-      conversations.map(conv => ({
-        id: conv.id, 
-        name: conv.name,
-        user1: conv.user1?.username || conv.user1Id,
-        user2: conv.user2?.username || conv.user2Id
-      }))
-    );
-    return conversations;
+    return this.chatService.getUserConversations(req.user.id);
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get('conversations/:roomId')
-  async getConversation(@Param('roomId') roomId: string, @Request() req) {
-    // This will throw an error if the user is not part of the conversation
-    const messages = await this.chatService.getMessagesByRoom(roomId);
-    const otherUser = await this.chatService.getOtherUserInConversation(roomId, req.user.id);
+  @Get('conversations/:conversationId')
+  async getConversation(@Param('conversationId') conversationId: string, @Request() req) {
+    // Получаем сообщения
+    const messages = await this.chatService.getConversationMessages(conversationId);
+    
+    // Получаем все беседы пользователя
+    const conversations = await this.chatService.getUserConversations(req.user.id);
+    
+    // Находим нужную беседу
+    const conversation = conversations.find(conv => conv.id.toString() === conversationId);
+    
+    if (!conversation) {
+      throw new NotFoundException('Conversation not found or you are not a participant');
+    }
+    
+    // Отмечаем сообщения как прочитанные
+    await this.chatService.markMessagesAsRead(conversationId, req.user.id);
     
     return {
-      roomId,
-      otherUser: {
-        id: otherUser.id,
-        username: otherUser.username,
-      },
+      id: conversationId,
+      otherUser: conversation.otherUser,
       messages
     };
   }
 
-  @Post('messages')
   @UseGuards(JwtAuthGuard)
-  async createMessage(@Body() createMessageDto: any, @Request() req: any) {
-    const { roomId, text } = createMessageDto;
+  @Post('messages')
+  async createMessage(@Body() dto: SendMessageDto, @Request() req) {
     return this.chatService.saveMessage({
-      text,
-      roomId,
+      text: dto.text,
+      conversationId: dto.conversationId,
       senderId: req.user.id
     });
   }
 
-  @Post('application-conversation')
   @UseGuards(JwtAuthGuard)
+  @Post('application-conversation')
   async createApplicationConversation(
     @Body() data: { applicationId: string; initialMessage?: string },
-    @Req() request: any
+    @Request() request
   ) {
-    // Get the current user
-    const currentUserId = request.user.id;
-    
-    // Find the application
-    const application = await this.chatService['applicationRepository'].findOne({
-      where: { id: data.applicationId },
-      relations: ['applicant', 'jobPost', 'jobPost.employer']
-    });
+    // Get application data using the ApplyingService
+    const application = await this.getApplicationData(data.applicationId, request.user.id, request.user.role === 'employer');
     
     if (!application) {
       throw new NotFoundException('Job application not found');
     }
     
-    // Create or get conversation between employer and employee
     const employerId = application.jobPost.employer.id;
-    const employeeId = application.applicant.id;
+    const employeeId = application.applicantId;
     
-    // Verify the current user is either the employer or employee
-    if (currentUserId !== employerId && currentUserId !== employeeId) {
+    // Проверяем, что текущий пользователь - это работодатель или соискатель
+    if (request.user.id !== employerId && request.user.id !== employeeId) {
       throw new ForbiddenException('You are not authorized to create this conversation');
     }
     
-    // Get or create the conversation
-    const room = await this.chatService.getOrCreateDirectMessageRoom(
-      employerId, 
-      employeeId, 
-      `Чат по заявке: ${application.jobPost.title}`,
-      `Общение по заявке на вакансию: ${application.jobPost.title}`
-    );
+    // Создаем или получаем беседу
+    const conversation = await this.chatService.getOrCreateConversation(employerId, employeeId);
     
-    // If an initial message is provided and the current user is the employer,
-    // send it automatically
-    if (data.initialMessage && currentUserId === employerId) {
+    // Если есть начальное сообщение, отправляем его (от любого пользователя - работодателя или соискателя)
+    if (data.initialMessage) {
       await this.chatService.saveMessage({
-        roomId: room.id,
+        conversationId: conversation._id?.toString() || '',
         text: data.initialMessage,
-        senderId: currentUserId
+        senderId: request.user.id
       });
     }
     
-    return room;
+    // Получаем детали пользователей для возврата полной информации
+    const employer = await this.usersService.findOneById(employerId);
+    const employee = await this.usersService.findOneById(employeeId);
+    
+    // Определяем, кто является собеседником для текущего пользователя
+    const otherUser = request.user.id === employerId ? employee : employer;
+    
+    // Возвращаем обогащенную информацию о беседе
+    return {
+      id: conversation._id,
+      user1: {
+        id: employer.id,
+        username: employer.username,
+        firstName: employer.firstName,
+        lastName: employer.lastName,
+        role: employer.role
+      },
+      user2: {
+        id: employee.id,
+        username: employee.username,
+        firstName: employee.firstName,
+        lastName: employee.lastName,
+        role: employee.role
+      },
+      otherUser: {
+        id: otherUser.id,
+        username: otherUser.username,
+        firstName: otherUser.firstName,
+        lastName: otherUser.lastName,
+        role: otherUser.role
+      },
+      updatedAt: conversation.lastMessageAt
+    };
   }
-} 
+  
+  // Updated method to get application data using ApplyingService
+  private async getApplicationData(applicationId: string, userId: string, isEmployer: boolean) {
+    try {
+      return await this.applyingService.findOne(applicationId, userId, isEmployer);
+    } catch (error) {
+      if (error instanceof NotFoundException || error instanceof ForbiddenException) {
+        return null;
+      }
+      throw error;
+    }
+  }
+}

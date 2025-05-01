@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import ToasterProvider from "./providers/ToasterProvider";
-//import SignalRProvider from "./providers/SignalRProvider";
 import { SessionProvider } from "next-auth/react";
 
 export const metadata: Metadata = {

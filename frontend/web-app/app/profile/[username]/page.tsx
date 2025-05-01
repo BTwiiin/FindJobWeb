@@ -8,14 +8,19 @@ interface UserProfilePageProps {
 }
 
 export async function generateMetadata({ params }: UserProfilePageProps): Promise<Metadata> {
-  // You could fetch the user here to get their actual name for the title
+  // In Next.js App Router, we need to ensure params are properly handled
+  const username = params.username
+  
   return {
-    title: `${params.username}'s Profile | FindJob`,
-    description: `View ${params.username}'s profile and reviews on FindJob`,
+    title: `${username}'s Profile | FindJob`,
+    description: `View ${username}'s profile and reviews on FindJob`,
   }
 }
 
-export default function UserProfilePage({ params }: UserProfilePageProps) {
-  return <UserProfileContent username={params.username} />
+export default async function UserProfilePage({ params }: UserProfilePageProps) {
+  // By making this an async function, we ensure params are properly resolved
+  const username = params.username
+  
+  return <UserProfileContent username={username} />
 }
 

@@ -187,11 +187,61 @@ docker run -p 3000:3000 findjobweb-backend
 - Connection pooling
 - Load balancing ready
 
-## Monitoring
-- Custom logger implementation
-- Error tracking
-- Performance metrics
-- AWS CloudWatch integration
+## Monitoring and Logging
+The application includes a comprehensive monitoring and logging system:
+
+### Logging
+- Winston logger integration for structured logs
+- Log levels (debug, info, warn, error)
+- Log rotation with daily files
+- JSON logging format in production
+- Context-based logging for easier debugging
+- Log enrichment with request details
+- Console output in development with pretty formatting
+
+### Monitoring
+- Health check endpoint at `/monitoring/health`
+- Prometheus metrics at `/monitoring/metrics`
+- Key metrics:
+  - HTTP request counts and latencies
+  - Database operation counts and durations
+  - Memory and CPU usage
+  - Business metrics (active users, job posts)
+- Database performance tracking with TypeORM subscribers
+- Slow query detection and logging
+- Ready for integration with Grafana for visualization
+
+### Setup
+For development, logs are output to the console. In production, logs are also written to files in the `logs` directory:
+- `combined-%DATE%.log`: All logs
+- `error-%DATE%.log`: Error logs only
+
+Logs are automatically rotated daily and compressed for better storage management.
+
+### Custom Metrics
+You can add custom business metrics by injecting the `PrometheusService`:
+
+```typescript
+// Example: Track a custom business metric
+@Injectable()
+export class JobPostService {
+  constructor(
+    private readonly prometheusService: PrometheusService,
+  ) {}
+
+  async getTrendingJobPosts() {
+    // Your business logic...
+    
+    // Update business metrics
+    this.prometheusService.updateBusinessMetrics(
+      activeUsersCount, 
+      totalJobPostsCount
+    );
+    
+    // Return data...
+  }
+}
+```
 
 ## Contributing
 1. Fork the repository

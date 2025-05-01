@@ -13,6 +13,8 @@ export class Conversation {
 
     @Prop()
     lastMessageAt: Date;
+
+    _id?: Types.ObjectId;
 }
 
 export const ConversationSchema = SchemaFactory.createForClass(Conversation);

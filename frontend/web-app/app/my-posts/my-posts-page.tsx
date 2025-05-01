@@ -37,14 +37,42 @@ export default function MyPostsPage() {
                     getMyJobPosts(),
                     getApplicants()
                 ])
-                setJobPosts(postsData)
-                setApplications(applicationsData)
+                
+                // Check if any of the responses indicate a token expiration
+                if (postsData && postsData.__tokenExpired || 
+                    applicationsData && applicationsData.__tokenExpired) {
+                    // Token expired, already handled by fetchWrapper
+                    return;
+                }
+                
+                // Check if we have error responses
+                if (postsData && postsData.error) {
+                    if (postsData.error.status === 401) {
+                        // Unauthorized - handled by the token expiration provider
+                        return;
+                    }
+                    throw new Error(postsData.error.message || "Failed to load job posts");
+                }
+                
+                if (applicationsData && applicationsData.error) {
+                    if (applicationsData.error.status === 401) {
+                        // Unauthorized - handled by the token expiration provider
+                        return;
+                    }
+                    throw new Error(applicationsData.error.message || "Failed to load applications");
+                }
+                
+                setJobPosts(postsData || [])
+                setApplications(applicationsData || [])
             } catch (error) {
                 toast({
                     title: "Ошибка",
-                    description: "Не удалось загрузить данные",
+                    description: error instanceof Error ? error.message : "Не удалось загрузить данные",
                     variant: "destructive",
                 })
+                // Initialize with empty arrays in case of error
+                setJobPosts([])
+                setApplications([])
             } finally {
                 setIsLoading(false)
             }
@@ -94,7 +122,7 @@ export default function MyPostsPage() {
             })
         }
 
-        setFilteredJobPosts(result)
+        setFilteredJobPosts(result || [])
     }, [jobPosts, searchQuery, activeStatusFilter, dateFilter, activeTab])
 
     useEffect(() => {
@@ -154,15 +182,15 @@ export default function MyPostsPage() {
                     <TabsList className="w-full">
                         <TabsTrigger value="active" className="flex-1">
                             <Briefcase className="mr-2 h-4 w-4" />
-                            Активные ({filteredJobPosts.filter(post => !post.isArchived).length})
+                            Активные ({Array.isArray(filteredJobPosts) ? filteredJobPosts.filter(post => !post.isArchived).length : 0})
                         </TabsTrigger>
                         <TabsTrigger value="applications" className="flex-1">
                             <Users className="mr-2 h-4 w-4" />
-                            Заявки ({filteredApplications.length})
+                            Заявки ({Array.isArray(filteredApplications) ? filteredApplications.length : 0})
                         </TabsTrigger>
                         <TabsTrigger value="archived" className="flex-1">
                             <Archive className="mr-2 h-4 w-4" />
-                            Архив ({filteredJobPosts.filter(post => post.isArchived).length})
+                            Архив ({Array.isArray(filteredJobPosts) ? filteredJobPosts.filter(post => post.isArchived).length : 0})
                         </TabsTrigger>
                     </TabsList>
 
@@ -188,25 +216,34 @@ export default function MyPostsPage() {
                 </div>
 
                 <TabsContent value="active" className="space-y-4">
-                    {filteredJobPosts.filter(post => !post.isArchived).map((post) => (
-                        <JobPostCard key={post.id} post={post} />
-                    ))}
+                    {Array.isArray(filteredJobPosts) 
+                        ? filteredJobPosts.filter(post => !post.isArchived).map((post) => (
+                            <JobPostCard key={post.id} post={post} />
+                        ))
+                        : <div>Нет активных вакансий</div>
+                    }
                 </TabsContent>
 
                 <TabsContent value="applications" className="space-y-4">
-                    {filteredApplications.map((application) => (
-                        <ApplicationCard
-                            key={application.id}
-                            application={application}
-                            onRespond={setSelectedApplication}
-                        />
-                    ))}
+                    {Array.isArray(filteredApplications) 
+                        ? filteredApplications.map((application) => (
+                            <ApplicationCard
+                                key={application.id}
+                                application={application}
+                                onRespond={setSelectedApplication}
+                            />
+                        ))
+                        : <div>Нет заявок</div>
+                    }
                 </TabsContent>
 
                 <TabsContent value="archived" className="space-y-4">
-                    {filteredJobPosts.filter(post => post.isArchived).map((post) => (
-                        <JobPostCard key={post.id} post={post} isArchived />
-                    ))}
+                    {Array.isArray(filteredJobPosts)
+                        ? filteredJobPosts.filter(post => post.isArchived).map((post) => (
+                            <JobPostCard key={post.id} post={post} isArchived />
+                        ))
+                        : <div>Нет архивных вакансий</div>
+                    }
                 </TabsContent>
             </Tabs>
 

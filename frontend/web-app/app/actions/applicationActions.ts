@@ -15,6 +15,18 @@ export async function applyToJobPost(jobPostId: string, data: FieldValues) {
         if (response.error) {
             return { status: response.status, error: { message: response.error.message || 'Произошла ошибка' } };
         }
+        
+        // Create a chat immediately after successful application
+        try {
+            await getOrCreateApplicationChat(
+                response.id, // Assuming the API returns the application ID
+                'Спасибо за отклик на вакансию! Вы можете обсудить детали работы здесь.'
+            );
+        } catch (error) {
+            console.error('Error creating chat for application:', error);
+            // Don't fail the whole operation if chat creation fails
+        }
+        
         revalidatePath(`/jobposts/details/${jobPostId}`);
 
         return { status: 200, message: 'Отклик успешно отправлен' };
@@ -31,18 +43,7 @@ export async function updateApplicationStatus(applicationId: string, status: str
       employerNotes 
     });
     
-    // If the application is accepted, create a chat automatically
-    if (status === 'accepted') {
-      try {
-        await getOrCreateApplicationChat(
-          applicationId, 
-          'Ваша заявка была одобрена! Можем обсудить детали работы и договориться о встрече.'
-        );
-      } catch (error) {
-        console.error('Error creating chat for application:', error);
-        // Don't fail the whole operation if chat creation fails
-      }
-    }
+    // Chat is now created when candidate applies, not when accepted
     
     return response;
   } catch (error) {
